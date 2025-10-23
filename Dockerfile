@@ -45,16 +45,23 @@ RUN composer install --no-scripts --no-autoloader --no-dev
 # Copy project files
 COPY . .
 
+# Arguments pour les variables d'environnement
+ARG DB_HOST
+ARG DB_PORT
+ARG DB_DATABASE
+ARG DB_USERNAME
+ARG DB_PASSWORD
+
 # Create .env file from example
 RUN cp .env.example .env \
-    && sed -i 's/APP_ENV=.*/APP_ENV=production/' .env \
-    && sed -i 's/APP_DEBUG=.*/APP_DEBUG=false/' .env \
-    && sed -i 's#DB_CONNECTION=.*#DB_CONNECTION=pgsql#' .env \
-    && sed -i 's#DB_HOST=.*#DB_HOST=${DB_HOST}#' .env \
-    && sed -i 's#DB_PORT=.*#DB_PORT=${DB_PORT}#' .env \
-    && sed -i 's#DB_DATABASE=.*#DB_DATABASE=${DB_DATABASE}#' .env \
-    && sed -i 's#DB_USERNAME=.*#DB_USERNAME=${DB_USERNAME}#' .env \
-    && sed -i 's#DB_PASSWORD=.*#DB_PASSWORD=${DB_PASSWORD}#' .env
+    && sed -i "s/APP_ENV=.*/APP_ENV=production/" .env \
+    && sed -i "s/APP_DEBUG=.*/APP_DEBUG=false/" .env \
+    && sed -i "s#DB_CONNECTION=.*#DB_CONNECTION=pgsql#" .env \
+    && sed -i "s#DB_HOST=.*#DB_HOST=$DB_HOST#" .env \
+    && sed -i "s#DB_PORT=.*#DB_PORT=$DB_PORT#" .env \
+    && sed -i "s#DB_DATABASE=.*#DB_DATABASE=$DB_DATABASE#" .env \
+    && sed -i "s#DB_USERNAME=.*#DB_USERNAME=$DB_USERNAME#" .env \
+    && sed -i "s#DB_PASSWORD=.*#DB_PASSWORD=$DB_PASSWORD#" .env
 
 # Optimize composer autoloader
 RUN composer dump-autoload --optimize
