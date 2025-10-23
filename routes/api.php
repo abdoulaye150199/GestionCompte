@@ -21,6 +21,11 @@ Route::prefix('documentation')->group(function () {
     Route::get('/asset/{asset}', [L5Swagger\Http\Controllers\SwaggerAssetController::class, 'index'])->name('l5swagger.asset');
 });
 
+// API V1 Routes
+Route::middleware(['api', 'auth:api'])->prefix('v1')->group(function () {
+    Route::get('/accounts', [\App\Http\Controllers\API\BankAccountController::class, 'index'])->name('accounts.index');
+});
+
 // Route de test pour vérifier que l'API fonctionne
 Route::get('/health-check', function () {
     return response()->json([
