@@ -2,9 +2,12 @@ services:
   - type: web
     name: gestioncompte-api
     env: docker
+    region: ohio
+    plan: free
     dockerfilePath: ./Dockerfile
     buildCommand: "./build.sh"
     startCommand: "apache2-foreground"
+    autoDeploy: true
     envVars:
       - key: APP_NAME
         value: GestionCompte

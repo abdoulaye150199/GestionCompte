@@ -42,6 +42,12 @@ RUN composer install --no-interaction --prefer-dist --optimize-autoloader --no-d
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage
 
+# Remove any existing optimized files
+RUN rm -f bootstrap/cache/*.php
+
+# Copy .env.production to .env
+COPY .env.production .env
+
 # Generate optimized autoload files
 RUN php artisan config:cache \
     && php artisan route:cache \
