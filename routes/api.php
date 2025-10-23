@@ -10,23 +10,14 @@ Route::prefix('documentation')->group(function () {
     Route::get('/asset/{asset}', [L5Swagger\Http\Controllers\SwaggerAssetController::class, 'index'])->name('l5swagger.asset');
 });
 
-// Routes sans authentification
-Route::get('/health-check', function () {
-    return response()->json([
-        'status' => 'success',
-        'message' => 'API is working correctly',
-        'timestamp' => now()->toISOString(),
-        'environment' => app()->environment()
-    ]);
+// API Routes
+Route::group(['prefix' => 'api'], function () {
+    // Bank Account routes
+    Route::get('/accounts', [\App\Http\Controllers\API\BankAccountController::class, 'index']);
+    Route::post('/accounts', [\App\Http\Controllers\API\BankAccountController::class, 'store']);
+    Route::get('/accounts/{id}', [\App\Http\Controllers\API\BankAccountController::class, 'show']);
+    Route::put('/accounts/{id}', [\App\Http\Controllers\API\BankAccountController::class, 'update']);
 });
-
-// API V1 Routes
-Route::group(['prefix' => 'v1'], function () {
-    Route::get('/comptes', [\App\Http\Controllers\API\BankAccountController::class, 'index'])
-        ->name('comptes.index');
-});
-
-// Fallback route
 Route::fallback(function () {
     return response()->json([
         'status' => 'error',

@@ -10,12 +10,21 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 /**
+ * @OA\Info(
+ *     version="1.0.0",
+ *     title="API Gestion des Comptes Bancaires",
+ *     description="API pour la gestion des comptes bancaires"
+ * )
+ * @OA\Server(
+ *     url="/api",
+ *     description="API Server"
+ * )
  * @OA\Tag(
  *     name="Comptes",
  *     description="Opérations sur les comptes bancaires"
  * )
  * @OA\Get(
- *     path="/api/v1/comptes",
+ *     path="/api/accounts",
  *     tags={"Comptes"},
  *     summary="Liste tous les comptes bancaires",
  *     description="Retourne la liste de tous les comptes bancaires de la base de données",
