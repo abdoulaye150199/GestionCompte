@@ -23,6 +23,15 @@ class DatabaseSeeder extends Seeder
             )
             ->create();
 
+        // Créer l'utilisateur admin seulement s'il n'existe pas déjà
+        if (!User::where('email', 'admin@example.com')->exists()) {
+            User::factory()->create([
+                'name' => 'Admin User',
+                'email' => 'admin@example.com',
+                'password' => bcrypt('admin123'),
+            ]);
+        }
+
         // Créer l'utilisateur test seulement s'il n'existe pas déjà
         if (!User::where('email', 'test@example.com')->exists()) {
             User::factory()->create([

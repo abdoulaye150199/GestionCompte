@@ -263,12 +263,12 @@
                                     "email": {
                                         "type": "string",
                                         "format": "email",
-                                        "example": "test@example.com"
+                                        "example": "admin@example.com"
                                     },
                                     "password": {
                                         "type": "string",
                                         "format": "password",
-                                        "example": "password"
+                                        "example": "admin123"
                                     }
                                 },
                                 "type": "object"
