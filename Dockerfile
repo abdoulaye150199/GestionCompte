@@ -86,10 +86,13 @@ RUN php artisan key:generate --force \
     && php artisan route:cache \
     && php artisan view:cache
 
-# Set proper Apache environment
-ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
+# Configure Apache
+ENV APACHE_DOCUMENT_ROOT /var/www/html/public
+
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf \
-    && sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+    && sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf \
+    && chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html
 
 # Add and configure entry point script
 COPY docker-entrypoint.sh /usr/local/bin/

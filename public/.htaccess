@@ -1,26 +1,42 @@
+# Activer le module de réécriture
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteBase /
 
-    # Si le fichier ou dossier n'existe pas, rediriger vers index.php
-    RewriteCond %{REQUEST_FILENAME} !-f
+    # Gérer l'en-tête Authorization
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Rediriger vers HTTPS si nécessaire
+    RewriteCond %{HTTPS} off
+    RewriteCond %{HTTP:X-Forwarded-Proto} !https
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # Si le fichier ou le répertoire n'existe pas, rediriger vers index.php
     RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(.*)$ index.php [QSA,L]
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
 </IfModule>
 
+# Configuration CORS
 <IfModule mod_headers.c>
     Header set Access-Control-Allow-Origin "*"
     Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
     Header set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With"
+    Header set Access-Control-Expose-Headers "Authorization"
+    
+    # Gérer les requêtes OPTIONS pour le CORS
+    RewriteCond %{REQUEST_METHOD} OPTIONS
+    RewriteRule ^(.*)$ $1 [R=200,L]
 </IfModule>
 
-# Désactiver l'indexation des répertoires
+# Désactiver l'affichage du contenu des répertoires
 Options -Indexes
 
-# Forcer HTTPS
-RewriteEngine On
-RewriteCond %{HTTPS} off
-RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+# Protéger les fichiers sensibles
+<FilesMatch "^\.env|\.git|composer\.json|composer\.lock|package\.json|package-lock\.json|\.gitignore">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
 
     # Send Requests To Front Controller...
     RewriteCond %{REQUEST_FILENAME} !-d
