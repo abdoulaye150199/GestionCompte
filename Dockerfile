@@ -46,7 +46,7 @@ RUN echo "APP_NAME=Laravel" > .env && \
     echo "LOG_LEVEL=error" >> .env && \
     echo "" >> .env && \
     echo "DB_CONNECTION=pgsql" >> .env && \
-    echo "DB_HOST=ballast.proxy.rlwy.net}" >> .env && \
+    echo "DB_HOST=ballast.proxy.rlwy.net" >> .env && \
     echo "DB_PORT=44054" >> .env && \
     echo "DB_DATABASE=railway" >> .env && \
     echo "DB_USERNAME=postgres" >> .env && \
