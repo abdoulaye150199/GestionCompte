@@ -3,18 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "api" middleware group. Make something great!
-|
-*/
 
-// Documentation Swagger
 Route::prefix('documentation')->group(function () {
     Route::get('/', [L5Swagger\Http\Controllers\SwaggerController::class, 'api'])->name('l5swagger.api');
     Route::get('/doc', [L5Swagger\Http\Controllers\SwaggerController::class, 'docs'])->name('l5swagger.docs');
@@ -22,8 +11,15 @@ Route::prefix('documentation')->group(function () {
 });
 
 // API V1 Routes
-Route::prefix('v1')->group(function () {
+Route::group(['prefix' => 'v1'], function () {
+    // Route principale pour les comptes
     Route::get('/comptes', [\App\Http\Controllers\API\BankAccountController::class, 'index'])->name('comptes.index');
+    
+    // Route alternative au cas où
+    Route::get('/accounts', [\App\Http\Controllers\API\BankAccountController::class, 'index'])->name('accounts.index');
+    
+    // Route sans préfixe v1 (fallback)
+    Route::get('/', [\App\Http\Controllers\API\BankAccountController::class, 'index'])->name('api.index');
 });
 
 // Route de test pour vérifier que l'API fonctionne

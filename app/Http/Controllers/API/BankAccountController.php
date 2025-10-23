@@ -7,6 +7,7 @@ use App\Models\BankAccount;
 use App\Traits\RestResponse;
 use App\Transformers\BankAccountTransformer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 /**
  * @OA\Tag(
@@ -83,10 +84,25 @@ class BankAccountController extends Controller
      */
     public function index()
     {
-        $accounts = BankAccount::with('client')->get();
-        $transformedAccounts = $this->formatCollection($accounts, [BankAccountTransformer::class, 'transform']);
-        
-        return $this->successResponse($transformedAccounts, 'Liste des comptes récupérée avec succès');
+        try {
+            $accounts = BankAccount::with('client')->get();
+            
+            // Si aucun compte n'est trouvé, retourner un tableau vide plutôt qu'une erreur
+            if ($accounts->isEmpty()) {
+                return $this->successResponse([], 'Aucun compte trouvé');
+            }
+            
+            $transformedAccounts = $this->formatCollection($accounts, [BankAccountTransformer::class, 'transform']);
+            return $this->successResponse($transformedAccounts, 'Liste des comptes récupérée avec succès');
+        } catch (\Exception $e) {
+            \Log::error('Erreur lors de la récupération des comptes: ' . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Une erreur est survenue lors de la récupération des comptes',
+                'data' => [],
+                'debug' => config('app.debug') ? $e->getMessage() : null
+            ], 500);
+        }
     }
 
     /**
