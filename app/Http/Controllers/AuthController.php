@@ -46,8 +46,8 @@ class AuthController extends Controller
      *             @OA\Property(property="access_token", type="string", example="eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9..."),
      *             @OA\Property(property="user", type="object",
      *                 @OA\Property(property="id", type="integer", example=1),
-     *                 @OA\Property(property="name", type="string", example="Test User"),
-     *                 @OA\Property(property="email", type="string", format="email", example="test@example.com")
+     *                 @OA\Property(property="name", type="string", example="Admin User"),
+     *                 @OA\Property(property="email", type="string", format="email", example="admin@example.com")
      *             )
      *         )
      *     ),

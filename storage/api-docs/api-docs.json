@@ -299,12 +299,12 @@
                                                 },
                                                 "name": {
                                                     "type": "string",
-                                                    "example": "Test User"
+                                                    "example": "Admin User"
                                                 },
                                                 "email": {
                                                     "type": "string",
                                                     "format": "email",
-                                                    "example": "test@example.com"
+                                                    "example": "admin@example.com"
                                                 }
                                             },
                                             "type": "object"
