@@ -10,16 +10,28 @@ Route::prefix('documentation')->group(function () {
     Route::get('/asset/{asset}', [L5Swagger\Http\Controllers\SwaggerAssetController::class, 'index'])->name('l5swagger.asset');
 });
 
+// Routes sans authentification
+Route::get('/health-check', function () {
+    return response()->json([
+        'status' => 'success',
+        'message' => 'API is working correctly',
+        'timestamp' => now()->toISOString(),
+        'environment' => app()->environment()
+    ]);
+});
+
 // API V1 Routes
 Route::group(['prefix' => 'v1'], function () {
-    // Route principale pour les comptes
-    Route::get('/comptes', [\App\Http\Controllers\API\BankAccountController::class, 'index'])->name('comptes.index');
-    
-    // Route alternative au cas où
-    Route::get('/accounts', [\App\Http\Controllers\API\BankAccountController::class, 'index'])->name('accounts.index');
-    
-    // Route sans préfixe v1 (fallback)
-    Route::get('/', [\App\Http\Controllers\API\BankAccountController::class, 'index'])->name('api.index');
+    Route::get('/comptes', [\App\Http\Controllers\API\BankAccountController::class, 'index'])
+        ->name('comptes.index');
+});
+
+// Fallback route
+Route::fallback(function () {
+    return response()->json([
+        'status' => 'error',
+        'message' => 'Route not found. Available endpoints: /api/v1/comptes',
+    ], 404);
 });
 
 // Route de test pour vérifier que l'API fonctionne
