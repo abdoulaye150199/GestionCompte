@@ -28,6 +28,13 @@ mkdir -p storage/logs
 
 # Set proper permissions
 echo "🔒 Setting proper permissions..."
+
+# Setup Swagger documentation
+echo "📚 Setting up Swagger documentation..."
+mkdir -p storage/api-docs
+php artisan l5-swagger:generate
+chmod -R 775 storage
+chmod -R 775 bootstrap/cache
 chown -R www-data:www-data storage bootstrap/cache
 chmod -R 775 storage bootstrap/cache
 
