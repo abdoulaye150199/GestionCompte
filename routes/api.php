@@ -14,6 +14,13 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+// Documentation Swagger
+Route::prefix('documentation')->group(function () {
+    Route::get('/', [L5Swagger\Http\Controllers\SwaggerController::class, 'api'])->name('l5swagger.api');
+    Route::get('/doc', [L5Swagger\Http\Controllers\SwaggerController::class, 'docs'])->name('l5swagger.docs');
+    Route::get('/asset/{asset}', [L5Swagger\Http\Controllers\SwaggerAssetController::class, 'index'])->name('l5swagger.asset');
+});
+
 // Route de test pour vérifier que l'API fonctionne
 Route::get('/health-check', function () {
     return response()->json([
@@ -23,6 +30,10 @@ Route::get('/health-check', function () {
         'environment' => app()->environment()
     ]);
 });
+
+// Routes d'authentification
+Route::post('v1/login', [\App\Http\Controllers\AuthController::class, 'login']);
+Route::post('v1/logout', [\App\Http\Controllers\AuthController::class, 'logout'])->middleware('auth:api');
 
 Route::middleware('auth:api')->group(function () {
     // Routes pour les clients

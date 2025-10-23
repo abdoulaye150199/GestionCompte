@@ -8,16 +8,65 @@ use App\Http\Requests\StoreBankAccountRequest;
 use App\Http\Requests\UpdateBankAccountRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
+use Illuminate\Http\Request;
 
 class BankAccountController extends Controller
 {
     /**
      * Liste tous les comptes bancaires
      */
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $accounts = BankAccount::with('client')->get();
-        return response()->json($accounts);
+        $query = BankAccount::query()
+            ->where('deleted_at', null);
+
+        // Filter by type
+        if ($request->has('type')) {
+            $query->where('type', $request->type);
+        }
+
+        // Filter by status
+        if ($request->has('statut')) {
+            $query->where('status', $request->statut);
+        }
+
+        // Search by holder or account number
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('account_number', 'like', "%{$search}%")
+                  ->orWhereHas('client', function ($q) use ($search) {
+                      $q->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // Sorting
+        $sortField = $request->input('sort', 'created_at');
+        $sortOrder = $request->input('order', 'desc');
+        $query->orderBy($sortField, $sortOrder);
+
+        // Pagination
+        $perPage = min($request->input('limit', 10), 100);
+        $page = $request->input('page', 1);
+        $accounts = $query->paginate($perPage, ['*'], 'page', $page);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Bank accounts retrieved successfully',
+            'data' => $accounts->items(),
+            'meta' => [
+                'total' => $accounts->total(),
+                'current_page' => $accounts->currentPage(),
+                'per_page' => $accounts->perPage(),
+                'last_page' => $accounts->lastPage(),
+                'first_item' => $accounts->firstItem(),
+                'last_item' => $accounts->lastItem()
+            ]
+        ]);
+        $page = $request->input('page', 1);
+
+        return $query->paginate($perPage, ['*'], 'page', $page);
     }
 
     /**
@@ -77,7 +126,7 @@ class BankAccountController extends Controller
     public function withdraw(BankAccount $bankAccount, StoreBankAccountRequest $request): JsonResponse
     {
         $amount = $request->validated()['amount'];
-        
+
         if ($bankAccount->balance < $amount) {
             return response()->json([
                 'message' => 'Solde insuffisant'

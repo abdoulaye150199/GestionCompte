@@ -16,7 +16,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'sqlite'),
+    'default' => env('DB_CONNECTION', 'pgsql'),
 
     /*
     |--------------------------------------------------------------------------
@@ -88,10 +88,25 @@ return [
             'url' => env('DB_URL'),
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '5432'),
-            'database' => env('DB_DATABASE', 'laravel'),
-            'username' => env('DB_USERNAME', 'root'),
-            'password' => env('DB_PASSWORD', ''),
-            'charset' => env('DB_CHARSET', 'utf8'),
+            'database' => env('DB_DATABASE', 'gestioncompte'),
+            'username' => env('DB_USERNAME', 'postgres'),
+            'password' => env('DB_PASSWORD', 'laye1234'),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'search_path' => 'public',
+            'sslmode' => 'prefer',
+        ],
+
+        'railway' => [
+            'driver' => 'pgsql',
+            'url' => env('RAILWAY_DB_URL'),
+            'host' => env('RAILWAY_DB_HOST', 'mainline.proxy.rlwy.net'),
+            'port' => env('RAILWAY_DB_PORT', '23275'),
+            'database' => env('RAILWAY_DB_DATABASE', 'railway'),
+            'username' => env('RAILWAY_DB_USERNAME', 'postgres'),
+            'password' => env('RAILWAY_DB_PASSWORD'),
+            'charset' => 'utf8',
             'prefix' => '',
             'prefix_indexes' => true,
             'search_path' => 'public',
