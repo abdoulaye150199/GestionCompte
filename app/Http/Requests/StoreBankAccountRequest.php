@@ -1,0 +1,31 @@
+<?php
+
+namespace App\Http\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class StoreBankAccountRequest extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     */
+    public function authorize(): bool
+    {
+        return false;
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     */
+    public function rules(): array
+    {
+        return [
+            'type' => ['required', 'string', 'in:savings,checking'],
+            'client_id' => ['required', 'uuid', 'exists:clients,id'],
+            'balance' => ['sometimes', 'numeric', 'min:0'],
+            'account_number' => ['sometimes', 'string', 'unique:bank_accounts,account_number'],
+        ];
+    }
+}

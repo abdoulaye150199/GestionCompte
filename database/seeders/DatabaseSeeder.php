@@ -15,7 +15,13 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Créer 10 clients avec chacun 1 à 3 comptes bancaires
+        \App\Models\Client::factory(10)
+            ->has(
+                \App\Models\BankAccount::factory()
+                    ->count(fake()->numberBetween(1, 3))
+            )
+            ->create();
 
         User::factory()->create([
             'name' => 'Test User',
