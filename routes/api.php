@@ -40,7 +40,10 @@ Route::middleware('auth:api')->group(function () {
     Route::apiResource('clients', \App\Http\Controllers\ClientController::class);
     
     // Routes pour les comptes bancaires
-    Route::apiResource('bank-accounts', \App\Http\Controllers\BankAccountController::class);
+    Route::prefix('v1')->group(function () {
+        Route::get('accounts', [\App\Http\Controllers\API\BankAccountController::class, 'index']);
+        Route::get('accounts/{id}', [\App\Http\Controllers\API\BankAccountController::class, 'show']);
+    });
     
     // Routes pour les opérations bancaires
     Route::post('bank-accounts/{bankAccount}/deposit', [\App\Http\Controllers\BankAccountController::class, 'deposit']);

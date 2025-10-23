@@ -56,19 +56,10 @@ return [
         ],
 
         'securityDefinitions' => [
-            'passport' => [
-                'type' => 'oauth2',
-                'description' => 'Laravel passport oauth2 security.',
-                'in' => 'header',
-                'scheme' => 'https',
-                'flows' => [
-                    'password' => [
-                        'authorizationUrl' => config('app.url') . '/oauth/authorize',
-                        'tokenUrl' => config('app.url') . '/oauth/token',
-                        'refreshUrl' => config('app.url') . '/oauth/token/refresh',
-                        'scopes' => []
-                    ],
-                ],
+            'bearerAuth' => [
+                'type' => 'http',
+                'scheme' => 'bearer',
+                'bearerFormat' => 'JWT',
             ],
         ],
 
