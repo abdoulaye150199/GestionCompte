@@ -10,6 +10,8 @@ return [
 
             'routes' => [
                 'api' => 'api/documentation',
+                'docs' => 'docs',
+                'oauth2_callback' => 'api/oauth2-callback',
             ],
 
             'paths' => [

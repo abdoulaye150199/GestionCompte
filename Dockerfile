@@ -21,8 +21,13 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 # Install PHP extensions
 RUN docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd
 
-# Enable Apache modules
-RUN a2enmod rewrite headers
+# Enable Apache modules and setup directories
+RUN a2enmod rewrite headers && \
+    mkdir -p /var/www/html/storage/api-docs && \
+    mkdir -p /var/www/html/public/docs && \
+    chown -R www-data:www-data /var/www/html/storage && \
+    chmod -R 775 /var/www/html/storage && \
+    chmod -R 775 /var/www/html/bootstrap/cache
 
 # Copy and enable Apache configuration
 COPY apache.conf /etc/apache2/sites-available/000-default.conf
