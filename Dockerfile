@@ -25,8 +25,11 @@ RUN docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd
 RUN a2enmod rewrite headers && \
     mkdir -p /var/www/html/storage/api-docs && \
     mkdir -p /var/www/html/public/docs && \
+    mkdir -p /var/www/html/bootstrap/cache && \
     chown -R www-data:www-data /var/www/html/storage && \
-    chmod -R 775 /var/www/html/storage
+    chown -R www-data:www-data /var/www/html/bootstrap/cache && \
+    chmod -R 775 /var/www/html/storage && \
+    chmod -R 775 /var/www/html/bootstrap/cache
 
 # Copy and enable Apache configuration
 COPY apache.conf /etc/apache2/sites-available/000-default.conf
