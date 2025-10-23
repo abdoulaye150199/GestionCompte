@@ -1,5 +1,7 @@
 <?php
 
+namespace App\OpenApi\Schemas;
+
 /**
  * @OA\Schema(
  *     schema="BankAccount",

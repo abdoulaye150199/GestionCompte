@@ -4,6 +4,18 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * @OA\Schema(
+ *     schema="StoreClientRequest",
+ *     type="object",
+ *     title="Store Client Request",
+ *     required={"name", "email"},
+ *     @OA\Property(property="name", type="string", example="John Doe"),
+ *     @OA\Property(property="email", type="string", format="email", example="john.doe@example.com"),
+ *     @OA\Property(property="phone", type="string", example="+33123456789"),
+ *     @OA\Property(property="address", type="string", example="123 Main St, Paris, France")
+ * )
+ */
 class StoreClientRequest extends FormRequest
 {
     /**

@@ -9,6 +9,149 @@
         "version": "1.0.0"
     },
     "paths": {
+        "/api/v1/accounts": {
+            "get": {
+                "tags": [
+                    "Comptes"
+                ],
+                "summary": "Liste tous les comptes",
+                "description": "Retourne la liste de tous les comptes bancaires",
+                "operationId": "getAllAccounts",
+                "responses": {
+                    "200": {
+                        "description": "Opération réussie",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "account_number": {
+                                                        "type": "string",
+                                                        "example": "FR7630001007941234567890185"
+                                                    },
+                                                    "balance": {
+                                                        "type": "number",
+                                                        "format": "float",
+                                                        "example": 1000.5
+                                                    },
+                                                    "client_id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    },
+                                                    "updated_at": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/accounts/{id}": {
+            "get": {
+                "tags": [
+                    "Comptes"
+                ],
+                "summary": "Obtenir un compte spécifique",
+                "description": "Retourne les détails d'un compte bancaire",
+                "operationId": "getAccountById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID du compte",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Opération réussie",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "account_number": {
+                                                    "type": "string",
+                                                    "example": "FR7630001007941234567890185"
+                                                },
+                                                "balance": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": 1000.5
+                                                },
+                                                "client_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "created_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                },
+                                                "updated_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Compte non trouvé"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/v1/login": {
             "post": {
                 "tags": [
@@ -87,9 +230,956 @@
                     }
                 }
             }
+        },
+        "/api/bank-accounts": {
+            "get": {
+                "tags": [
+                    "Comptes Bancaires"
+                ],
+                "summary": "Liste tous les comptes bancaires",
+                "description": "Récupère la liste des comptes bancaires avec filtrage, recherche et pagination",
+                "operationId": "getBankAccounts",
+                "parameters": [
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "description": "Filtrer par type de compte",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "statut",
+                        "in": "query",
+                        "description": "Filtrer par statut",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Rechercher par numéro de compte ou nom du titulaire",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "sort",
+                        "in": "query",
+                        "description": "Champ de tri",
+                        "schema": {
+                            "type": "string",
+                            "default": "created_at"
+                        }
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "description": "Ordre de tri",
+                        "schema": {
+                            "type": "string",
+                            "default": "desc",
+                            "enum": [
+                                "asc",
+                                "desc"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Nombre d'éléments par page",
+                        "schema": {
+                            "type": "integer",
+                            "default": 10,
+                            "maximum": 100
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Numéro de page",
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Liste des comptes bancaires récupérée avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Bank accounts retrieved successfully"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/BankAccount"
+                                            }
+                                        },
+                                        "meta": {
+                                            "properties": {
+                                                "total": {
+                                                    "type": "integer",
+                                                    "example": 100
+                                                },
+                                                "current_page": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "per_page": {
+                                                    "type": "integer",
+                                                    "example": 10
+                                                },
+                                                "last_page": {
+                                                    "type": "integer",
+                                                    "example": 10
+                                                },
+                                                "first_item": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "last_item": {
+                                                    "type": "integer",
+                                                    "example": 10
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Non autorisé"
+                    }
+                },
+                "security": [
+                    {
+                        "passport": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Comptes Bancaires"
+                ],
+                "summary": "Crée un nouveau compte bancaire",
+                "description": "Crée un nouveau compte bancaire avec les informations fournies",
+                "operationId": "createBankAccount",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StoreBankAccountRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Compte bancaire créé avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BankAccount"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Données invalides"
+                    },
+                    "401": {
+                        "description": "Non autorisé"
+                    }
+                },
+                "security": [
+                    {
+                        "passport": []
+                    }
+                ]
+            }
+        },
+        "/api/bank-accounts/{bankAccount}": {
+            "get": {
+                "tags": [
+                    "Comptes Bancaires"
+                ],
+                "summary": "Affiche les détails d'un compte bancaire",
+                "description": "Récupère les détails d'un compte bancaire spécifique avec les informations du client",
+                "operationId": "getBankAccount",
+                "parameters": [
+                    {
+                        "name": "bankAccount",
+                        "in": "path",
+                        "description": "ID du compte bancaire",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Détails du compte bancaire récupérés avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BankAccount"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Compte bancaire non trouvé"
+                    },
+                    "401": {
+                        "description": "Non autorisé"
+                    }
+                },
+                "security": [
+                    {
+                        "passport": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Comptes Bancaires"
+                ],
+                "summary": "Met à jour un compte bancaire",
+                "description": "Met à jour les informations d'un compte bancaire existant",
+                "operationId": "updateBankAccount",
+                "parameters": [
+                    {
+                        "name": "bankAccount",
+                        "in": "path",
+                        "description": "ID du compte bancaire",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateBankAccountRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Compte bancaire mis à jour avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BankAccount"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Compte bancaire non trouvé"
+                    },
+                    "422": {
+                        "description": "Données invalides"
+                    },
+                    "401": {
+                        "description": "Non autorisé"
+                    }
+                },
+                "security": [
+                    {
+                        "passport": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Comptes Bancaires"
+                ],
+                "summary": "Supprime un compte bancaire",
+                "description": "Supprime un compte bancaire existant",
+                "operationId": "deleteBankAccount",
+                "parameters": [
+                    {
+                        "name": "bankAccount",
+                        "in": "path",
+                        "description": "ID du compte bancaire",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Compte bancaire supprimé avec succès"
+                    },
+                    "404": {
+                        "description": "Compte bancaire non trouvé"
+                    },
+                    "401": {
+                        "description": "Non autorisé"
+                    }
+                },
+                "security": [
+                    {
+                        "passport": []
+                    }
+                ]
+            }
+        },
+        "/api/bank-accounts/{bankAccount}/deposit": {
+            "post": {
+                "tags": [
+                    "Comptes Bancaires"
+                ],
+                "summary": "Effectue un dépôt sur un compte",
+                "description": "Ajoute un montant au solde du compte bancaire",
+                "operationId": "depositBankAccount",
+                "parameters": [
+                    {
+                        "name": "bankAccount",
+                        "in": "path",
+                        "description": "ID du compte bancaire",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "amount"
+                                ],
+                                "properties": {
+                                    "amount": {
+                                        "description": "Montant à déposer",
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 100.5
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Dépôt effectué avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Dépôt effectué avec succès"
+                                        },
+                                        "new_balance": {
+                                            "type": "number",
+                                            "format": "float",
+                                            "example": 150.75
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Compte bancaire non trouvé"
+                    },
+                    "422": {
+                        "description": "Données invalides"
+                    },
+                    "401": {
+                        "description": "Non autorisé"
+                    }
+                },
+                "security": [
+                    {
+                        "passport": []
+                    }
+                ]
+            }
+        },
+        "/api/bank-accounts/{bankAccount}/withdraw": {
+            "post": {
+                "tags": [
+                    "Comptes Bancaires"
+                ],
+                "summary": "Effectue un retrait sur un compte",
+                "description": "Retire un montant du solde du compte bancaire",
+                "operationId": "withdrawBankAccount",
+                "parameters": [
+                    {
+                        "name": "bankAccount",
+                        "in": "path",
+                        "description": "ID du compte bancaire",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "amount"
+                                ],
+                                "properties": {
+                                    "amount": {
+                                        "description": "Montant à retirer",
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 50.25
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Retrait effectué avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Retrait effectué avec succès"
+                                        },
+                                        "new_balance": {
+                                            "type": "number",
+                                            "format": "float",
+                                            "example": 100.5
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Solde insuffisant",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Solde insuffisant"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Compte bancaire non trouvé"
+                    },
+                    "422": {
+                        "description": "Données invalides"
+                    },
+                    "401": {
+                        "description": "Non autorisé"
+                    }
+                },
+                "security": [
+                    {
+                        "passport": []
+                    }
+                ]
+            }
+        },
+        "/api/clients": {
+            "get": {
+                "tags": [
+                    "Clients"
+                ],
+                "summary": "Liste tous les clients",
+                "description": "Récupère la liste de tous les clients avec leurs comptes bancaires associés",
+                "operationId": "getClients",
+                "responses": {
+                    "200": {
+                        "description": "Liste des clients récupérée avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Client"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Non autorisé"
+                    }
+                },
+                "security": [
+                    {
+                        "passport": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Clients"
+                ],
+                "summary": "Crée un nouveau client",
+                "description": "Crée un nouveau client avec les informations fournies",
+                "operationId": "createClient",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StoreClientRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Client créé avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Client"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Données invalides"
+                    },
+                    "401": {
+                        "description": "Non autorisé"
+                    }
+                },
+                "security": [
+                    {
+                        "passport": []
+                    }
+                ]
+            }
+        },
+        "/api/clients/{client}": {
+            "get": {
+                "tags": [
+                    "Clients"
+                ],
+                "summary": "Affiche les détails d'un client",
+                "description": "Récupère les détails d'un client spécifique avec ses comptes bancaires",
+                "operationId": "getClient",
+                "parameters": [
+                    {
+                        "name": "client",
+                        "in": "path",
+                        "description": "ID du client",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Détails du client récupérés avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Client"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Client non trouvé"
+                    },
+                    "401": {
+                        "description": "Non autorisé"
+                    }
+                },
+                "security": [
+                    {
+                        "passport": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Clients"
+                ],
+                "summary": "Met à jour un client",
+                "description": "Met à jour les informations d'un client existant",
+                "operationId": "updateClient",
+                "parameters": [
+                    {
+                        "name": "client",
+                        "in": "path",
+                        "description": "ID du client",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateClientRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Client mis à jour avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Client"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Client non trouvé"
+                    },
+                    "422": {
+                        "description": "Données invalides"
+                    },
+                    "401": {
+                        "description": "Non autorisé"
+                    }
+                },
+                "security": [
+                    {
+                        "passport": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Clients"
+                ],
+                "summary": "Supprime un client",
+                "description": "Supprime un client existant",
+                "operationId": "deleteClient",
+                "parameters": [
+                    {
+                        "name": "client",
+                        "in": "path",
+                        "description": "ID du client",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Client supprimé avec succès"
+                    },
+                    "404": {
+                        "description": "Client non trouvé"
+                    },
+                    "401": {
+                        "description": "Non autorisé"
+                    }
+                },
+                "security": [
+                    {
+                        "passport": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "StoreBankAccountRequest": {
+                "title": "Store Bank Account Request",
+                "required": [
+                    "type",
+                    "client_id"
+                ],
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "savings",
+                            "checking"
+                        ],
+                        "example": "savings"
+                    },
+                    "client_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "550e8400-e29b-41d4-a716-446655440000"
+                    },
+                    "balance": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 0
+                    },
+                    "account_number": {
+                        "type": "string",
+                        "example": "FR7630001007941234567890185"
+                    }
+                },
+                "type": "object"
+            },
+            "StoreClientRequest": {
+                "title": "Store Client Request",
+                "required": [
+                    "name",
+                    "email"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "John Doe"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "john.doe@example.com"
+                    },
+                    "phone": {
+                        "type": "string",
+                        "example": "+33123456789"
+                    },
+                    "address": {
+                        "type": "string",
+                        "example": "123 Main St, Paris, France"
+                    }
+                },
+                "type": "object"
+            },
+            "UpdateBankAccountRequest": {
+                "title": "Update Bank Account Request",
+                "properties": {
+                    "account_type": {
+                        "type": "string",
+                        "enum": [
+                            "savings",
+                            "checking"
+                        ],
+                        "example": "savings"
+                    },
+                    "balance": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 1000.5
+                    },
+                    "client_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "550e8400-e29b-41d4-a716-446655440000"
+                    }
+                },
+                "type": "object"
+            },
+            "UpdateClientRequest": {
+                "title": "Update Client Request",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "John Doe"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "john.doe@example.com"
+                    },
+                    "phone": {
+                        "type": "string",
+                        "example": "+33123456789"
+                    },
+                    "address": {
+                        "type": "string",
+                        "example": "123 Main St, Paris, France"
+                    }
+                },
+                "type": "object"
+            },
+            "BankAccountResource": {
+                "title": "Bank Account Resource",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "account_number": {
+                        "type": "string",
+                        "example": "FR7630001007941234567890185"
+                    },
+                    "balance": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 1000.5
+                    },
+                    "client_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "client": {
+                        "properties": {
+                            "id": {
+                                "type": "integer",
+                                "example": 1
+                            },
+                            "name": {
+                                "type": "string",
+                                "example": "John Doe"
+                            },
+                            "email": {
+                                "type": "string",
+                                "format": "email",
+                                "example": "john.doe@example.com"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "Client": {
+                "title": "Client",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "550e8400-e29b-41d4-a716-446655440000"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "John Doe"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "john.doe@example.com"
+                    },
+                    "phone": {
+                        "type": "string",
+                        "example": "+33123456789"
+                    },
+                    "address": {
+                        "type": "string",
+                        "example": "123 Main St, Paris, France"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "BankAccount": {
+                "title": "Bank Account",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "account_number": {
+                        "type": "string",
+                        "example": "FR7630001007941234567890185"
+                    },
+                    "balance": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 1000.5
+                    },
+                    "client_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "description": "Connexion avec token Bearer JWT",
+                "name": "Bearer",
+                "in": "header",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
         }
     },
     "tags": [
+        {
+            "name": "Comptes Bancaires",
+            "description": "Gestion des comptes bancaires"
+        },
+        {
+            "name": "Clients",
+            "description": "Gestion des clients"
+        },
+        {
+            "name": "Comptes",
+            "description": "Comptes"
+        },
         {
             "name": "Authentification",
             "description": "Authentification"

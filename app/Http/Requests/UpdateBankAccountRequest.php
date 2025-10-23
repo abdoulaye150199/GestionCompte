@@ -4,6 +4,16 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * @OA\Schema(
+ *     schema="UpdateBankAccountRequest",
+ *     type="object",
+ *     title="Update Bank Account Request",
+ *     @OA\Property(property="account_type", type="string", enum={"savings", "checking"}, example="savings"),
+ *     @OA\Property(property="balance", type="number", format="float", example=1000.50),
+ *     @OA\Property(property="client_id", type="string", format="uuid", example="550e8400-e29b-41d4-a716-446655440000")
+ * )
+ */
 class UpdateBankAccountRequest extends FormRequest
 {
     /**

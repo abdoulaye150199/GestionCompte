@@ -75,7 +75,14 @@ class BankAccountController extends Controller
      *             @OA\Property(property="status", type="string", example="success"),
      *             @OA\Property(property="message", type="string", example="Bank accounts retrieved successfully"),
      *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/BankAccount")),
-     *             @OA\Property(property="meta", ref="#/components/schemas/PaginationMeta")
+     *             @OA\Property(property="meta", type="object",
+     *                 @OA\Property(property="total", type="integer", example=100),
+     *                 @OA\Property(property="current_page", type="integer", example=1),
+     *                 @OA\Property(property="per_page", type="integer", example=10),
+     *                 @OA\Property(property="last_page", type="integer", example=10),
+     *                 @OA\Property(property="first_item", type="integer", example=1),
+     *                 @OA\Property(property="last_item", type="integer", example=10)
+     *             )
      *         )
      *     ),
      *     @OA\Response(

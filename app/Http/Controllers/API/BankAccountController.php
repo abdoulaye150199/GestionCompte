@@ -7,11 +7,6 @@ use App\Models\BankAccount;
 use Illuminate\Http\Request;
 
 /**
- * @OA\Info(
- *     version="1.0.0",
- *     title="API Gestion de Compte",
- *     description="API pour la gestion des comptes bancaires"
- * )
  * @OA\SecurityScheme(
  *     type="http",
  *     description="Connexion avec token Bearer JWT",
