@@ -87,12 +87,21 @@ RUN php artisan key:generate --force \
     && php artisan view:cache
 
 # Configure Apache
-ENV APACHE_DOCUMENT_ROOT /var/www/html/public
+ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 
+# Update Apache configuration
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf \
-    && sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf \
-    && chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html
+    && sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+
+# Enable required Apache modules
+RUN a2enmod rewrite headers
+
+# Ensure correct permissions
+RUN chown -R www-data:www-data /var/www/html \
+    && find /var/www/html -type d -exec chmod 755 {} \; \
+    && find /var/www/html -type f -exec chmod 644 {} \; \
+    && chmod -R 775 /var/www/html/storage \
+    && chmod -R 775 /var/www/html/bootstrap/cache
 
 # Add and configure entry point script
 COPY docker-entrypoint.sh /usr/local/bin/
