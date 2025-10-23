@@ -44,15 +44,20 @@ Route::post('v1/logout', [\App\Http\Controllers\AuthController::class, 'logout']
 Route::middleware('auth:api')->group(function () {
     // Routes pour les clients
     Route::apiResource('clients', \App\Http\Controllers\ClientController::class);
-    
+
     // Routes pour les comptes bancaires
     Route::prefix('v1')->group(function () {
         Route::get('accounts', [\App\Http\Controllers\API\BankAccountController::class, 'index']);
         Route::get('accounts/{id}', [\App\Http\Controllers\API\BankAccountController::class, 'show']);
     });
-    
+
     // Route pour l'utilisateur authentifié
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
+});
+
+// Routes publiques sans authentification
+Route::prefix('v1')->group(function () {
+    Route::get('/comptes', [\App\Http\Controllers\API\BankAccountController::class, 'index'])->name('comptes.index');
 });
