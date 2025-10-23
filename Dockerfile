@@ -36,11 +36,29 @@ ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
+# Copy composer files first
+COPY composer.json composer.lock ./
+
+# Install composer dependencies
+RUN composer install --no-scripts --no-autoloader --no-dev
+
 # Copy project files
 COPY . .
 
-# Install dependencies
-RUN composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
+# Create .env file from example
+RUN cp .env.example .env \
+    && sed -i 's/APP_ENV=.*/APP_ENV=production/' .env \
+    && sed -i 's/APP_DEBUG=.*/APP_DEBUG=false/' .env \
+    && sed -i 's#DB_CONNECTION=.*#DB_CONNECTION=pgsql#' .env \
+    && sed -i 's#DB_HOST=.*#DB_HOST=${DB_HOST}#' .env \
+    && sed -i 's#DB_PORT=.*#DB_PORT=${DB_PORT}#' .env \
+    && sed -i 's#DB_DATABASE=.*#DB_DATABASE=${DB_DATABASE}#' .env \
+    && sed -i 's#DB_USERNAME=.*#DB_USERNAME=${DB_USERNAME}#' .env \
+    && sed -i 's#DB_PASSWORD=.*#DB_PASSWORD=${DB_PASSWORD}#' .env
+
+# Optimize composer autoloader and install dependencies
+RUN composer dump-autoload --optimize \
+    && composer run-script post-install-cmd
 
 # Set directory structure and permissions
 RUN mkdir -p /var/www/html/storage/framework/{sessions,views,cache} \
@@ -52,9 +70,9 @@ RUN mkdir -p /var/www/html/storage/framework/{sessions,views,cache} \
     && chmod -R 775 /var/www/html/storage \
     && chmod -R 775 /var/www/html/bootstrap/cache
 
-# Ensure the application is ready
-RUN php artisan storage:link \
-    && php artisan key:generate --force \
+# Generate application key and optimize
+RUN php artisan key:generate --force \
+    && php artisan storage:link \
     && php artisan config:cache \
     && php artisan route:cache \
     && php artisan view:cache
@@ -63,6 +81,12 @@ RUN php artisan storage:link \
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf \
     && sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+
+# Add and configure entry point script
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+ENTRYPOINT ["docker-entrypoint.sh"]
 
 # Create .env file
 RUN touch .env
