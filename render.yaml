@@ -6,7 +6,7 @@ services:
     plan: free
     dockerfilePath: ./Dockerfile
     buildCommand: "./build.sh"
-    startCommand: "apache2-foreground"
+    startCommand: "./docker-entrypoint.sh"
     autoDeploy: true
     healthCheckPath: /api/health-check
     envVars:
@@ -31,7 +31,7 @@ services:
       - key: DB_PASSWORD
         value: zyzDSszPfFBURKPwbjXcaMVVtOyNZJbO
       - key: SESSION_DRIVER
-        value: cookie
+        value: file
       - key: CACHE_DRIVER
         value: file
       - key: QUEUE_CONNECTION
@@ -40,41 +40,3 @@ services:
         value: stack
       - key: LOG_LEVEL
         value: error
-    envVars:
-      - key: APP_NAME
-        value: GestionCompte
-      - key: APP_ENV
-        value: production
-      - key: APP_DEBUG
-        value: false
-      - key: APP_URL
-        fromService:
-          type: web
-          name: gestioncompte-api
-          property: host
-      - key: DB_CONNECTION
-        value: pgsql
-      - key: DB_HOST
-        value: mainline.proxy.rlwy.net
-      - key: DB_PORT
-        value: 23275
-      - key: DB_DATABASE
-        value: railway
-      - key: DB_USERNAME
-        value: postgres
-      - key: DB_PASSWORD
-        value: zyzDSszPfFBURKPwbjXcaMVVtOyNZJbO
-      - key: LOG_CHANNEL
-        value: stack
-      - key: LOG_LEVEL
-        value: error
-      - key: APP_KEY
-        generateValue: true
-      - key: CACHE_DRIVER
-        value: file
-      - key: SESSION_DRIVER
-        value: file
-      - key: SESSION_LIFETIME
-        value: "120"
-      - key: QUEUE_CONNECTION
-        value: sync
