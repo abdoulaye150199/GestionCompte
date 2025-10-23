@@ -4,6 +4,12 @@ set -o errexit
 
 echo "🚀 Starting build process..."
 
+# Ensure we have all required environment variables
+if [ -z "$DB_HOST" ] || [ -z "$DB_USERNAME" ] || [ -z "$DB_PASSWORD" ]; then
+    echo "❌ Missing required database environment variables"
+    exit 1
+fi
+
 # Install Composer dependencies
 echo "📦 Installing Composer dependencies..."
 composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev

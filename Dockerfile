@@ -45,8 +45,8 @@ RUN chown -R www-data:www-data /var/www/html \
 # Remove any existing optimized files
 RUN rm -f bootstrap/cache/*.php
 
-# Copy .env.production to .env
-COPY .env.production .env
+# Create .env file
+RUN touch .env
 
 # Generate optimized autoload files
 RUN php artisan config:cache \
