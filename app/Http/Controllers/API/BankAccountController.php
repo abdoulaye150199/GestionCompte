@@ -13,6 +13,34 @@ use Illuminate\Http\Request;
  *     name="Comptes",
  *     description="Opérations sur les comptes bancaires"
  * )
+ * @OA\Get(
+ *     path="/api/v1/comptes",
+ *     tags={"Comptes"},
+ *     summary="Liste tous les comptes (alias)",
+ *     description="Retourne la liste de tous les comptes bancaires (alias de /accounts)",
+ *     operationId="getAllComptes",
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Opération réussie",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="status", type="string", example="success"),
+ *             @OA\Property(
+ *                 property="data",
+ *                 type="array",
+ *                 @OA\Items(
+ *                     @OA\Property(property="id", type="string", example="019a1307-a448-70c8-83a2-0c8d9feb6c3d"),
+ *                     @OA\Property(property="account_number", type="string", example="ACC-634716"),
+ *                     @OA\Property(property="balance", type="number", format="float", example=882.48),
+ *                     @OA\Property(property="type", type="string", example="savings"),
+ *                     @OA\Property(property="client_id", type="string", example="019a1307-9d9f-725c-b77f-149264708e38"),
+ *                     @OA\Property(property="created_at", type="string", format="date-time"),
+ *                     @OA\Property(property="updated_at", type="string", format="date-time")
+ *                 )
+ *             )
+ *         )
+ *     )
+ * )
  */
 class BankAccountController extends Controller
 {

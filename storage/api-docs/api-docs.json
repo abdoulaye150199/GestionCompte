@@ -9,6 +9,76 @@
         "version": "1.0.0"
     },
     "paths": {
+        "/api/v1/comptes": {
+            "get": {
+                "tags": [
+                    "Comptes"
+                ],
+                "summary": "Liste tous les comptes (alias)",
+                "description": "Retourne la liste de tous les comptes bancaires (alias de /accounts)",
+                "operationId": "getAllComptes",
+                "responses": {
+                    "200": {
+                        "description": "Opération réussie",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string",
+                                                        "example": "019a1307-a448-70c8-83a2-0c8d9feb6c3d"
+                                                    },
+                                                    "account_number": {
+                                                        "type": "string",
+                                                        "example": "ACC-634716"
+                                                    },
+                                                    "balance": {
+                                                        "type": "number",
+                                                        "format": "float",
+                                                        "example": 882.48
+                                                    },
+                                                    "type": {
+                                                        "type": "string",
+                                                        "example": "savings"
+                                                    },
+                                                    "client_id": {
+                                                        "type": "string",
+                                                        "example": "019a1307-9d9f-725c-b77f-149264708e38"
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    },
+                                                    "updated_at": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/v1/accounts": {
             "get": {
                 "tags": [
