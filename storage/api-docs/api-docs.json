@@ -14,12 +14,12 @@
                 "tags": [
                     "Comptes"
                 ],
-                "summary": "Liste tous les comptes (alias)",
-                "description": "Retourne la liste de tous les comptes bancaires (alias de /accounts)",
+                "summary": "Liste tous les comptes bancaires",
+                "description": "Retourne la liste de tous les comptes bancaires de la base de données",
                 "operationId": "getAllComptes",
                 "responses": {
                     "200": {
-                        "description": "Opération réussie",
+                        "description": "Liste des comptes récupérée avec succès",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -27,6 +27,10 @@
                                         "status": {
                                             "type": "string",
                                             "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Liste des comptes récupérée avec succès"
                                         },
                                         "data": {
                                             "type": "array",
@@ -49,9 +53,18 @@
                                                         "type": "string",
                                                         "example": "savings"
                                                     },
-                                                    "client_id": {
-                                                        "type": "string",
-                                                        "example": "019a1307-9d9f-725c-b77f-149264708e38"
+                                                    "client": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "string",
+                                                                "example": "019a1307-9d9f-725c-b77f-149264708e38"
+                                                            },
+                                                            "name": {
+                                                                "type": "string",
+                                                                "example": "John Doe"
+                                                            }
+                                                        },
+                                                        "type": "object"
                                                     },
                                                     "created_at": {
                                                         "type": "string",
@@ -70,6 +83,9 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "description": "Non autorisé - Token manquant ou invalide"
                     }
                 },
                 "security": [

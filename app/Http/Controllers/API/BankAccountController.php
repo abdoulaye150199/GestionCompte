@@ -16,15 +16,16 @@ use Illuminate\Http\Request;
  * @OA\Get(
  *     path="/api/v1/comptes",
  *     tags={"Comptes"},
- *     summary="Liste tous les comptes (alias)",
- *     description="Retourne la liste de tous les comptes bancaires (alias de /accounts)",
+ *     summary="Liste tous les comptes bancaires",
+ *     description="Retourne la liste de tous les comptes bancaires de la base de données",
  *     operationId="getAllComptes",
  *     security={{"bearerAuth":{}}},
  *     @OA\Response(
  *         response=200,
- *         description="Opération réussie",
+ *         description="Liste des comptes récupérée avec succès",
  *         @OA\JsonContent(
  *             @OA\Property(property="status", type="string", example="success"),
+ *             @OA\Property(property="message", type="string", example="Liste des comptes récupérée avec succès"),
  *             @OA\Property(
  *                 property="data",
  *                 type="array",
@@ -33,12 +34,21 @@ use Illuminate\Http\Request;
  *                     @OA\Property(property="account_number", type="string", example="ACC-634716"),
  *                     @OA\Property(property="balance", type="number", format="float", example=882.48),
  *                     @OA\Property(property="type", type="string", example="savings"),
- *                     @OA\Property(property="client_id", type="string", example="019a1307-9d9f-725c-b77f-149264708e38"),
+ *                     @OA\Property(
+ *                         property="client",
+ *                         type="object",
+ *                         @OA\Property(property="id", type="string", example="019a1307-9d9f-725c-b77f-149264708e38"),
+ *                         @OA\Property(property="name", type="string", example="John Doe")
+ *                     ),
  *                     @OA\Property(property="created_at", type="string", format="date-time"),
  *                     @OA\Property(property="updated_at", type="string", format="date-time")
  *                 )
  *             )
  *         )
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Non autorisé - Token manquant ou invalide"
  *     )
  * )
  */
