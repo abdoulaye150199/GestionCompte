@@ -87,21 +87,34 @@ RUN php artisan key:generate --force \
     && php artisan view:cache
 
 # Configure Apache
-ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
+RUN mkdir -p /var/www/html/public
 
-# Update Apache configuration
-RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf \
-    && sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
-
-# Enable required Apache modules
+# Enable Apache modules
 RUN a2enmod rewrite headers
 
-# Ensure correct permissions
-RUN chown -R www-data:www-data /var/www/html \
+# Remove default Apache configuration
+RUN rm -f /etc/apache2/sites-enabled/000-default.conf
+
+# Copy and enable our Apache configuration
+COPY apache.conf /etc/apache2/sites-available/000-default.conf
+RUN ln -s /etc/apache2/sites-available/000-default.conf /etc/apache2/sites-enabled/
+
+# Set proper permissions
+RUN mkdir -p /var/www/html/storage/logs \
+    && mkdir -p /var/www/html/storage/framework/{sessions,views,cache} \
+    && mkdir -p /var/www/html/bootstrap/cache \
+    && chown -R www-data:www-data /var/www/html \
     && find /var/www/html -type d -exec chmod 755 {} \; \
     && find /var/www/html -type f -exec chmod 644 {} \; \
     && chmod -R 775 /var/www/html/storage \
     && chmod -R 775 /var/www/html/bootstrap/cache
+
+# Add startup script
+COPY start-apache.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/start-apache.sh
+
+# Set the startup command
+CMD ["/usr/local/bin/start-apache.sh"]
 
 # Add and configure entry point script
 COPY docker-entrypoint.sh /usr/local/bin/
