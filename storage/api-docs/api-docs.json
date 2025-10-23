@@ -9,7 +9,7 @@
         "version": "1.0.0"
     },
     "paths": {
-        "/api/v1/accounts": {
+        "/v1/accounts": {
             "get": {
                 "tags": [
                     "Comptes"
@@ -33,21 +33,25 @@
                                             "items": {
                                                 "properties": {
                                                     "id": {
-                                                        "type": "integer",
-                                                        "example": 1
+                                                        "type": "string",
+                                                        "example": "019a1307-a448-70c8-83a2-0c8d9feb6c3d"
                                                     },
                                                     "account_number": {
                                                         "type": "string",
-                                                        "example": "FR7630001007941234567890185"
+                                                        "example": "ACC-634716"
                                                     },
                                                     "balance": {
                                                         "type": "number",
                                                         "format": "float",
-                                                        "example": 1000.5
+                                                        "example": 882.48
+                                                    },
+                                                    "type": {
+                                                        "type": "string",
+                                                        "example": "savings"
                                                     },
                                                     "client_id": {
-                                                        "type": "integer",
-                                                        "example": 1
+                                                        "type": "string",
+                                                        "example": "019a1307-9d9f-725c-b77f-149264708e38"
                                                     },
                                                     "created_at": {
                                                         "type": "string",
@@ -229,497 +233,6 @@
                         "description": "Données invalides"
                     }
                 }
-            }
-        },
-        "/api/bank-accounts": {
-            "get": {
-                "tags": [
-                    "Comptes Bancaires"
-                ],
-                "summary": "Liste tous les comptes bancaires",
-                "description": "Récupère la liste des comptes bancaires avec filtrage, recherche et pagination",
-                "operationId": "getBankAccounts",
-                "parameters": [
-                    {
-                        "name": "type",
-                        "in": "query",
-                        "description": "Filtrer par type de compte",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "statut",
-                        "in": "query",
-                        "description": "Filtrer par statut",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "search",
-                        "in": "query",
-                        "description": "Rechercher par numéro de compte ou nom du titulaire",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "sort",
-                        "in": "query",
-                        "description": "Champ de tri",
-                        "schema": {
-                            "type": "string",
-                            "default": "created_at"
-                        }
-                    },
-                    {
-                        "name": "order",
-                        "in": "query",
-                        "description": "Ordre de tri",
-                        "schema": {
-                            "type": "string",
-                            "default": "desc",
-                            "enum": [
-                                "asc",
-                                "desc"
-                            ]
-                        }
-                    },
-                    {
-                        "name": "limit",
-                        "in": "query",
-                        "description": "Nombre d'éléments par page",
-                        "schema": {
-                            "type": "integer",
-                            "default": 10,
-                            "maximum": 100
-                        }
-                    },
-                    {
-                        "name": "page",
-                        "in": "query",
-                        "description": "Numéro de page",
-                        "schema": {
-                            "type": "integer",
-                            "default": 1
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Liste des comptes bancaires récupérée avec succès",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "success"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Bank accounts retrieved successfully"
-                                        },
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/components/schemas/BankAccount"
-                                            }
-                                        },
-                                        "meta": {
-                                            "properties": {
-                                                "total": {
-                                                    "type": "integer",
-                                                    "example": 100
-                                                },
-                                                "current_page": {
-                                                    "type": "integer",
-                                                    "example": 1
-                                                },
-                                                "per_page": {
-                                                    "type": "integer",
-                                                    "example": 10
-                                                },
-                                                "last_page": {
-                                                    "type": "integer",
-                                                    "example": 10
-                                                },
-                                                "first_item": {
-                                                    "type": "integer",
-                                                    "example": 1
-                                                },
-                                                "last_item": {
-                                                    "type": "integer",
-                                                    "example": 10
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Non autorisé"
-                    }
-                },
-                "security": [
-                    {
-                        "passport": []
-                    }
-                ]
-            },
-            "post": {
-                "tags": [
-                    "Comptes Bancaires"
-                ],
-                "summary": "Crée un nouveau compte bancaire",
-                "description": "Crée un nouveau compte bancaire avec les informations fournies",
-                "operationId": "createBankAccount",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/StoreBankAccountRequest"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Compte bancaire créé avec succès",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/BankAccount"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Données invalides"
-                    },
-                    "401": {
-                        "description": "Non autorisé"
-                    }
-                },
-                "security": [
-                    {
-                        "passport": []
-                    }
-                ]
-            }
-        },
-        "/api/bank-accounts/{bankAccount}": {
-            "get": {
-                "tags": [
-                    "Comptes Bancaires"
-                ],
-                "summary": "Affiche les détails d'un compte bancaire",
-                "description": "Récupère les détails d'un compte bancaire spécifique avec les informations du client",
-                "operationId": "getBankAccount",
-                "parameters": [
-                    {
-                        "name": "bankAccount",
-                        "in": "path",
-                        "description": "ID du compte bancaire",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Détails du compte bancaire récupérés avec succès",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/BankAccount"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Compte bancaire non trouvé"
-                    },
-                    "401": {
-                        "description": "Non autorisé"
-                    }
-                },
-                "security": [
-                    {
-                        "passport": []
-                    }
-                ]
-            },
-            "put": {
-                "tags": [
-                    "Comptes Bancaires"
-                ],
-                "summary": "Met à jour un compte bancaire",
-                "description": "Met à jour les informations d'un compte bancaire existant",
-                "operationId": "updateBankAccount",
-                "parameters": [
-                    {
-                        "name": "bankAccount",
-                        "in": "path",
-                        "description": "ID du compte bancaire",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/UpdateBankAccountRequest"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Compte bancaire mis à jour avec succès",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/BankAccount"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Compte bancaire non trouvé"
-                    },
-                    "422": {
-                        "description": "Données invalides"
-                    },
-                    "401": {
-                        "description": "Non autorisé"
-                    }
-                },
-                "security": [
-                    {
-                        "passport": []
-                    }
-                ]
-            },
-            "delete": {
-                "tags": [
-                    "Comptes Bancaires"
-                ],
-                "summary": "Supprime un compte bancaire",
-                "description": "Supprime un compte bancaire existant",
-                "operationId": "deleteBankAccount",
-                "parameters": [
-                    {
-                        "name": "bankAccount",
-                        "in": "path",
-                        "description": "ID du compte bancaire",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "Compte bancaire supprimé avec succès"
-                    },
-                    "404": {
-                        "description": "Compte bancaire non trouvé"
-                    },
-                    "401": {
-                        "description": "Non autorisé"
-                    }
-                },
-                "security": [
-                    {
-                        "passport": []
-                    }
-                ]
-            }
-        },
-        "/api/bank-accounts/{bankAccount}/deposit": {
-            "post": {
-                "tags": [
-                    "Comptes Bancaires"
-                ],
-                "summary": "Effectue un dépôt sur un compte",
-                "description": "Ajoute un montant au solde du compte bancaire",
-                "operationId": "depositBankAccount",
-                "parameters": [
-                    {
-                        "name": "bankAccount",
-                        "in": "path",
-                        "description": "ID du compte bancaire",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "amount"
-                                ],
-                                "properties": {
-                                    "amount": {
-                                        "description": "Montant à déposer",
-                                        "type": "number",
-                                        "format": "float",
-                                        "example": 100.5
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Dépôt effectué avec succès",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Dépôt effectué avec succès"
-                                        },
-                                        "new_balance": {
-                                            "type": "number",
-                                            "format": "float",
-                                            "example": 150.75
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Compte bancaire non trouvé"
-                    },
-                    "422": {
-                        "description": "Données invalides"
-                    },
-                    "401": {
-                        "description": "Non autorisé"
-                    }
-                },
-                "security": [
-                    {
-                        "passport": []
-                    }
-                ]
-            }
-        },
-        "/api/bank-accounts/{bankAccount}/withdraw": {
-            "post": {
-                "tags": [
-                    "Comptes Bancaires"
-                ],
-                "summary": "Effectue un retrait sur un compte",
-                "description": "Retire un montant du solde du compte bancaire",
-                "operationId": "withdrawBankAccount",
-                "parameters": [
-                    {
-                        "name": "bankAccount",
-                        "in": "path",
-                        "description": "ID du compte bancaire",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "amount"
-                                ],
-                                "properties": {
-                                    "amount": {
-                                        "description": "Montant à retirer",
-                                        "type": "number",
-                                        "format": "float",
-                                        "example": 50.25
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Retrait effectué avec succès",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Retrait effectué avec succès"
-                                        },
-                                        "new_balance": {
-                                            "type": "number",
-                                            "format": "float",
-                                            "example": 100.5
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Solde insuffisant",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Solde insuffisant"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Compte bancaire non trouvé"
-                    },
-                    "422": {
-                        "description": "Données invalides"
-                    },
-                    "401": {
-                        "description": "Non autorisé"
-                    }
-                },
-                "security": [
-                    {
-                        "passport": []
-                    }
-                ]
             }
         },
         "/api/clients": {
@@ -1155,30 +668,16 @@
                 },
                 "type": "object"
             }
-        },
-        "securitySchemes": {
-            "bearerAuth": {
-                "type": "http",
-                "description": "Connexion avec token Bearer JWT",
-                "name": "Bearer",
-                "in": "header",
-                "bearerFormat": "JWT",
-                "scheme": "bearer"
-            }
         }
     },
     "tags": [
         {
-            "name": "Comptes Bancaires",
-            "description": "Gestion des comptes bancaires"
+            "name": "Comptes",
+            "description": "Opérations sur les comptes bancaires"
         },
         {
             "name": "Clients",
             "description": "Gestion des clients"
-        },
-        {
-            "name": "Comptes",
-            "description": "Comptes"
         },
         {
             "name": "Authentification",

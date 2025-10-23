@@ -22,7 +22,7 @@ Route::prefix('documentation')->group(function () {
 });
 
 // API V1 Routes
-Route::middleware(['api', 'auth:api'])->prefix('v1')->group(function () {
+Route::prefix('v1')->group(function () {
     Route::get('/accounts', [\App\Http\Controllers\API\BankAccountController::class, 'index'])->name('accounts.index');
 });
 
@@ -49,10 +49,6 @@ Route::middleware('auth:api')->group(function () {
         Route::get('accounts', [\App\Http\Controllers\API\BankAccountController::class, 'index']);
         Route::get('accounts/{id}', [\App\Http\Controllers\API\BankAccountController::class, 'show']);
     });
-    
-    // Routes pour les opérations bancaires
-    Route::post('bank-accounts/{bankAccount}/deposit', [\App\Http\Controllers\BankAccountController::class, 'deposit']);
-    Route::post('bank-accounts/{bankAccount}/withdraw', [\App\Http\Controllers\BankAccountController::class, 'withdraw']);
     
     // Route pour l'utilisateur authentifié
     Route::get('/user', function (Request $request) {

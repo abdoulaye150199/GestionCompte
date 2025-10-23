@@ -6,6 +6,8 @@ return [
         'default' => [
             'api' => [
                 'title' => 'API Gestion de Compte',
+                'version' => '1.0.0',
+                'base_path' => env('L5_SWAGGER_CONST_HOST', 'https://gestioncompte-api.onrender.com/api/v1'),
             ],
 
             'routes' => [

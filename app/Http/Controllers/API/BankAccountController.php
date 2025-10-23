@@ -4,24 +4,22 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\BankAccount;
+use App\Traits\RestResponse;
+use App\Transformers\BankAccountTransformer;
 use Illuminate\Http\Request;
 
 /**
- * @OA\SecurityScheme(
- *     type="http",
- *     description="Connexion avec token Bearer JWT",
- *     name="Bearer",
- *     in="header",
- *     scheme="bearer",
- *     bearerFormat="JWT",
- *     securityScheme="bearerAuth"
+ * @OA\Tag(
+ *     name="Comptes",
+ *     description="Opérations sur les comptes bancaires"
  * )
  */
 class BankAccountController extends Controller
 {
+    use RestResponse;
     /**
      * @OA\Get(
-     *     path="/api/v1/accounts",
+     *     path="/v1/accounts",
      *     tags={"Comptes"},
      *     summary="Liste tous les comptes",
      *     description="Retourne la liste de tous les comptes bancaires",
@@ -36,10 +34,11 @@ class BankAccountController extends Controller
      *                 property="data",
      *                 type="array",
      *                 @OA\Items(
-     *                     @OA\Property(property="id", type="integer", example=1),
-     *                     @OA\Property(property="account_number", type="string", example="FR7630001007941234567890185"),
-     *                     @OA\Property(property="balance", type="number", format="float", example=1000.50),
-     *                     @OA\Property(property="client_id", type="integer", example=1),
+     *                     @OA\Property(property="id", type="string", example="019a1307-a448-70c8-83a2-0c8d9feb6c3d"),
+     *                     @OA\Property(property="account_number", type="string", example="ACC-634716"),
+     *                     @OA\Property(property="balance", type="number", format="float", example=882.48),
+     *                     @OA\Property(property="type", type="string", example="savings"),
+     *                     @OA\Property(property="client_id", type="string", example="019a1307-9d9f-725c-b77f-149264708e38"),
      *                     @OA\Property(property="created_at", type="string", format="date-time"),
      *                     @OA\Property(property="updated_at", type="string", format="date-time")
      *                 )
@@ -51,24 +50,9 @@ class BankAccountController extends Controller
     public function index()
     {
         $accounts = BankAccount::with('client')->get();
+        $transformedAccounts = $this->formatCollection($accounts, [BankAccountTransformer::class, 'transform']);
         
-        return response()->json([
-            'status' => 'success',
-            'data' => $accounts->map(function($account) {
-                return [
-                    'id' => $account->id,
-                    'account_number' => $account->account_number,
-                    'balance' => $account->balance,
-                    'type' => $account->type,
-                    'client' => [
-                        'id' => $account->client->id,
-                        'name' => $account->client->name
-                    ],
-                    'created_at' => $account->created_at,
-                    'updated_at' => $account->updated_at
-                ];
-            })
-        ]);
+        return $this->successResponse($transformedAccounts, 'Liste des comptes récupérée avec succès');
     }
 
     /**
@@ -112,17 +96,12 @@ class BankAccountController extends Controller
     public function show($id)
     {
         $account = BankAccount::with('client')->find($id);
-        
+
         if (!$account) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Compte non trouvé'
-            ], 404);
+            return $this->errorResponse('Compte non trouvé', 404);
         }
 
-        return response()->json([
-            'status' => 'success',
-            'data' => $account
-        ]);
+        $transformedAccount = BankAccountTransformer::transform($account);
+        return $this->successResponse($transformedAccount, 'Détails du compte récupérés avec succès');
     }
 }
