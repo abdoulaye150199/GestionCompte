@@ -24,6 +24,19 @@ Route::get('/health-check', function () {
     ]);
 });
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+Route::middleware('auth:api')->group(function () {
+    // Routes pour les clients
+    Route::apiResource('clients', \App\Http\Controllers\ClientController::class);
+    
+    // Routes pour les comptes bancaires
+    Route::apiResource('bank-accounts', \App\Http\Controllers\BankAccountController::class);
+    
+    // Routes pour les opérations bancaires
+    Route::post('bank-accounts/{bankAccount}/deposit', [\App\Http\Controllers\BankAccountController::class, 'deposit']);
+    Route::post('bank-accounts/{bankAccount}/withdraw', [\App\Http\Controllers\BankAccountController::class, 'withdraw']);
+    
+    // Route pour l'utilisateur authentifié
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
 });

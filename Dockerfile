@@ -56,9 +56,8 @@ RUN cp .env.example .env \
     && sed -i 's#DB_USERNAME=.*#DB_USERNAME=${DB_USERNAME}#' .env \
     && sed -i 's#DB_PASSWORD=.*#DB_PASSWORD=${DB_PASSWORD}#' .env
 
-# Optimize composer autoloader and install dependencies
-RUN composer dump-autoload --optimize \
-    && composer run-script post-install-cmd
+# Optimize composer autoloader
+RUN composer dump-autoload --optimize
 
 # Set directory structure and permissions
 RUN mkdir -p /var/www/html/storage/framework/{sessions,views,cache} \
