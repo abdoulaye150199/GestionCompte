@@ -45,18 +45,23 @@ RUN composer install --no-scripts --no-autoloader --no-dev
 # Copy project files
 COPY . .
 
-# Arguments pour les variables d'environnement
-ARG DB_HOST
-ARG DB_PORT
-ARG DB_DATABASE
-ARG DB_USERNAME
-ARG DB_PASSWORD
-
 # Create .env file from example
-RUN cp .env.example .env \
-    && sed -i "s/APP_ENV=.*/APP_ENV=production/" .env \
-    && sed -i "s/APP_DEBUG=.*/APP_DEBUG=false/" .env \
-    && sed -i "s#DB_CONNECTION=.*#DB_CONNECTION=pgsql#" .env \
+COPY .env .env.example
+
+# Set default environment variables
+ENV DB_CONNECTION=pgsql \
+    DB_HOST=mainline.proxy.rlwy.net \
+    DB_PORT=23275 \
+    DB_DATABASE=railway \
+    DB_USERNAME=postgres \
+    DB_PASSWORD=zyzDSszPfFBURKPwbjXcaMVVtOyNZJbO \
+    APP_ENV=production \
+    APP_DEBUG=false
+
+# Update .env file
+RUN sed -i "s#APP_ENV=.*#APP_ENV=$APP_ENV#" .env \
+    && sed -i "s#APP_DEBUG=.*#APP_DEBUG=$APP_DEBUG#" .env \
+    && sed -i "s#DB_CONNECTION=.*#DB_CONNECTION=$DB_CONNECTION#" .env \
     && sed -i "s#DB_HOST=.*#DB_HOST=$DB_HOST#" .env \
     && sed -i "s#DB_PORT=.*#DB_PORT=$DB_PORT#" .env \
     && sed -i "s#DB_DATABASE=.*#DB_DATABASE=$DB_DATABASE#" .env \
