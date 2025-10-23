@@ -56,15 +56,15 @@ RUN echo "APP_NAME=Laravel" > .env && \
     echo "SESSION_DRIVER=file" >> .env && \
     echo "QUEUE_CONNECTION=sync" >> .env
 
+# Changer les permissions du fichier .env pour l'utilisateur laravel
+RUN chown laravel:laravel .env
+
 # Générer la clé d'application et optimiser
 USER laravel
-RUN php artisan key:generate --force
-USER root
-
-USER laravel
-RUN php artisan config:cache \
-    && php artisan route:cache \
-    && php artisan view:cache
+RUN php artisan key:generate --force && \
+    php artisan config:cache && \
+    php artisan route:cache && \
+    php artisan view:cache
 USER root
 
 # Copier le script d'entrée
