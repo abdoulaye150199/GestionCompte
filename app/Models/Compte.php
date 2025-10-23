@@ -57,7 +57,7 @@ class Compte extends Model
 
     public function getTitulaireAttribute(): string
     {
-        return $this->user->profile?->nom ?? 'Utilisateur inconnu';
+        return $this->user->nom ?? 'Utilisateur inconnu';
     }
 
     public function getDateCreationAttribute()
