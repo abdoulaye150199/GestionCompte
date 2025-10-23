@@ -45,9 +45,6 @@ RUN composer install --no-scripts --no-autoloader --no-dev
 # Copy project files
 COPY . .
 
-# Create .env file from example
-COPY .env .env.example
-
 # Set default environment variables
 ENV DB_CONNECTION=pgsql \
     DB_HOST=mainline.proxy.rlwy.net \
@@ -58,8 +55,9 @@ ENV DB_CONNECTION=pgsql \
     APP_ENV=production \
     APP_DEBUG=false
 
-# Update .env file
-RUN sed -i "s#APP_ENV=.*#APP_ENV=$APP_ENV#" .env \
+# Create and update .env file from example
+RUN cp .env.example .env \
+    && sed -i "s#APP_ENV=.*#APP_ENV=$APP_ENV#" .env \
     && sed -i "s#APP_DEBUG=.*#APP_DEBUG=$APP_DEBUG#" .env \
     && sed -i "s#DB_CONNECTION=.*#DB_CONNECTION=$DB_CONNECTION#" .env \
     && sed -i "s#DB_HOST=.*#DB_HOST=$DB_HOST#" .env \
