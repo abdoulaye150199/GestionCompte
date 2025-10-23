@@ -26,8 +26,7 @@ RUN a2enmod rewrite headers && \
     mkdir -p /var/www/html/storage/api-docs && \
     mkdir -p /var/www/html/public/docs && \
     chown -R www-data:www-data /var/www/html/storage && \
-    chmod -R 775 /var/www/html/storage && \
-    chmod -R 775 /var/www/html/bootstrap/cache
+    chmod -R 775 /var/www/html/storage
 
 # Copy and enable Apache configuration
 COPY apache.conf /etc/apache2/sites-available/000-default.conf
