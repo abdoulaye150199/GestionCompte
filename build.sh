@@ -21,6 +21,20 @@ if [ -z "$APP_KEY" ]; then
     php artisan key:generate --force
 fi
 
+# Create storage directory structure
+echo "📁 Setting up storage directory..."
+mkdir -p storage/framework/{sessions,views,cache}
+mkdir -p storage/logs
+
+# Set proper permissions
+echo "🔒 Setting proper permissions..."
+chown -R www-data:www-data storage bootstrap/cache
+chmod -R 775 storage bootstrap/cache
+
+# Create symbolic link for storage
+echo "🔗 Creating storage link..."
+php artisan storage:link
+
 # Clear and cache configuration
 echo "🧹 Clearing and caching configuration..."
 php artisan config:clear
