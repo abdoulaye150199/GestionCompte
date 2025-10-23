@@ -2,44 +2,88 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
+    protected $keyType = 'string';
+    public $incrementing = false;
+
     protected $fillable = [
-        'name',
-        'email',
+        'id',
+        'login',
         'password',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
-        'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function client(): HasOne
+    {
+        return $this->hasOne(Client::class);
+    }
+
+    public function admin(): HasOne
+    {
+        return $this->hasOne(Admin::class);
+    }
+
+    public function comptes(): HasOne
+    {
+        return $this->hasOne(Compte::class, 'user_id');
+    }
+
+    public function getTypeAttribute(): string
+    {
+        if ($this->client) {
+            return 'client';
+        } elseif ($this->admin) {
+            return 'admin';
+        }
+        return 'unknown';
+    }
+
+    public function getProfileAttribute()
+    {
+        return $this->client ?? $this->admin;
+    }
+
+    /**
+     * Scope pour filtrer par type d'utilisateur
+     */
+    public function scopeOfType($query, $type)
+    {
+        $table = $type . 's';
+        return $query->whereHas($table, function ($q) use ($table) {
+            $q->whereNotNull('id');
+        });
+    }
+
+    /**
+     * Scope pour les clients uniquement
+     */
+    public function scopeClients($query)
+    {
+        return $query->ofType('client');
+    }
+
+    /**
+     * Scope pour les admins uniquement
+     */
+    public function scopeAdmins($query)
+    {
+        return $query->ofType('admin');
+    }
 }
