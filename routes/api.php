@@ -23,7 +23,6 @@ Route::prefix('documentation')->group(function () {
 
 // API V1 Routes
 Route::prefix('v1')->group(function () {
-    Route::get('/accounts', [\App\Http\Controllers\API\BankAccountController::class, 'index'])->name('accounts.index');
     Route::get('/comptes', [\App\Http\Controllers\API\BankAccountController::class, 'index'])->name('comptes.index');
 });
 
