@@ -83,16 +83,9 @@
                                 }
                             }
                         }
-                    },
-                    "401": {
-                        "description": "Non autorisé - Token manquant ou invalide"
                     }
                 },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
+                "security": []
             }
         },
         "/v1/accounts": {
@@ -158,11 +151,7 @@
                         }
                     }
                 },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
+                "security": []
             }
         },
         "/api/v1/accounts/{id}": {

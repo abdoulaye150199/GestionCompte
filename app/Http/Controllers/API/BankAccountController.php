@@ -19,7 +19,7 @@ use Illuminate\Http\Request;
  *     summary="Liste tous les comptes bancaires",
  *     description="Retourne la liste de tous les comptes bancaires de la base de données",
  *     operationId="getAllComptes",
- *     security={{"bearerAuth":{}}},
+ *     security={},
  *     @OA\Response(
  *         response=200,
  *         description="Liste des comptes récupérée avec succès",
@@ -45,10 +45,6 @@ use Illuminate\Http\Request;
  *                 )
  *             )
  *         )
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Non autorisé - Token manquant ou invalide"
  *     )
  * )
  */
@@ -62,7 +58,7 @@ class BankAccountController extends Controller
      *     summary="Liste tous les comptes",
      *     description="Retourne la liste de tous les comptes bancaires",
      *     operationId="getAllAccounts",
-     *     security={{"bearerAuth":{}}},
+     *     security={},
      *     @OA\Response(
      *         response=200,
      *         description="Opération réussie",
