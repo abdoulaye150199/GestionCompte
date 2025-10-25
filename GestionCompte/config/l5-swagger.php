@@ -5,26 +5,33 @@ return [
     'documentations' => [
         'default' => [
             'api' => [
-                'title' => 'L5 Swagger UI',
+                'title' => 'API Gestion de Compte',
             ],
-
+            'ui' => [
+                'theme' => 'swagger',
+                'display' => [
+                    'doc_expansion' => 'none',
+                    'dark_mode' => false,
+                ]
+            ],
             'routes' => [
-                /*
-                 * Route for accessing api documentation interface
-                 * Modified to include user name prefix as requested
-                 */
-                'api' => 'abdoulaye.diallo/api/documentation',
+                'api' => 'documentation',
+                'oauth2_callback' => 'api/oauth2-callback',
+                'middleware' => [
+                    'api' => [],
+                    'asset' => [],
+                    'docs' => [],
+                    'oauth2_callback' => [],
+                ],
             ],
             'paths' => [
-                /*
-                 * Edit to include full URL in ui for assets
-                 */
-                'use_absolute_path' => env('L5_SWAGGER_USE_ABSOLUTE_PATH', false),
+  
+                'use_absolute_path' => env('L5_SWAGGER_USE_ABSOLUTE_PATH', true),
 
                 /*
                 * Edit to set path where swagger ui assets should be stored
                 */
-                'swagger_ui_assets_path' => env('L5_SWAGGER_UI_ASSETS_PATH', 'vendor/swagger-api/swagger-ui/dist/'),
+                'swagger_ui_assets_path' => 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/',
 
                 /*
                  * File name of the generated json documentation file

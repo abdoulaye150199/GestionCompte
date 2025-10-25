@@ -145,7 +145,7 @@ class CompteController extends Controller
         $query = Compte::with('user')->nonSupprime();
 
         // Autorisation basée sur le rôle
-        if ($user->role === 'client') {
+        if ($user->type === 'client') {
             // Client ne voit que ses propres comptes
             $query->utilisateur($user->id);
         }
