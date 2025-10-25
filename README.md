@@ -1058,3 +1058,460 @@ http://localhost:8000/api/documentation
 5. Voir la réponse avec le compte créé
 
 Cette méthodologie assure un développement robuste, maintenable et conforme aux exigences du projet.
+
+## 🚀 Guide de Test Complet de l'API
+
+### Prérequis pour les tests
+
+#### 1. Installation et configuration de l'environnement
+
+```bash
+# 1. Cloner le projet
+git clone <repository-url>
+cd bankProjet
+
+# 2. Installer les dépendances
+composer install
+
+# 3. Copier le fichier d'environnement
+cp .env.example .env
+
+# 4. Configurer la base de données dans .env
+DB_CONNECTION=pgsql
+DB_HOST=localhost
+DB_PORT=5432
+DB_DATABASE=bank_api_test
+DB_USERNAME=postgres
+DB_PASSWORD=your_password
+
+# 5. Générer la clé d'application
+php artisan key:generate
+
+# 6. Installer Passport pour l'authentification
+php artisan passport:install
+
+# 7. Créer et migrer la base de données
+php artisan migrate:fresh
+
+# 8. Peupler avec des données de test
+php artisan db:seed
+
+# 9. Démarrer le serveur
+php artisan serve
+```
+
+#### 2. Données de test créées automatiquement
+
+Après `php artisan db:seed`, vous aurez :
+
+- **10 utilisateurs** (5 admins, 5 clients)
+- **15-30 comptes** bancaires (1-3 comptes par utilisateur)
+- **Numéros de compte** uniques générés automatiquement (format: CXXXXXXXXXX)
+
+### 📋 Tests étape par étape
+
+#### Étape 1 : Vérification de l'installation
+
+```bash
+# Vérifier que les migrations sont appliquées
+php artisan migrate:status
+
+# Vérifier les routes API
+php artisan route:list --path=api
+
+# Vérifier que Swagger fonctionne
+php artisan l5-swagger:generate
+```
+
+#### Étape 2 : Test de l'authentification Passport
+
+##### 2.1 Créer un client OAuth (si pas déjà fait)
+
+```bash
+php artisan passport:client --personal
+# Nom : "API Client"
+```
+
+##### 2.2 Obtenir un token d'authentification
+
+**Via Tinker :**
+```bash
+php artisan tinker
+```
+
+```php
+// Pour un admin
+$user = \App\Models\User::where('role', 'admin')->first();
+$token = $user->createToken('API Token')->accessToken;
+echo "Admin Token: " . $token;
+
+// Pour un client
+$user = \App\Models\User::where('role', 'client')->first();
+$token = $user->createToken('API Token')->accessToken;
+echo "Client Token: " . $token;
+```
+
+**Via API (méthode alternative) :**
+```bash
+# Créer un utilisateur test
+curl -X POST "http://localhost:8000/api/v1/register" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "login": "testuser",
+    "password": "password123",
+    "nom": "Test User",
+    "nci": "TEST123456",
+    "email": "test@example.com",
+    "telephone": "+221771234567",
+    "adresse": "Dakar, Sénégal"
+  }'
+
+# Se connecter pour obtenir un token
+curl -X POST "http://localhost:8000/api/v1/login" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "login": "testuser",
+    "password": "password123"
+  }'
+```
+
+#### Étape 3 : Tests des endpoints Comptes
+
+##### 3.1 Test de l'accès non autorisé
+
+```bash
+# Devrait retourner 401 Unauthorized
+curl -X GET "http://localhost:8000/api/v1/comptes" \
+  -H "Accept: application/json"
+```
+
+**Réponse attendue :**
+```json
+{
+  "message": "Unauthenticated."
+}
+```
+
+##### 3.2 Test de la liste des comptes (Admin)
+
+```bash
+curl -X GET "http://localhost:8000/api/v1/comptes" \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer {ADMIN_TOKEN}"
+```
+
+**Réponse attendue :**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "uuid-compte-1",
+      "numeroCompte": "C123456789",
+      "titulaire": "Amadou Diallo",
+      "type": "epargne",
+      "solde": 1250000,
+      "devise": "FCFA",
+      "dateCreation": "2025-10-25T12:00:00Z",
+      "statut": "actif",
+      "metadonnees": {
+        "derniereModification": "2025-10-25T12:00:00Z",
+        "version": 1
+      }
+    }
+  ],
+  "pagination": {
+    "currentPage": 1,
+    "totalPages": 2,
+    "totalItems": 15,
+    "itemsPerPage": 10,
+    "hasNext": true,
+    "hasPrevious": false
+  },
+  "links": {
+    "self": "/api/v1/comptes?page=1&limit=10",
+    "next": "/api/v1/comptes?page=2&limit=10",
+    "first": "/api/v1/comptes?page=1&limit=10",
+    "last": "/api/v1/comptes?page=2&limit=10"
+  }
+}
+```
+
+##### 3.3 Test de la liste des comptes (Client)
+
+```bash
+curl -X GET "http://localhost:8000/api/v1/comptes" \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer {CLIENT_TOKEN}"
+```
+
+**Note :** Un client ne voit que ses propres comptes.
+
+##### 3.4 Test des filtres
+
+```bash
+# Filtrer par type
+curl -X GET "http://localhost:8000/api/v1/comptes?type=epargne" \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer {ADMIN_TOKEN}"
+
+# Filtrer par statut
+curl -X GET "http://localhost:8000/api/v1/comptes?statut=actif" \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer {ADMIN_TOKEN}"
+
+# Recherche par numéro ou nom
+curl -X GET "http://localhost:8000/api/v1/comptes?search=C123456789" \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer {ADMIN_TOKEN}"
+```
+
+##### 3.5 Test du tri
+
+```bash
+# Tri par solde décroissant
+curl -X GET "http://localhost:8000/api/v1/comptes?sort=solde&order=desc" \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer {ADMIN_TOKEN}"
+
+# Tri par date de création
+curl -X GET "http://localhost:8000/api/v1/comptes?sort=dateCreation&order=asc" \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer {ADMIN_TOKEN}"
+```
+
+##### 3.6 Test de la pagination
+
+```bash
+# Page 1 avec 5 éléments par page
+curl -X GET "http://localhost:8000/api/v1/comptes?page=1&limit=5" \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer {ADMIN_TOKEN}"
+
+# Page 2
+curl -X GET "http://localhost:8000/api/v1/comptes?page=2&limit=5" \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer {ADMIN_TOKEN}"
+```
+
+##### 3.7 Test de récupération d'un compte spécifique
+
+```bash
+curl -X GET "http://localhost:8000/api/v1/comptes/{UUID_COMPTE}" \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer {ADMIN_TOKEN}"
+```
+
+**Test d'erreur (compte inexistant) :**
+```bash
+curl -X GET "http://localhost:8000/api/v1/comptes/uuid-inexistant" \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer {ADMIN_TOKEN}"
+```
+
+**Réponse d'erreur attendue :**
+```json
+{
+  "success": false,
+  "message": "Le compte avec l'ID spécifié n'existe pas",
+  "errors": {
+    "code": "COMPTE_NOT_FOUND",
+    "details": {
+      "compteId": "uuid-inexistant"
+    }
+  }
+}
+```
+
+##### 3.8 Test de création d'un compte
+
+```bash
+curl -X POST "http://localhost:8000/api/v1/comptes" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer {ADMIN_TOKEN}" \
+  -d '{
+    "user_id": "uuid-d-un-utilisateur-existant",
+    "type": "epargne",
+    "solde": 1000000,
+    "devise": "FCFA",
+    "statut": "actif"
+  }'
+```
+
+**Réponse attendue :**
+```json
+{
+  "success": true,
+  "message": "Compte créé avec succès",
+  "data": {
+    "id": "nouveau-uuid",
+    "numeroCompte": "C987654321",
+    "titulaire": "Nom de l'utilisateur",
+    "type": "epargne",
+    "solde": 1000000,
+    "devise": "FCFA",
+    "dateCreation": "2025-10-25T12:30:00Z",
+    "statut": "actif",
+    "metadonnees": {
+      "derniereModification": "2025-10-25T12:30:00Z",
+      "version": 1
+    }
+  }
+}
+```
+
+##### 3.9 Test de mise à jour d'un compte
+
+```bash
+curl -X PATCH "http://localhost:8000/api/v1/comptes/{UUID_COMPTE}" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer {ADMIN_TOKEN}" \
+  -d '{
+    "solde": 1500000,
+    "statut": "bloque"
+  }'
+```
+
+##### 3.10 Test de suppression d'un compte
+
+```bash
+curl -X DELETE "http://localhost:8000/api/v1/comptes/{UUID_COMPTE}" \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer {ADMIN_TOKEN}"
+```
+
+#### Étape 4 : Tests des endpoints Utilisateurs
+
+##### 4.1 Liste des utilisateurs
+
+```bash
+curl -X GET "http://localhost:8000/api/v1/users" \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer {ADMIN_TOKEN}"
+```
+
+##### 4.2 Création d'un utilisateur
+
+```bash
+curl -X POST "http://localhost:8000/api/v1/users" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer {ADMIN_TOKEN}" \
+  -d '{
+    "nom": "Nouveau Client",
+    "nci": "NEW123456",
+    "email": "nouveau@example.com",
+    "telephone": "+221771234568",
+    "adresse": "Saint-Louis, Sénégal",
+    "role": "client"
+  }'
+```
+
+#### Étape 5 : Tests avec Swagger UI
+
+1. **Accéder à la documentation :**
+   ```
+   http://localhost:8000/api/documentation
+   ```
+
+2. **Tester les endpoints :**
+   - Sélectionner un endpoint
+   - Cliquer sur "Try it out"
+   - Remplir les paramètres
+   - Ajouter le token dans "Authorize" : `Bearer {TOKEN}`
+   - Cliquer sur "Execute"
+
+#### Étape 6 : Tests de performance et limites
+
+##### 6.1 Test de limite de débit (Rate Limiting)
+
+```bash
+# Faire plusieurs requêtes rapides pour tester le rate limiting
+for i in {1..20}; do
+  curl -X GET "http://localhost:8000/api/v1/comptes" \
+    -H "Accept: application/json" \
+    -H "Authorization: Bearer {TOKEN}" \
+    -w "%{http_code}\n" -o /dev/null -s
+done
+```
+
+##### 6.2 Test de charge avec pagination
+
+```bash
+# Tester avec différentes tailles de page
+curl -X GET "http://localhost:8000/api/v1/comptes?limit=100" \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer {ADMIN_TOKEN}"
+```
+
+#### Étape 7 : Tests d'erreurs et edge cases
+
+##### 7.1 Test de validation
+
+```bash
+# Test avec données invalides
+curl -X POST "http://localhost:8000/api/v1/comptes" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer {ADMIN_TOKEN}" \
+  -d '{
+    "user_id": "invalid-uuid",
+    "type": "invalid_type",
+    "solde": -1000
+  }'
+```
+
+##### 7.2 Test d'autorisation
+
+```bash
+# Client essayant d'accéder aux comptes d'un autre client
+curl -X GET "http://localhost:8000/api/v1/comptes" \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer {CLIENT_TOKEN}"
+# Devrait seulement retourner les comptes du client connecté
+```
+
+#### Étape 8 : Tests automatisés (optionnel)
+
+Créer des tests PHPUnit :
+
+```bash
+# Créer un test pour les comptes
+php artisan make:test CompteApiTest
+
+# Exécuter les tests
+php artisan test
+```
+
+### 📊 Résumé des tests à effectuer
+
+| Test | Endpoint | Méthode | Auth | Description |
+|------|----------|---------|------|-------------|
+| ✅ | `/api/v1/comptes` | GET | Admin | Liste tous les comptes |
+| ✅ | `/api/v1/comptes` | GET | Client | Liste ses comptes uniquement |
+| ✅ | `/api/v1/comptes?type=epargne` | GET | Admin | Filtre par type |
+| ✅ | `/api/v1/comptes?statut=actif` | GET | Admin | Filtre par statut |
+| ✅ | `/api/v1/comptes?search=XXX` | GET | Admin | Recherche |
+| ✅ | `/api/v1/comptes?page=1&limit=10` | GET | Admin | Pagination |
+| ✅ | `/api/v1/comptes/{id}` | GET | Admin | Détail compte |
+| ✅ | `/api/v1/comptes` | POST | Admin | Création compte |
+| ✅ | `/api/v1/comptes/{id}` | PATCH | Admin | Mise à jour compte |
+| ✅ | `/api/v1/comptes/{id}` | DELETE | Admin | Suppression compte |
+| ✅ | `/api/v1/login` | POST | - | Authentification |
+| ✅ | `/api/v1/register` | POST | - | Inscription |
+| ✅ | `/api/v1/logout` | POST | Token | Déconnexion |
+
+### 🎯 Checklist de validation finale
+
+- [ ] Installation complète sans erreur
+- [ ] Migrations appliquées correctement
+- [ ] Données de test générées
+- [ ] Authentification fonctionnelle
+- [ ] Endpoints CRUD opérationnels
+- [ ] Filtres et tri fonctionnels
+- [ ] Pagination correcte
+- [ ] Gestion d'erreurs appropriée
+- [ ] Autorisation respectée (Admin vs Client)
+- [ ] Documentation Swagger accessible
+- [ ] Tests manuels passés
+- [ ] Performance acceptable
+
+Cette méthodologie de test complète assure que l'API est robuste, sécurisée et prête pour la production ! 🚀

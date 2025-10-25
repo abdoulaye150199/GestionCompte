@@ -135,21 +135,35 @@ class CompteController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $query = Compte::with('user');
+        $user = $request->user();
 
-        // Filtres
+        // Vérifier les autorisations
+        if (!$user) {
+            return $this->errorResponse('Authentification requise', 401);
+        }
+
+        $query = Compte::with('user')->nonSupprime();
+
+        // Autorisation basée sur le rôle
+        if ($user->role === 'client') {
+            // Client ne voit que ses propres comptes
+            $query->utilisateur($user->id);
+        }
+        // Admin voit tous les comptes (pas de restriction supplémentaire)
+
+        // Appliquer les scopes de filtrage
         if ($request->has('type') && $request->type) {
-            $query->where('type', $request->type);
+            $query->type($request->type);
         }
 
         if ($request->has('statut') && $request->statut) {
-            $query->where('statut', $request->statut);
+            $query->statut($request->statut);
         }
 
         if ($request->has('search') && $request->search) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('numero_compte', 'like', "%{$search}%")
+                $q->numero($search)
                   ->orWhereHas('user', function ($userQuery) use ($search) {
                       $userQuery->where('nom', 'like', "%{$search}%");
                   });

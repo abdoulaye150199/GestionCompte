@@ -26,5 +26,18 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
+
+        $this->renderable(function (\Illuminate\Auth\AuthenticationException $e, $request) {
+            if ($request->is('api/*')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Non authentifié',
+                    'errors' => [
+                        'code' => 'UNAUTHENTICATED',
+                        'details' => 'Token d\'authentification manquant ou invalide'
+                    ]
+                ], 401);
+            }
+        });
     }
 }
