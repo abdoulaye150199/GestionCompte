@@ -46,11 +46,11 @@ RUN echo "APP_NAME=Laravel" > .env && \
     echo "LOG_LEVEL=error" >> .env && \
     echo "" >> .env && \
     echo "DB_CONNECTION=pgsql" >> .env && \
-    echo "DB_HOST=ballast.proxy.rlwy.net" >> .env && \
-    echo "DB_PORT=44054" >> .env && \
+    echo "DB_HOST=mainline.proxy.rlwy.net" >> .env && \
+    echo "DB_PORT=23275" >> .env && \
     echo "DB_DATABASE=railway" >> .env && \
     echo "DB_USERNAME=postgres" >> .env && \
-    echo "DB_PASSWORD=qaPPTWkqUEngIkSozVbfwWvgqNMrxWou" >> .env && \
+    echo "DB_PASSWORD=zyzDSszPfFBURKPwbjXcaMVVtOyNZJbO" >> .env && \
     echo "" >> .env && \
     echo "CACHE_DRIVER=file" >> .env && \
     echo "SESSION_DRIVER=file" >> .env && \
