@@ -271,6 +271,7 @@ class UserController extends Controller
      *     description="Récupère les détails d'un utilisateur spécifique avec ses comptes",
      *     operationId="getUser",
      *     tags={"Utilisateurs"},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -284,6 +285,14 @@ class UserController extends Controller
      *         @OA\JsonContent(
      *             @OA\Property(property="success", type="boolean", example=true),
      *             @OA\Property(property="data", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Authentification requise",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Authentification requise")
      *         )
      *     ),
      *     @OA\Response(
@@ -324,6 +333,7 @@ class UserController extends Controller
      *     description="Met à jour partiellement un utilisateur existant",
      *     operationId="updateUser",
      *     tags={"Utilisateurs"},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -348,6 +358,14 @@ class UserController extends Controller
      *             @OA\Property(property="success", type="boolean", example=true),
      *             @OA\Property(property="message", type="string", example="Utilisateur mis à jour avec succès"),
      *             @OA\Property(property="data", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Authentification requise",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Authentification requise")
      *         )
      *     ),
      *     @OA\Response(
@@ -399,6 +417,7 @@ class UserController extends Controller
      *     description="Supprime un utilisateur existant",
      *     operationId="deleteUser",
      *     tags={"Utilisateurs"},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -412,6 +431,14 @@ class UserController extends Controller
      *         @OA\JsonContent(
      *             @OA\Property(property="success", type="boolean", example=true),
      *             @OA\Property(property="message", type="string", example="Utilisateur supprimé avec succès")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Authentification requise",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Authentification requise")
      *         )
      *     ),
      *     @OA\Response(
