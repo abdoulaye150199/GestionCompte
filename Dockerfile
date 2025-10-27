@@ -63,7 +63,8 @@ RUN if [ ! -z "$APP_URL" ]; then \
 
 # Copier la documentation générée dans le dossier public
 RUN cp storage/api-docs/api-docs.json public/api-docs.json && \
-    chmod 644 public/api-docs.json
+    chmod 644 public/api-docs.json && \
+    chown laravel:laravel public/api-docs.json
 USER root
 
 # Copier le script d'entrée
