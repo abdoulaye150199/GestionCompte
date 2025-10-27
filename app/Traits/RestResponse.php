@@ -65,7 +65,7 @@ trait RestResponse
         int $itemsPerPage,
         array $links = []
     ): JsonResponse {
-        return response()->json([
+        $response = [
             'success' => true,
             'data' => $data,
             'pagination' => [
@@ -76,7 +76,27 @@ trait RestResponse
                 'hasNext' => $currentPage < $totalPages,
                 'hasPrevious' => $currentPage > 1,
             ],
-            'links' => $links,
-        ]);
+        ];
+
+        // Add HATEOAS links for REST Level 3 compliance
+        if (!empty($links)) {
+            $response['_links'] = $links;
+        }
+
+        return response()->json($response);
+    }
+
+    /**
+     * Validate request data
+     *
+     * @param Request $request
+     * @param array $rules
+     * @param array $messages
+     * @param array $customAttributes
+     * @return array
+     */
+    protected function validateRequest(Request $request, array $rules, array $messages = [], array $customAttributes = []): array
+    {
+        return $request->validate($rules, $messages, $customAttributes);
     }
 }

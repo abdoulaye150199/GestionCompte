@@ -111,14 +111,10 @@ class CompteController extends Controller
 
         $query = Compte::with('user')->nonSupprime();
 
-        // Autorisation basée sur le rôle
         if ($user->type === 'client') {
-            // Client ne voit que ses propres comptes
             $query->utilisateur($user->id);
         }
-        // Admin voit tous les comptes (pas de restriction supplémentaire)
 
-        // Appliquer les scopes de filtrage
         if (isset($validated['type']) && $validated['type']) {
             $query->type($validated['type']);
         }
@@ -137,7 +133,6 @@ class CompteController extends Controller
             });
         }
 
-        // Tri
         $sort = $validated['sort'] ?? 'dateCreation';
         $order = $validated['order'] ?? 'desc';
 
@@ -157,7 +152,6 @@ class CompteController extends Controller
                 $query->orderBy('created_at', $order);
         }
 
-        // Pagination
         $limit = min($validated['limit'] ?? 10, 100);
         $comptes = $query->paginate($limit);
 

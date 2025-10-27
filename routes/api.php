@@ -29,7 +29,9 @@ Route::prefix('v1')->middleware(['auth:api', 'api.rating'])->group(function () {
     Route::apiResource('comptes', CompteController::class);
 
     // Routes des utilisateurs
-    Route::apiResource('users', UserController::class);
+    Route::middleware('resource:user')->group(function () {
+        Route::apiResource('users', UserController::class);
+    });
 });
 
 // Routes d'authentification Passport

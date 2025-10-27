@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\LoginRequest;
+use App\Http\Requests\RegisterRequest;
 use App\Models\User;
 use App\Traits\RestResponse;
 use Illuminate\Http\Request;
@@ -10,7 +12,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
-use App\Traits\ApiResponse;
 
 /**
  * @OA\SecurityScheme(
@@ -22,7 +23,7 @@ use App\Traits\ApiResponse;
  */
 class AuthController extends Controller
 {
-    use ApiResponse;
+    use RestResponse;
 
     /**
      * @OA\Post(
@@ -65,12 +66,9 @@ class AuthController extends Controller
      *     )
      * )
      */
-    public function login(Request $request): JsonResponse
+    public function login(LoginRequest $request): JsonResponse
     {
-        $validated = $this->validateRequest($request, [
-            'login' => 'required|string|max:255',
-            'password' => 'required|string|min:8',
-        ]);
+        $validated = $request->validated();
 
         $user = User::where('login', $validated['login'])->first();
 
@@ -124,17 +122,9 @@ class AuthController extends Controller
      *     )
      * )
      */
-    public function register(Request $request): JsonResponse
+    public function register(RegisterRequest $request): JsonResponse
     {
-        $validated = $this->validateRequest($request, [
-            'login' => 'required|string|unique:users,login|max:255',
-            'password' => 'required|string|min:8',
-            'nom' => 'required|string|max:255',
-            'nci' => 'required|string|max:255|unique:clients,nci',
-            'email' => 'required|email|max:255|unique:clients,email',
-            'telephone' => 'required|string|max:20|unique:clients,telephone',
-            'adresse' => 'required|string|max:500',
-        ]);
+        $validated = $request->validated();
 
         $user = User::create([
             'id' => (string) \Illuminate\Support\Str::uuid(),
