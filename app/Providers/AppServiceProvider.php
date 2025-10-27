@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,8 +20,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        \Laravel\Passport\Passport::hashClientSecrets();
-        \Laravel\Passport\Passport::tokensExpireIn(now()->addDays(15));
-        \Laravel\Passport\Passport::refreshTokensExpireIn(now()->addDays(30));
+        // Force HTTPS in production
+        if ($this->app->environment('production') || env('FORCE_HTTPS', true)) {
+            URL::forceScheme('https');
+            $this->app['request']->server->set('HTTPS', 'on');
+            
+            // Correct asset and generation URLs
+            if (config('l5-swagger.swagger_ui_protocol') !== 'https') {
+                config(['l5-swagger.swagger_ui_protocol' => 'https']);
+            }
+        }
     }
 }
