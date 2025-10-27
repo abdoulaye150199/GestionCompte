@@ -4,11 +4,7 @@ namespace App\OpenApi;
 
 /**
  * Global OpenAPI configuration and shared components
- * 
- * @OA\Server(
- *     url=L5_SWAGGER_CONST_HOST,
- *     description="Local Development Server"
- * )
+ *
  * @OA\Server(
  *     url="https://gestioncompte-api.onrender.com/abdoulaye.diallo/api/v1",
  *     description="Production Server (Render)"
