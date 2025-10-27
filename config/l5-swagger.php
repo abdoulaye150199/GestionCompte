@@ -16,20 +16,19 @@ return [
                 'api' => '/abdoulaye.diallo/api/documentation',
                 'docs' => '/docs',
                 'oauth2_callback' => 'api/oauth2-callback',
-                'assets' => '/docs/asset',
+                'assets' => '/swagger-assets',
             ],
             'paths' => [
                 /*
                  * Edit to include full URL in ui for assets
-                 * Set to false to avoid generating absolute URLs that may point to
-                 * a different host/port (prevents redirect loops in dev).
+                 * Set to true for production to ensure HTTPS URLs
                  */
-                'use_absolute_path' => false,
+                'use_absolute_path' => env('APP_ENV') === 'production',
 
                 /*
-                * Edit to set path where swagger ui assets should be stored
-                */
-                'swagger_ui_assets_path' => 'public/docs/asset/',
+                 * Edit to set path where swagger ui assets should be stored
+                 */
+                'swagger_ui_assets_path' => 'public/swagger-assets/',
 
                 /*
                  * File name of the generated json documentation file
@@ -49,7 +48,7 @@ return [
                 /*
                  * Location where swagger ui assets should be stored
                  */
-                'swagger_ui_assets_path' => 'public/docs/asset/',
+                'swagger_ui_assets_path' => 'public/swagger-assets/',
 
                 /*
                  * Absolute paths to directory containing the swagger annotations are stored.

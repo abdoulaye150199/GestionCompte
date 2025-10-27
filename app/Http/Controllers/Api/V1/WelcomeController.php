@@ -3,14 +3,14 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Traits\ApiResponse;
+use App\Traits\RestResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 
 class WelcomeController extends Controller
 {
-    use ApiResponse;
+    use RestResponse;
 
     /**
      * Return a welcome message with logging
