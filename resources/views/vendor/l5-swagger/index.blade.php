@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <title>{{config('l5-swagger.documentations.'.$documentation.'.api.title')}}</title>
     {{-- Use direct public assets to avoid route-based redirects in dev environments --}}
-    <link rel="stylesheet" type="text/css" href="{{ asset('swagger-assets/swagger-ui.css') }}">
-    <link rel="icon" type="image/png" href="{{ asset('swagger-assets/favicon-32x32.png') }}" sizes="32x32"/>
-    <link rel="icon" type="image/png" href="{{ asset('swagger-assets/favicon-16x16.png') }}" sizes="16x16"/>
+    <link rel="stylesheet" type="text/css" href="{{ request()->secure() ? secure_asset('swagger-assets/swagger-ui.css') : asset('swagger-assets/swagger-ui.css') }}">
+    <link rel="icon" type="image/png" href="{{ request()->secure() ? secure_asset('swagger-assets/favicon-32x32.png') : asset('swagger-assets/favicon-32x32.png') }}" sizes="32x32"/>
+    <link rel="icon" type="image/png" href="{{ request()->secure() ? secure_asset('swagger-assets/favicon-16x16.png') : asset('swagger-assets/favicon-16x16.png') }}" sizes="16x16"/>
     <style>
     html
     {
@@ -121,13 +121,13 @@
 <div id="swagger-ui"></div>
 
 {{-- Load scripts from public docs assets (pre-copied) to avoid controller routing and redirect loops --}}
-<script src="{{ asset('swagger-assets/swagger-ui-bundle.js') }}"></script>
-<script src="{{ asset('swagger-assets/swagger-ui-standalone-preset.js') }}"></script>
+<script src="{{ request()->secure() ? secure_asset('swagger-assets/swagger-ui-bundle.js') : asset('swagger-assets/swagger-ui-bundle.js') }}"></script>
+<script src="{{ request()->secure() ? secure_asset('swagger-assets/swagger-ui-standalone-preset.js') : asset('swagger-assets/swagger-ui-standalone-preset.js') }}"></script>
 
 <?php $oauth2RedirectUrlValue = route('l5-swagger.'.$documentation.'.oauth2_callback', [], config('l5-swagger.documentations.'.$documentation.'.paths.use_absolute_path', false)); ?>
 <script>
     // Prefer public copy if available (symlinked to storage) to avoid routing redirects
-    const urlToDocs = <?php echo json_encode(url('api-docs.json')); ?>;
+    const urlToDocs = <?php echo json_encode(request()->secure() ? secure_url('api-docs.json') : url('api-docs.json')); ?>;
     const operationsSorter = <?php echo json_encode($operationsSorter ?? null); ?>;
     const configUrl = <?php echo json_encode($configUrl ?? null); ?>;
     const validatorUrl = <?php echo json_encode($validatorUrl ?? null); ?>;
