@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -60,24 +61,29 @@ class AuthController extends Controller
      */
     public function login(LoginRequest $request): JsonResponse
     {
-        $validated = $request->validated();
+        try {
+            $validated = $request->validated();
 
-        $user = User::where('login', $validated['login'])->first();
+            $user = User::where('login', $validated['login'])->first();
 
-        if (!$user || !Hash::check($validated['password'], $user->password)) {
-            return $this->errorResponse('Identifiants invalides', 401);
+            if (!$user || !Hash::check($validated['password'], $user->password)) {
+                return $this->errorResponse('Identifiants invalides', 401);
+            }
+
+            $token = $user->createToken('API Token')->accessToken;
+
+            return $this->successResponse([
+                'user' => [
+                    'id' => $user->id,
+                    'login' => $user->login,
+                    'type' => $user->type,
+                ],
+                'token' => $token,
+            ], 'Connexion réussie');
+        } catch (\Exception $e) {
+            Log::error('Login error: ' . $e->getMessage());
+            return $this->errorResponse('Erreur serveur', 500);
         }
-
-        $token = $user->createToken('API Token')->accessToken;
-
-        return $this->successResponse([
-            'user' => [
-                'id' => $user->id,
-                'login' => $user->login,
-                'type' => $user->type,
-            ],
-            'token' => $token,
-        ], 'Connexion réussie');
     }
 
     /**
