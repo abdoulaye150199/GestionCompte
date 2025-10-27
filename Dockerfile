@@ -86,6 +86,7 @@ RUN chown laravel:laravel .env
 # Générer la clé d'application et optimiser
 USER laravel
 RUN php artisan key:generate --force && \
+    php artisan passport:install --force && \
     php artisan storage:link && \
     php artisan l5-swagger:generate && \
     php artisan config:cache && \
@@ -95,7 +96,8 @@ RUN php artisan key:generate --force && \
 
 # Copier la documentation générée dans le dossier public
 RUN cp storage/api-docs/api-docs.json public/api-docs.json && \
-    chmod 644 public/api-docs.json
+    chmod 644 public/api-docs.json && \
+    php artisan passport:install --force
 USER root
 
 # Copier le script d'entrée
