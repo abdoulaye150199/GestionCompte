@@ -12,8 +12,8 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-di
 # Étape 2: Image finale pour l'application
 FROM php:8.3-fpm-alpine
 
-# Installer les extensions PHP nécessaires
-RUN apk add --no-cache postgresql-dev \
+# Installer les extensions PHP nécessaires et les outils
+RUN apk add --no-cache postgresql-dev nodejs npm \
     && docker-php-ext-install pdo pdo_pgsql
 
 # Créer un utilisateur non-root
@@ -28,12 +28,22 @@ COPY --from=composer-build /app/vendor ./vendor
 # Copier le reste du code de l'application
 COPY . .
 
-# Créer les répertoires nécessaires et définir les permissions
+# Créer les répertoires nécessaires
 RUN mkdir -p storage/framework/{cache,data,sessions,testing,views} \
     && mkdir -p storage/logs \
     && mkdir -p bootstrap/cache \
-    && chown -R laravel:laravel /var/www/html \
-    && chmod -R 775 storage bootstrap/cache
+    && mkdir -p public/swagger-assets \
+    && mkdir -p public/vendor/swagger-ui
+
+# Copier les assets Swagger
+RUN cp -r vendor/swagger-api/swagger-ui/dist/* public/swagger-assets/ \
+    && cp -r vendor/swagger-api/swagger-ui/dist/* public/vendor/swagger-ui/
+
+# Définir les permissions
+RUN chown -R laravel:laravel /var/www/html \
+    && chmod -R 775 storage bootstrap/cache \
+    && chmod -R 755 public/swagger-assets \
+    && chmod -R 755 public/vendor/swagger-ui
 
 # Créer un fichier .env minimal pour le build
 RUN echo "APP_NAME=Laravel" > .env && \
@@ -62,9 +72,14 @@ RUN chown laravel:laravel .env
 # Générer la clé d'application et optimiser
 USER laravel
 RUN php artisan key:generate --force && \
+    php artisan l5-swagger:generate && \
     php artisan config:cache && \
     php artisan route:cache && \
     php artisan view:cache
+
+# Copier la documentation générée dans le dossier public
+RUN cp storage/api-docs/api-docs.json public/api-docs.json && \
+    chmod 644 public/api-docs.json
 USER root
 
 # Copier le script d'entrée
