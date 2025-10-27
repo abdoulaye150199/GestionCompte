@@ -4,13 +4,14 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
+use App\Http\Requests\UserIndexRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Models\Admin;
 use App\Models\Client;
 use App\Models\Role;
 use App\Traits\RestResponse;
-use App\Traits\ApiResponse;
 use App\Exceptions\UserNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -31,7 +32,7 @@ use Illuminate\Http\JsonResponse;
  */
 class UserController extends Controller
 {
-    use ApiResponse;
+    use RestResponse;
 
     /**
      * @OA\Get(
@@ -99,16 +100,9 @@ class UserController extends Controller
      *     )
      * )
      */
-    public function index(Request $request): JsonResponse
+    public function index(UserIndexRequest $request): JsonResponse
     {
-        $validated = $this->validateRequest($request, [
-            'page' => 'nullable|integer|min:1',
-            'limit' => 'nullable|integer|min:1|max:100',
-            'role' => 'nullable|string|in:admin,client',
-            'search' => 'nullable|string|max:255',
-            'sort' => 'nullable|string|in:dateCreation,nom',
-            'order' => 'nullable|string|in:asc,desc',
-        ]);
+        $validated = $request->validated();
 
         $query = User::query();
 
@@ -158,13 +152,37 @@ class UserController extends Controller
         $users = $query->with(['client', 'admin'])->paginate($limit);
 
         $links = [
-            'self' => $request->url() . '?' . http_build_query($validated),
-            'first' => $request->url() . '?' . http_build_query(array_merge($validated, ['page' => 1])),
-            'last' => $request->url() . '?' . http_build_query(array_merge($validated, ['page' => $users->lastPage()])),
+            'self' => [
+                'href' => $request->url() . '?' . http_build_query($validated),
+                'method' => 'GET',
+                'rel' => 'self'
+            ],
+            'first' => [
+                'href' => $request->url() . '?' . http_build_query(array_merge($validated, ['page' => 1])),
+                'method' => 'GET',
+                'rel' => 'first'
+            ],
+            'last' => [
+                'href' => $request->url() . '?' . http_build_query(array_merge($validated, ['page' => $users->lastPage()])),
+                'method' => 'GET',
+                'rel' => 'last'
+            ],
         ];
 
         if ($users->hasMorePages()) {
-            $links['next'] = $request->url() . '?' . http_build_query(array_merge($validated, ['page' => $users->currentPage() + 1]));
+            $links['next'] = [
+                'href' => $request->url() . '?' . http_build_query(array_merge($validated, ['page' => $users->currentPage() + 1])),
+                'method' => 'GET',
+                'rel' => 'next'
+            ];
+        }
+
+        if ($users->currentPage() > 1) {
+            $links['prev'] = [
+                'href' => $request->url() . '?' . http_build_query(array_merge($validated, ['page' => $users->currentPage() - 1])),
+                'method' => 'GET',
+                'rel' => 'prev'
+            ];
         }
 
         return $this->paginatedResponse(
@@ -273,9 +291,15 @@ class UserController extends Controller
      *     )
      * )
      */
-    public function show(string $id): JsonResponse
+    public function show(Request $request, string $id): JsonResponse
     {
-        $user = User::with(['client', 'admin'])->find($id);
+        // Try to get the cached resource from middleware
+        $user = $request->get('cached_resource');
+
+        if (!$user) {
+            // Fallback to direct database query if not cached
+            $user = User::with(['client', 'admin'])->find($id);
+        }
 
         if (!$user) {
             throw new UserNotFoundException($id);
@@ -328,17 +352,17 @@ class UserController extends Controller
      *     )
      * )
      */
-    public function update(Request $request, string $id): JsonResponse
+    public function update(UpdateUserRequest $request, string $id): JsonResponse
     {
-        $validated = $this->validateRequest($request, [
-            'nom' => 'sometimes|string|max:255',
-            'nci' => 'sometimes|string|max:255',
-            'email' => 'sometimes|email|max:255',
-            'telephone' => 'sometimes|string|max:20',
-            'adresse' => 'sometimes|string|max:500',
-        ]);
+        $validated = $request->validated();
 
-        $user = User::find($id);
+        // Try to get the cached resource from middleware
+        $user = $request->get('cached_resource');
+
+        if (!$user) {
+            // Fallback to direct database query if not cached
+            $user = User::find($id);
+        }
 
         if (!$user) {
             throw new UserNotFoundException($id);
@@ -392,9 +416,15 @@ class UserController extends Controller
      *     )
      * )
      */
-    public function destroy(string $id): JsonResponse
+    public function destroy(Request $request, string $id): JsonResponse
     {
-        $user = User::find($id);
+        // Try to get the cached resource from middleware
+        $user = $request->get('cached_resource');
+
+        if (!$user) {
+            // Fallback to direct database query if not cached
+            $user = User::find($id);
+        }
 
         if (!$user) {
             throw new UserNotFoundException($id);

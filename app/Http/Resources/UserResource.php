@@ -14,7 +14,7 @@ class UserResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return [
+        $data = [
             'id' => $this->id,
             'nom' => $this->nom,
             'nci' => $this->nci,
@@ -26,5 +26,31 @@ class UserResource extends JsonResource
             'dateCreation' => $this->created_at,
             'derniereModification' => $this->updated_at,
         ];
+
+        // Add HATEOAS links for REST Level 3 compliance
+        $data['_links'] = [
+            'self' => [
+                'href' => route('users.show', ['user' => $this->id]),
+                'method' => 'GET',
+                'rel' => 'self'
+            ],
+            'update' => [
+                'href' => route('users.update', ['user' => $this->id]),
+                'method' => 'PATCH',
+                'rel' => 'update'
+            ],
+            'delete' => [
+                'href' => route('users.destroy', ['user' => $this->id]),
+                'method' => 'DELETE',
+                'rel' => 'delete'
+            ],
+            'collection' => [
+                'href' => route('users.index'),
+                'method' => 'GET',
+                'rel' => 'collection'
+            ]
+        ];
+
+        return $data;
     }
 }

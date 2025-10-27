@@ -4,11 +4,11 @@ namespace App\Exceptions;
 
 use Exception;
 use Illuminate\Http\JsonResponse;
-use App\Traits\ApiResponse;
+use App\Traits\RestResponse;
 
 class ApiException extends Exception
 {
-    use ApiResponse;
+    use RestResponse;
 
     protected $statusCode;
     protected $errors;
