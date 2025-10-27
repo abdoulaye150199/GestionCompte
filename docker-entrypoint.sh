@@ -40,6 +40,32 @@ if php artisan migrate:status > /dev/null 2>&1; then
     chown -R www-data:www-data storage/oauth-*.key
     chmod 600 storage/oauth-*.key
 
+    echo "Generating Swagger documentation with HTTPS..."
+    export FORCE_HTTPS=true
+    export L5_SWAGGER_FORCE_HTTPS=true
+    
+    # Nettoyer et régénérer la documentation
+    php artisan config:clear
+    php artisan cache:clear
+    php artisan l5-swagger:generate
+    
+    # Vérifier que le fichier existe et le copier dans public
+    if [ -f storage/api-docs/api-docs.json ]; then
+        echo "Swagger docs generated successfully"
+        cp storage/api-docs/api-docs.json public/api-docs.json
+        chmod 644 public/api-docs.json
+        
+        # Vérifier le contenu HTTPS
+        if grep -q "http://" public/api-docs.json; then
+            echo "WARNING: HTTP URLs found in api-docs.json, converting to HTTPS..."
+            sed -i 's|http://|https://|g' public/api-docs.json
+        fi
+        
+        echo "✓ Swagger documentation updated with HTTPS"
+    else
+        echo "ERROR: Failed to generate Swagger documentation"
+    fi
+
     # Cache configuration
     echo "Caching configuration..."
     php artisan config:cache
