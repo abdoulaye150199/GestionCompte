@@ -7,7 +7,6 @@ use App\Http\Requests\StoreCompteRequest;
 use App\Http\Resources\CompteResource;
 use App\Models\Compte;
 use App\Traits\RestResponse;
-use App\Traits\ApiResponse;
 use App\Exceptions\CompteNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -15,7 +14,7 @@ use OpenApi\Annotations as OA;
 
 class CompteController extends Controller
 {
-    use ApiResponse;
+    use RestResponse;
 
     /**
      * @OA\Get(
