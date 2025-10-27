@@ -21,7 +21,7 @@ class AuthController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/abdoulaye.diallo/api/v1/login",
+     *     path="/login",
      *     summary="Connexion utilisateur",
      *     description="Authentifie un utilisateur et retourne un token d'accès",
      *     operationId="login",

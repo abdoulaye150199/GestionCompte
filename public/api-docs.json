@@ -2,12 +2,24 @@
     "openapi": "3.0.0",
     "info": {
         "title": "API de Gestion des Clients & Comptes",
-        "description": "API RESTful pour la gestion des clients et de leurs comptes bancaires avec archivage automatique",
+        "description": "API RESTful pour la gestion des clients et de leurs comptes bancaires",
         "version": "1.1.0"
     },
     "servers": [
         {
+            "url": "https://gestioncompte-api.onrender.com/abdoulaye.diallo/api/v1",
+            "description": "Serveur de production"
+        },
+        {
             "url": "http://localhost:8000/api/v1",
+            "description": "Serveur de développement"
+        },
+        {
+            "url": "https://gestioncompte-api.onrender.com/abdoulaye.diallo/api/v1",
+            "description": "Production server"
+        },
+        {
+            "url": "http://localhost:8000/abdoulaye.diallo/api/v1",
             "description": "Serveur de développement"
         }
     ],
@@ -247,92 +259,6 @@
                 ]
             }
         },
-        "/comptes/archives": {
-            "get": {
-                "tags": [
-                    "Archives"
-                ],
-                "summary": "Lister les comptes archivés",
-                "description": "Récupère une liste des comptes archivés dans la base de données Neon",
-                "operationId": "getArchivedComptes",
-                "parameters": [
-                    {
-                        "name": "page",
-                        "in": "query",
-                        "description": "Numéro de page",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "default": 1
-                        }
-                    },
-                    {
-                        "name": "limit",
-                        "in": "query",
-                        "description": "Nombre d'éléments par page",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "default": 10,
-                            "maximum": 100
-                        }
-                    },
-                    {
-                        "name": "statut",
-                        "in": "query",
-                        "description": "Filtrer par statut d'origine",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "actif",
-                                "bloque",
-                                "ferme"
-                            ]
-                        }
-                    },
-                    {
-                        "name": "raisonArchivage",
-                        "in": "query",
-                        "description": "Filtrer par raison d'archivage",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Liste des comptes archivés récupérée avec succès",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "success": {
-                                            "type": "boolean",
-                                            "example": true
-                                        },
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/components/schemas/ArchivedCompte"
-                                            }
-                                        },
-                                        "pagination": {
-                                            "$ref": "#/components/schemas/PaginationMeta"
-                                        },
-                                        "links": {
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/comptes": {
             "get": {
                 "tags": [
@@ -443,11 +369,11 @@
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/components/schemas/Compte"
+                                                "type": "object"
                                             }
                                         },
                                         "pagination": {
-                                            "$ref": "#/components/schemas/PaginationMeta"
+                                            "type": "object"
                                         },
                                         "links": {
                                             "properties": {
@@ -547,7 +473,7 @@
                                             "example": "Compte créé avec succès"
                                         },
                                         "data": {
-                                            "$ref": "#/components/schemas/Compte"
+                                            "type": "object"
                                         }
                                     },
                                     "type": "object"
@@ -613,7 +539,7 @@
                                             "example": true
                                         },
                                         "data": {
-                                            "$ref": "#/components/schemas/Compte"
+                                            "type": "object"
                                         }
                                     },
                                     "type": "object"
@@ -787,7 +713,7 @@
                                             "example": "Compte mis à jour avec succès"
                                         },
                                         "data": {
-                                            "$ref": "#/components/schemas/Compte"
+                                            "type": "object"
                                         }
                                     },
                                     "type": "object"
@@ -879,7 +805,7 @@
                                             "example": "Compte restauré avec succès"
                                         },
                                         "data": {
-                                            "$ref": "#/components/schemas/Compte"
+                                            "type": "object"
                                         }
                                     },
                                     "type": "object"
@@ -978,7 +904,7 @@
                                             "example": "Compte bloqué avec succès"
                                         },
                                         "data": {
-                                            "$ref": "#/components/schemas/Compte"
+                                            "type": "object"
                                         }
                                     },
                                     "type": "object"
@@ -1064,7 +990,7 @@
                                             "example": "Compte débloqué avec succès"
                                         },
                                         "data": {
-                                            "$ref": "#/components/schemas/Compte"
+                                            "type": "object"
                                         }
                                     },
                                     "type": "object"
@@ -1190,11 +1116,11 @@
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/components/schemas/User"
+                                                "type": "object"
                                             }
                                         },
                                         "pagination": {
-                                            "$ref": "#/components/schemas/PaginationMeta"
+                                            "type": "object"
                                         },
                                         "links": {
                                             "properties": {
@@ -1293,7 +1219,7 @@
                                             "example": "Utilisateur créé avec succès"
                                         },
                                         "data": {
-                                            "$ref": "#/components/schemas/User"
+                                            "type": "object"
                                         }
                                     },
                                     "type": "object"
@@ -1359,7 +1285,7 @@
                                             "example": true
                                         },
                                         "data": {
-                                            "$ref": "#/components/schemas/User"
+                                            "type": "object"
                                         }
                                     },
                                     "type": "object"
@@ -1539,7 +1465,7 @@
                                             "example": "Utilisateur mis à jour avec succès"
                                         },
                                         "data": {
-                                            "$ref": "#/components/schemas/User"
+                                            "type": "object"
                                         }
                                     },
                                     "type": "object"
@@ -1575,181 +1501,6 @@
     },
     "components": {
         "schemas": {
-            "ApiResponse": {
-                "properties": {
-                    "success": {
-                        "type": "boolean"
-                    },
-                    "message": {
-                        "type": "string"
-                    },
-                    "data": {
-                        "type": "object"
-                    }
-                },
-                "type": "object"
-            },
-            "PaginationMeta": {
-                "properties": {
-                    "currentPage": {
-                        "type": "integer"
-                    },
-                    "totalPages": {
-                        "type": "integer"
-                    },
-                    "totalItems": {
-                        "type": "integer"
-                    },
-                    "itemsPerPage": {
-                        "type": "integer"
-                    },
-                    "hasNext": {
-                        "type": "boolean"
-                    },
-                    "hasPrevious": {
-                        "type": "boolean"
-                    }
-                },
-                "type": "object"
-            },
-            "Compte": {
-                "properties": {
-                    "id": {
-                        "type": "string",
-                        "example": "550e8400-e29b-41d4-a716-446655440000"
-                    },
-                    "numeroCompte": {
-                        "type": "string",
-                        "example": "C00123456"
-                    },
-                    "titulaire": {
-                        "type": "string",
-                        "example": "Amadou Diallo"
-                    },
-                    "type": {
-                        "type": "string",
-                        "enum": [
-                            "epargne",
-                            "cheque"
-                        ]
-                    },
-                    "solde": {
-                        "type": "number",
-                        "format": "float",
-                        "example": 1250000
-                    },
-                    "devise": {
-                        "type": "string",
-                        "example": "FCFA"
-                    },
-                    "dateCreation": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "statut": {
-                        "type": "string",
-                        "enum": [
-                            "actif",
-                            "bloque",
-                            "ferme"
-                        ]
-                    },
-                    "dateFinBlocage": {
-                        "description": "Date de fin de blocage si le compte est bloqué",
-                        "type": "string",
-                        "format": "date-time",
-                        "nullable": true
-                    },
-                    "metadonnees": {
-                        "properties": {
-                            "derniereModification": {
-                                "type": "string",
-                                "format": "date-time"
-                            },
-                            "version": {
-                                "type": "integer",
-                                "example": 1
-                            },
-                            "dateArchivage": {
-                                "description": "Date d'archivage automatique (si applicable)",
-                                "type": "string",
-                                "format": "date-time"
-                            },
-                            "raisonArchivage": {
-                                "description": "Raison de l'archivage automatique",
-                                "type": "string"
-                            }
-                        },
-                        "type": "object"
-                    }
-                },
-                "type": "object"
-            },
-            "ArchivedCompte": {
-                "properties": {
-                    "id": {
-                        "type": "string",
-                        "example": "550e8400-e29b-41d4-a716-446655440000"
-                    },
-                    "numeroCompte": {
-                        "type": "string",
-                        "example": "C00123456"
-                    },
-                    "userId": {
-                        "type": "string",
-                        "example": "550e8400-e29b-41d4-a716-446655440000"
-                    },
-                    "type": {
-                        "type": "string",
-                        "enum": [
-                            "epargne",
-                            "cheque"
-                        ]
-                    },
-                    "solde": {
-                        "type": "number",
-                        "format": "float",
-                        "example": 1250000
-                    },
-                    "devise": {
-                        "type": "string",
-                        "example": "FCFA"
-                    },
-                    "statut": {
-                        "type": "string",
-                        "enum": [
-                            "actif",
-                            "bloque",
-                            "ferme"
-                        ]
-                    },
-                    "dateCreation": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "dateFinBlocage": {
-                        "type": "string",
-                        "format": "date-time",
-                        "nullable": true
-                    },
-                    "dateArchivage": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "raisonArchivage": {
-                        "type": "string",
-                        "example": "Blocage expiré"
-                    },
-                    "metadonnees": {
-                        "type": "object"
-                    },
-                    "archivedAt": {
-                        "type": "string",
-                        "format": "date-time"
-                    }
-                },
-                "type": "object"
-            },
             "User": {
                 "properties": {
                     "id": {
@@ -1812,12 +1563,12 @@
             "description": "Authentification"
         },
         {
-            "name": "Archives",
-            "description": "Archives"
-        },
-        {
             "name": "Comptes",
             "description": "Comptes"
+        },
+        {
+            "name": "Archives",
+            "description": "Archives"
         },
         {
             "name": "Utilisateurs",
