@@ -106,7 +106,7 @@ class AuthController extends Controller
      *     path="/abdoulaye.diallo/api/v1/user",
      *     summary="Informations de l'utilisateur",
      *     description="Retourne les informations de l'utilisateur connecté",
-     *     operationId="getUser",
+     *     operationId="getAuthenticatedUser",
      *     tags={"Authentification"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Response(
