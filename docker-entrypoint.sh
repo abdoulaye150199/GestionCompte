@@ -13,11 +13,8 @@ php artisan migrate --force
 echo "Installing Passport keys..."
 php artisan passport:install --force
 
-echo "Generating Swagger documentation..."
-php artisan l5-swagger:generate
-
-echo "Publishing Swagger assets..."
-php artisan vendor:publish --provider "L5Swagger\L5SwaggerServiceProvider" --force
+echo "Generating and publishing Swagger documentation..."
+php artisan swagger:publish
 
 echo "Starting Laravel application..."
 exec "$@"

@@ -127,7 +127,7 @@
 <?php $oauth2RedirectUrlValue = route('l5-swagger.'.$documentation.'.oauth2_callback', [], config('l5-swagger.documentations.'.$documentation.'.paths.use_absolute_path', false)); ?>
 <script>
     // Prefer public copy if available (symlinked to storage) to avoid routing redirects
-    const urlToDocs = <?php echo json_encode(url('/abdoulaye.diallo/api/documentation/api-docs.json')); ?>;
+    const urlToDocs = <?php echo json_encode(url('/api-docs.json')); ?>;
     const operationsSorter = <?php echo json_encode($operationsSorter ?? null); ?>;
     const configUrl = <?php echo json_encode($configUrl ?? null); ?>;
     const validatorUrl = <?php echo json_encode($validatorUrl ?? null); ?>;

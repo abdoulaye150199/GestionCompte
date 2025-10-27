@@ -65,6 +65,11 @@ RUN if [ ! -z "$APP_URL" ]; then \
 RUN cp storage/api-docs/api-docs.json public/api-docs.json && \
     chmod 644 public/api-docs.json && \
     chown laravel:laravel public/api-docs.json
+
+# Installation et configuration de Passport
+USER laravel
+RUN php artisan passport:keys --force && \
+    php artisan passport:client --personal --no-interaction
 USER root
 
 # Copier le script d'entrée
