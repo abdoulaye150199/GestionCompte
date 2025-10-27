@@ -15,16 +15,16 @@
             "description": "Serveur de développement"
         },
         {
-            "url": "https://gestioncompte-api.onrender.com/abdoulaye.diallo",
+            "url": "https://gestioncompte-api.onrender.com/abdoulaye.diallo/api/v1",
             "description": "Production server"
         },
         {
-            "url": "http://localhost:8000/api/v1",
+            "url": "http://localhost:8000/abdoulaye.diallo/api/v1",
             "description": "Serveur de développement"
         }
     ],
     "paths": {
-        "/abdoulaye.diallo/api/v1/login": {
+        "/login": {
             "post": {
                 "tags": [
                     "Authentification"

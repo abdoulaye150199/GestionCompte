@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie', 'abdoulaye.diallo/api/*', 'api-docs.json', 'swagger-assets/*'],
+    'paths' => ['api/*', 'sanctum/csrf-cookie', 'abdoulaye.diallo/api/*', 'api-docs.json', 'swagger-assets/*', '*'],
 
     'allowed_methods' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
 
