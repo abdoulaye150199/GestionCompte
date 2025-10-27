@@ -19,7 +19,7 @@ class AuthController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/abdoulaye.diallo/api/v1/login",
+     *     path="/login",
      *     summary="Connexion utilisateur",
      *     description="Authentifie un utilisateur et retourne un token d'accès",
      *     operationId="login",
@@ -78,7 +78,7 @@ class AuthController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/abdoulaye.diallo/api/v1/logout",
+     *     path="/logout",
      *     summary="Déconnexion utilisateur",
      *     description="Révoque le token d'accès de l'utilisateur",
      *     operationId="logout",
@@ -103,7 +103,7 @@ class AuthController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/abdoulaye.diallo/api/v1/user",
+     *     path="/user",
      *     summary="Informations de l'utilisateur",
      *     description="Retourne les informations de l'utilisateur connecté",
      *     operationId="getAuthenticatedUser",

@@ -12,7 +12,7 @@
         }
     ],
     "paths": {
-        "/abdoulaye.diallo/api/v1/login": {
+        "/login": {
             "post": {
                 "tags": [
                     "Authentification"
@@ -99,7 +99,7 @@
                 }
             }
         },
-        "/abdoulaye.diallo/api/v1/logout": {
+        "/logout": {
             "post": {
                 "tags": [
                     "Authentification"
@@ -136,7 +136,7 @@
                 ]
             }
         },
-        "/abdoulaye.diallo/api/v1/user": {
+        "/user": {
             "get": {
                 "tags": [
                     "Authentification"
