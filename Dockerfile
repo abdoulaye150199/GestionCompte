@@ -47,18 +47,7 @@ RUN chown -R laravel:laravel /var/www/html \
     && chmod -R 755 public/vendor/swagger-ui
 
 # Configuration minimale pour le build
-RUN echo "APP_NAME=GestionCompte" > .env && \
-    echo "APP_ENV=production" >> .env && \
-    echo "APP_DEBUG=false" >> .env && \
-    echo "LOG_CHANNEL=stack" >> .env && \
-    echo "LOG_LEVEL=error" >> .env && \
-    echo "DB_CONNECTION=pgsql" >> .env && \
-    echo "DB_SCHEMA=public" >> .env && \
-    echo "DB_SSLMODE=require" >> .env && \
-    echo "CACHE_DRIVER=file" >> .env && \
-    echo "SESSION_DRIVER=file" >> .env && \
-    echo "QUEUE_CONNECTION=sync" >> .env && \
-    echo "L5_SWAGGER_GENERATE_ALWAYS=true" >> .env
+COPY .env.example .env
 
 # Changer les permissions du fichier .env pour l'utilisateur laravel
 RUN chown laravel:laravel .env
@@ -66,8 +55,12 @@ RUN chown laravel:laravel .env
 # Préparation de l'application
 USER laravel
 RUN php artisan storage:link && \
-    php artisan l5-swagger:generate && \
     php artisan view:cache
+
+# Génération de la documentation API uniquement si les variables nécessaires sont présentes
+RUN if [ ! -z "$APP_URL" ]; then \
+    php artisan l5-swagger:generate; \
+    fi
 
 # Copier la documentation générée dans le dossier public
 RUN cp storage/api-docs/api-docs.json public/api-docs.json && \
