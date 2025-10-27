@@ -2,25 +2,21 @@
     "openapi": "3.0.0",
     "info": {
         "title": "API de Gestion des Clients & Comptes",
-        "description": "API RESTful pour la gestion des clients et de leurs comptes bancaires",
-        "version": "1.1.0"
+        "description": "API RESTful pour la gestion des clients et de leurs comptes bancaires avec authentification Laravel Passport",
+        "version": "1.0.0"
     },
     "servers": [
         {
-            "url": "https://gestioncompte-api.onrender.com/abdoulaye.diallo/api/v1",
-            "description": "Serveur de production"
-        },
-        {
-            "url": "http://localhost:8000/api/v1",
-            "description": "Serveur de développement"
-        },
-        {
             "url": "https://127.0.0.1:8000/api/v1",
-            "description": "API Server"
+            "description": "Local Development Server"
+        },
+        {
+            "url": "https://gestioncompte-api.onrender.com/abdoulaye.diallo/api/v1",
+            "description": "Production Server (Render)"
         }
     ],
     "paths": {
-        "/login": {
+        "/abdoulaye.diallo/api/v1/login": {
             "post": {
                 "tags": [
                     "Authentification"
@@ -102,129 +98,18 @@
                         }
                     },
                     "401": {
-                        "description": "Identifiants invalides",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "success": {
-                                            "type": "boolean",
-                                            "example": false
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Identifiants invalides"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
+                        "description": "Identifiants invalides"
                     }
                 }
             }
         },
-        "/register": {
+        "/abdoulaye.diallo/api/v1/logout": {
             "post": {
                 "tags": [
                     "Authentification"
                 ],
-                "summary": "Inscription d'un nouveau client",
-                "description": "Crée un nouveau compte client",
-                "operationId": "register",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "login",
-                                    "password",
-                                    "nom",
-                                    "nci",
-                                    "email",
-                                    "telephone",
-                                    "adresse"
-                                ],
-                                "properties": {
-                                    "login": {
-                                        "description": "Login unique",
-                                        "type": "string"
-                                    },
-                                    "password": {
-                                        "description": "Mot de passe",
-                                        "type": "string",
-                                        "format": "password"
-                                    },
-                                    "nom": {
-                                        "description": "Nom complet",
-                                        "type": "string"
-                                    },
-                                    "nci": {
-                                        "description": "Numéro de carte d'identité",
-                                        "type": "string"
-                                    },
-                                    "email": {
-                                        "description": "Adresse email",
-                                        "type": "string",
-                                        "format": "email"
-                                    },
-                                    "telephone": {
-                                        "description": "Numéro de téléphone",
-                                        "type": "string"
-                                    },
-                                    "adresse": {
-                                        "description": "Adresse complète",
-                                        "type": "string"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Inscription réussie",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "success": {
-                                            "type": "boolean",
-                                            "example": true
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Inscription réussie"
-                                        },
-                                        "data": {
-                                            "properties": {
-                                                "user": {
-                                                    "type": "object"
-                                                },
-                                                "token": {
-                                                    "type": "string"
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/logout": {
-            "post": {
-                "tags": [
-                    "Authentification"
-                ],
-                "summary": "Déconnexion",
-                "description": "Révoque le token d'accès actuel",
+                "summary": "Déconnexion utilisateur",
+                "description": "Révoque le token d'accès de l'utilisateur",
                 "operationId": "logout",
                 "responses": {
                     "200": {
@@ -240,6 +125,62 @@
                                         "message": {
                                             "type": "string",
                                             "example": "Déconnexion réussie"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/abdoulaye.diallo/api/v1/user": {
+            "get": {
+                "tags": [
+                    "Authentification"
+                ],
+                "summary": "Informations de l'utilisateur",
+                "description": "Retourne les informations de l'utilisateur connecté",
+                "operationId": "getAuthenticatedUser",
+                "responses": {
+                    "200": {
+                        "description": "Informations de l'utilisateur",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "user": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "string"
+                                                        },
+                                                        "login": {
+                                                            "type": "string"
+                                                        },
+                                                        "type": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "admin",
+                                                                "client"
+                                                            ]
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
                                         }
                                     },
                                     "type": "object"
@@ -1548,6 +1489,7 @@
         "securitySchemes": {
             "bearerAuth": {
                 "type": "http",
+                "description": "Entrez votre jeton Bearer obtenu via /api/v1/login",
                 "bearerFormat": "JWT",
                 "scheme": "bearer"
             }

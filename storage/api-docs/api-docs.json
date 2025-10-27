@@ -16,7 +16,7 @@
         }
     ],
     "paths": {
-        "/login": {
+        "/abdoulaye.diallo/api/v1/login": {
             "post": {
                 "tags": [
                     "Authentification"
@@ -101,6 +101,99 @@
                         "description": "Identifiants invalides"
                     }
                 }
+            }
+        },
+        "/abdoulaye.diallo/api/v1/logout": {
+            "post": {
+                "tags": [
+                    "Authentification"
+                ],
+                "summary": "Déconnexion utilisateur",
+                "description": "Révoque le token d'accès de l'utilisateur",
+                "operationId": "logout",
+                "responses": {
+                    "200": {
+                        "description": "Déconnexion réussie",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Déconnexion réussie"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/abdoulaye.diallo/api/v1/user": {
+            "get": {
+                "tags": [
+                    "Authentification"
+                ],
+                "summary": "Informations de l'utilisateur",
+                "description": "Retourne les informations de l'utilisateur connecté",
+                "operationId": "getAuthenticatedUser",
+                "responses": {
+                    "200": {
+                        "description": "Informations de l'utilisateur",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "user": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "string"
+                                                        },
+                                                        "login": {
+                                                            "type": "string"
+                                                        },
+                                                        "type": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "admin",
+                                                                "client"
+                                                            ]
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/comptes": {
