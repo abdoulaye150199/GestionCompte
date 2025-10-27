@@ -23,6 +23,7 @@ class CompteController extends Controller
      *     description="Récupère une liste paginée de comptes avec possibilité de filtrage et tri",
      *     operationId="getComptes",
      *     tags={"Comptes"},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="page",
      *         in="query",
@@ -85,6 +86,14 @@ class CompteController extends Controller
      *                 @OA\Property(property="first", type="string"),
      *                 @OA\Property(property="last", type="string")
      *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Authentification requise",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Authentification requise")
      *         )
      *     )
      * )
