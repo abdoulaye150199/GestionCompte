@@ -190,6 +190,7 @@ class CompteController extends Controller
      *     description="Crée un nouveau compte bancaire pour un utilisateur",
      *     operationId="createCompte",
      *     tags={"Comptes"},
+     *     security={{"bearerAuth":{}}},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
@@ -208,6 +209,14 @@ class CompteController extends Controller
      *             @OA\Property(property="success", type="boolean", example=true),
      *             @OA\Property(property="message", type="string", example="Compte créé avec succès"),
      *             @OA\Property(property="data", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Authentification requise",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Authentification requise")
      *         )
      *     ),
      *     @OA\Response(
@@ -239,6 +248,7 @@ class CompteController extends Controller
      *     description="Récupère les détails d'un compte spécifique",
      *     operationId="getCompte",
      *     tags={"Comptes"},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -252,6 +262,14 @@ class CompteController extends Controller
      *         @OA\JsonContent(
      *             @OA\Property(property="success", type="boolean", example=true),
      *             @OA\Property(property="data", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Authentification requise",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Authentification requise")
      *         )
      *     ),
      *     @OA\Response(
@@ -286,6 +304,7 @@ class CompteController extends Controller
      *     description="Met à jour partiellement un compte existant. Note: Les comptes bloqués peuvent être automatiquement archivés après expiration.",
      *     operationId="updateCompte",
      *     tags={"Comptes"},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -308,6 +327,14 @@ class CompteController extends Controller
      *             @OA\Property(property="success", type="boolean", example=true),
      *             @OA\Property(property="message", type="string", example="Compte mis à jour avec succès"),
      *             @OA\Property(property="data", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Authentification requise",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Authentification requise")
      *         )
      *     ),
      *     @OA\Response(
@@ -360,6 +387,7 @@ class CompteController extends Controller
      *     description="Archive un compte existant (soft delete). Les comptes bloqués expirés sont automatiquement archivés dans la base de données Neon.",
      *     operationId="archiveCompte",
      *     tags={"Comptes"},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -373,6 +401,14 @@ class CompteController extends Controller
      *         @OA\JsonContent(
      *             @OA\Property(property="success", type="boolean", example=true),
      *             @OA\Property(property="message", type="string", example="Compte archivé avec succès")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Authentification requise",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Authentification requise")
      *         )
      *     ),
      *     @OA\Response(
