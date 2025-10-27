@@ -13,8 +13,9 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-di
 FROM php:8.3-fpm-alpine
 
 # Installer les extensions PHP nécessaires et les outils
-RUN apk add --no-cache postgresql-dev nodejs npm \
-    && docker-php-ext-install pdo pdo_pgsql
+RUN apk add --no-cache postgresql-dev nodejs npm libpq openssl \
+    && docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql \
+    && docker-php-ext-install pdo pdo_pgsql pgsql
 
 # Créer un utilisateur non-root
 RUN addgroup -g 1000 laravel && adduser -G laravel -g laravel -s /bin/sh -D laravel
@@ -61,6 +62,8 @@ RUN echo "APP_NAME=GestionCompte" > .env && \
     echo "DB_DATABASE=railway" >> .env && \
     echo "DB_USERNAME=postgres" >> .env && \
     echo "DB_PASSWORD=zyzDSszPfFBURKPwbjXcaMVVtOyNZJbO" >> .env && \
+    echo "DB_SCHEMA=public" >> .env && \
+    echo "DB_SSLMODE=require" >> .env && \
     echo "" >> .env && \
     echo "# Neon Database for archiving" >> .env && \
     echo "NEON_DATABASE_URL=postgresql://neondb_owner:npg_nmGJz3oHRWV1@ep-cold-flower-ahmlgg4s-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require" >> .env && \
@@ -72,7 +75,10 @@ RUN echo "APP_NAME=GestionCompte" > .env && \
     echo "" >> .env && \
     echo "CACHE_DRIVER=file" >> .env && \
     echo "SESSION_DRIVER=file" >> .env && \
-    echo "QUEUE_CONNECTION=sync" >> .env
+    echo "QUEUE_CONNECTION=sync" >> .env && \
+    echo "" >> .env && \
+    echo "L5_SWAGGER_GENERATE_ALWAYS=true" >> .env && \
+    echo "L5_SWAGGER_CONST_HOST=https://gestioncompte-api.onrender.com" >> .env
 
 # Changer les permissions du fichier .env pour l'utilisateur laravel
 RUN chown laravel:laravel .env
@@ -80,11 +86,12 @@ RUN chown laravel:laravel .env
 # Générer la clé d'application et optimiser
 USER laravel
 RUN php artisan key:generate --force && \
-    php artisan passport:install --force && \
+    php artisan storage:link && \
     php artisan l5-swagger:generate && \
     php artisan config:cache && \
     php artisan route:cache && \
-    php artisan view:cache
+    php artisan view:cache && \
+    php artisan optimize
 
 # Copier la documentation générée dans le dossier public
 RUN cp storage/api-docs/api-docs.json public/api-docs.json && \
