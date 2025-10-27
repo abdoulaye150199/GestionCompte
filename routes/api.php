@@ -39,6 +39,7 @@ Route::prefix('v1')->group(function () {
     Route::post('login', [App\Http\Controllers\Api\V1\AuthController::class, 'login']);
     Route::post('register', [App\Http\Controllers\Api\V1\AuthController::class, 'register']);
     Route::middleware('auth:api')->post('logout', [App\Http\Controllers\Api\V1\AuthController::class, 'logout']);
+    Route::get('welcome', [App\Http\Controllers\Api\V1\WelcomeController::class, 'index']);
 });
 
 // Route par défaut de Laravel (peut être supprimée si non nécessaire)
