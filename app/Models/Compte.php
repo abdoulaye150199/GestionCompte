@@ -23,11 +23,15 @@ class Compte extends Model
         'devise',
         'statut',
         'metadonnees',
+        'date_debut_blocage',
+        'date_fin_blocage',
     ];
 
     protected $casts = [
         'solde' => 'decimal:2',
         'metadonnees' => 'array',
+        'date_debut_blocage' => 'datetime',
+        'date_fin_blocage' => 'datetime',
     ];
 
     protected static function boot()

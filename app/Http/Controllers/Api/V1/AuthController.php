@@ -4,12 +4,13 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Traits\ApiResponse;
+use App\Traits\RestResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use App\Traits\ApiResponse;
 
 /**
  * @OA\SecurityScheme(
@@ -66,14 +67,14 @@ class AuthController extends Controller
      */
     public function login(Request $request): JsonResponse
     {
-        $request->validate([
-            'login' => 'required|string',
-            'password' => 'required|string',
+        $validated = $this->validateRequest($request, [
+            'login' => 'required|string|max:255',
+            'password' => 'required|string|min:8',
         ]);
 
-        $user = User::where('login', $request->login)->first();
+        $user = User::where('login', $validated['login'])->first();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if (!$user || !Hash::check($validated['password'], $user->password)) {
             return $this->errorResponse('Identifiants invalides', 401);
         }
 
@@ -125,30 +126,30 @@ class AuthController extends Controller
      */
     public function register(Request $request): JsonResponse
     {
-        $request->validate([
+        $validated = $this->validateRequest($request, [
             'login' => 'required|string|unique:users,login|max:255',
             'password' => 'required|string|min:8',
             'nom' => 'required|string|max:255',
-            'nci' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'telephone' => 'required|string|max:20',
+            'nci' => 'required|string|max:255|unique:clients,nci',
+            'email' => 'required|email|max:255|unique:clients,email',
+            'telephone' => 'required|string|max:20|unique:clients,telephone',
             'adresse' => 'required|string|max:500',
         ]);
 
         $user = User::create([
             'id' => (string) \Illuminate\Support\Str::uuid(),
-            'login' => $request->login,
-            'password' => Hash::make($request->password),
+            'login' => $validated['login'],
+            'password' => Hash::make($validated['password']),
         ]);
 
-        // Créer le profil client (les validations d'unicité sont gérées au niveau des tables séparées)
+        // Créer le profil client
         $user->client()->create([
             'id' => (string) \Illuminate\Support\Str::uuid(),
-            'nom' => $request->nom,
-            'nci' => $request->nci,
-            'email' => $request->email,
-            'telephone' => $request->telephone,
-            'adresse' => $request->adresse,
+            'nom' => $validated['nom'],
+            'nci' => $validated['nci'],
+            'email' => $validated['email'],
+            'telephone' => $validated['telephone'],
+            'adresse' => $validated['adresse'],
         ]);
 
         $token = $user->createToken('API Token')->accessToken;
@@ -183,7 +184,8 @@ class AuthController extends Controller
      */
     public function logout(Request $request): JsonResponse
     {
-        $request->user()->token()->revoke();
+        $user = $request->user();
+        $user->token()->revoke();
 
         return $this->successResponse(null, 'Déconnexion réussie');
     }
