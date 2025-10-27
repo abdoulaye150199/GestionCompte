@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\Admin;
 use App\Models\Client;
 use App\Models\Role;
+use App\Traits\RestResponse;
 use App\Traits\ApiResponse;
 use App\Exceptions\UserNotFoundException;
 use Illuminate\Http\Request;
@@ -86,8 +87,8 @@ class UserController extends Controller
      *         description="Liste des utilisateurs récupérée avec succès",
      *         @OA\JsonContent(
      *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/User")),
-     *             @OA\Property(property="pagination", ref="#/components/schemas/PaginationMeta"),
+     *             @OA\Property(property="data", type="array", @OA\Items(type="object")),
+     *             @OA\Property(property="pagination", type="object"),
      *             @OA\Property(property="links", type="object",
      *                 @OA\Property(property="self", type="string"),
      *                 @OA\Property(property="next", type="string"),
@@ -100,25 +101,79 @@ class UserController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
+        $validated = $this->validateRequest($request, [
+            'page' => 'nullable|integer|min:1',
+            'limit' => 'nullable|integer|min:1|max:100',
+            'role' => 'nullable|string|in:admin,client',
+            'search' => 'nullable|string|max:255',
+            'sort' => 'nullable|string|in:dateCreation,nom',
+            'order' => 'nullable|string|in:asc,desc',
+        ]);
+
         $query = User::query();
 
-        // Filtrage par type si demandé
-        if ($request->has('type') && in_array($request->type, ['client', 'admin'])) {
-            if ($request->type === 'client') {
+        // Filtrage par rôle si demandé
+        if (isset($validated['role'])) {
+            if ($validated['role'] === 'client') {
                 $query->whereHas('client');
-            } elseif ($request->type === 'admin') {
+            } elseif ($validated['role'] === 'admin') {
                 $query->whereHas('admin');
             }
         }
 
-        $users = $query->with(['client', 'admin'])->paginate($request->get('per_page', 10));
+        // Recherche
+        if (isset($validated['search']) && $validated['search']) {
+            $search = $validated['search'];
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('client', function ($clientQuery) use ($search) {
+                    $clientQuery->where('nom', 'like', "%{$search}%")
+                               ->orWhere('email', 'like', "%{$search}%")
+                               ->orWhere('telephone', 'like', "%{$search}%");
+                })->orWhereHas('admin', function ($adminQuery) use ($search) {
+                    $adminQuery->where('nom', 'like', "%{$search}%")
+                              ->orWhere('email', 'like', "%{$search}%")
+                              ->orWhere('telephone', 'like', "%{$search}%");
+                });
+            });
+        }
+
+        // Tri
+        $sort = $validated['sort'] ?? 'dateCreation';
+        $order = $validated['order'] ?? 'desc';
+
+        switch ($sort) {
+            case 'dateCreation':
+                $query->orderBy('created_at', $order);
+                break;
+            case 'nom':
+                $query->join('clients', 'users.id', '=', 'clients.user_id')
+                      ->orderBy('clients.nom', $order)
+                      ->select('users.*');
+                break;
+            default:
+                $query->orderBy('created_at', $order);
+        }
+
+        $limit = $validated['limit'] ?? 10;
+        $users = $query->with(['client', 'admin'])->paginate($limit);
+
+        $links = [
+            'self' => $request->url() . '?' . http_build_query($validated),
+            'first' => $request->url() . '?' . http_build_query(array_merge($validated, ['page' => 1])),
+            'last' => $request->url() . '?' . http_build_query(array_merge($validated, ['page' => $users->lastPage()])),
+        ];
+
+        if ($users->hasMorePages()) {
+            $links['next'] = $request->url() . '?' . http_build_query(array_merge($validated, ['page' => $users->currentPage() + 1]));
+        }
 
         return $this->paginatedResponse(
-            UserResource::collection($users),
+            UserResource::collection($users->items()),
             $users->currentPage(),
             $users->lastPage(),
             $users->total(),
-            $users->perPage()
+            $users->perPage(),
+            $links
         );
     }
 
@@ -147,7 +202,7 @@ class UserController extends Controller
      *         @OA\JsonContent(
      *             @OA\Property(property="success", type="boolean", example=true),
      *             @OA\Property(property="message", type="string", example="Utilisateur créé avec succès"),
-     *             @OA\Property(property="data", ref="#/components/schemas/User")
+     *             @OA\Property(property="data", type="object")
      *         )
      *     ),
      *     @OA\Response(
@@ -166,7 +221,8 @@ class UserController extends Controller
         $validated = $request->validated();
 
         // Déterminer le modèle à utiliser selon le rôle
-        $roleSlug = Role::find($validated['role_id'])->slug;
+        $role = Role::find($validated['role_id']);
+        $roleSlug = $role->slug;
 
         if ($roleSlug === 'admin') {
             $user = Admin::create($validated);
@@ -200,7 +256,7 @@ class UserController extends Controller
      *         description="Détails de l'utilisateur récupérés",
      *         @OA\JsonContent(
      *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/User")
+     *             @OA\Property(property="data", type="object")
      *         )
      *     ),
      *     @OA\Response(
@@ -258,7 +314,7 @@ class UserController extends Controller
      *         @OA\JsonContent(
      *             @OA\Property(property="success", type="boolean", example=true),
      *             @OA\Property(property="message", type="string", example="Utilisateur mis à jour avec succès"),
-     *             @OA\Property(property="data", ref="#/components/schemas/User")
+     *             @OA\Property(property="data", type="object")
      *         )
      *     ),
      *     @OA\Response(
@@ -274,13 +330,28 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id): JsonResponse
     {
+        $validated = $this->validateRequest($request, [
+            'nom' => 'sometimes|string|max:255',
+            'nci' => 'sometimes|string|max:255',
+            'email' => 'sometimes|email|max:255',
+            'telephone' => 'sometimes|string|max:20',
+            'adresse' => 'sometimes|string|max:500',
+        ]);
+
         $user = User::find($id);
 
         if (!$user) {
             throw new UserNotFoundException($id);
         }
 
-        $user->update($request->only(['nom', 'nci', 'email', 'telephone', 'adresse', 'role']));
+        // Mettre à jour les données selon le type d'utilisateur
+        if ($user->type === 'client' && $user->client) {
+            $user->client->update($validated);
+        } elseif ($user->type === 'admin' && $user->admin) {
+            $user->admin->update($validated);
+        }
+
+        $user->load(['client', 'admin']);
 
         return $this->successResponse(
             new UserResource($user),

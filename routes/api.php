@@ -20,6 +20,12 @@ use App\Http\Controllers\Api\V1\UserController;
 Route::prefix('v1')->middleware(['auth:api', 'api.rating'])->group(function () {
 
     // Routes des comptes bancaires
+    // Routes spécifiques doivent être définies avant apiResource pour éviter les conflits
+    Route::get('comptes/archives', [CompteController::class, 'getArchivedComptes']);
+    Route::get('comptes/bloques', [CompteController::class, 'getBloquedComptes']);
+    Route::post('comptes/{id}/restaurer', [CompteController::class, 'restoreArchivedCompte']);
+    Route::post('comptes/{compteId}/bloquer', [CompteController::class, 'bloquer']);
+    Route::post('comptes/{compteId}/debloquer', [CompteController::class, 'debloquer']);
     Route::apiResource('comptes', CompteController::class);
 
     // Routes des utilisateurs

@@ -27,6 +27,12 @@ class Handler extends ExceptionHandler
             //
         });
 
+        $this->renderable(function (ApiException $e, $request) {
+            if ($request->is('api/*')) {
+                return $e->render();
+            }
+        });
+
         $this->renderable(function (\Illuminate\Auth\AuthenticationException $e, $request) {
             if ($request->is('api/*')) {
                 return response()->json([

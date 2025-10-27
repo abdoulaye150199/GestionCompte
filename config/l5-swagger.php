@@ -13,18 +13,23 @@ return [
                  * Route for accessing api documentation interface
                  * Modified to include user name prefix as requested
                  */
-                'api' => 'abdoulaye.diallo/api/documentation',
+                'api' => '/abdoulaye.diallo/api/documentation',
+                'docs' => '/docs',
+                'oauth2_callback' => 'api/oauth2-callback',
+                'assets' => '/docs/asset',
             ],
             'paths' => [
                 /*
                  * Edit to include full URL in ui for assets
+                 * Set to false to avoid generating absolute URLs that may point to
+                 * a different host/port (prevents redirect loops in dev).
                  */
-                'use_absolute_path' => env('L5_SWAGGER_USE_ABSOLUTE_PATH', false),
+                'use_absolute_path' => false,
 
                 /*
                 * Edit to set path where swagger ui assets should be stored
                 */
-                'swagger_ui_assets_path' => env('L5_SWAGGER_UI_ASSETS_PATH', 'vendor/swagger-api/swagger-ui/dist/'),
+                'swagger_ui_assets_path' => 'public/docs/asset/',
 
                 /*
                  * File name of the generated json documentation file
@@ -42,10 +47,16 @@ return [
                 'format_to_use_for_docs' => env('L5_FORMAT_TO_USE_FOR_DOCS', 'json'),
 
                 /*
+                 * Location where swagger ui assets should be stored
+                 */
+                'swagger_ui_assets_path' => 'public/docs/asset/',
+
+                /*
                  * Absolute paths to directory containing the swagger annotations are stored.
                  */
                 'annotations' => [
-                    base_path('app'),
+                    base_path('app/Http/Controllers'),
+                    base_path('app/OpenApi'),
                 ],
             ],
         ],
