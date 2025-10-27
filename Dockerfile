@@ -46,9 +46,9 @@ RUN chown -R laravel:laravel /var/www/html \
     && chmod -R 755 public/vendor/swagger-ui
 
 # Créer un fichier .env minimal pour le build
-RUN echo "APP_NAME=Laravel" > .env && \
+RUN echo "APP_NAME=GestionCompte" > .env && \
     echo "APP_ENV=production" >> .env && \
-    echo "APP_KEY=" >> .env && \
+    echo "APP_KEY=base64:$(openssl rand -base64 32)" >> .env && \
     echo "APP_DEBUG=false" >> .env && \
     echo "APP_URL=https://gestioncompte-api.onrender.com" >> .env && \
     echo "" >> .env && \
@@ -61,7 +61,6 @@ RUN echo "APP_NAME=Laravel" > .env && \
     echo "DB_DATABASE=railway" >> .env && \
     echo "DB_USERNAME=postgres" >> .env && \
     echo "DB_PASSWORD=zyzDSszPfFBURKPwbjXcaMVVtOyNZJbO" >> .env && \
-    echo "DB_SCHEMA=public" >> .env && \
     echo "" >> .env && \
     echo "# Neon Database for archiving" >> .env && \
     echo "NEON_DATABASE_URL=postgresql://neondb_owner:npg_nmGJz3oHRWV1@ep-cold-flower-ahmlgg4s-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require" >> .env && \
@@ -81,6 +80,7 @@ RUN chown laravel:laravel .env
 # Générer la clé d'application et optimiser
 USER laravel
 RUN php artisan key:generate --force && \
+    php artisan passport:install --force && \
     php artisan l5-swagger:generate && \
     php artisan config:cache && \
     php artisan route:cache && \
