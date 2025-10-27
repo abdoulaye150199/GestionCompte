@@ -23,7 +23,7 @@ class LoginRequest extends FormRequest
     {
         return [
             'login' => 'required|string|max:255',
-            'password' => 'required|string|min:8',
+            'password' => 'required|string|min:6',
         ];
     }
 
@@ -38,7 +38,7 @@ class LoginRequest extends FormRequest
             'login.max' => 'Le login ne peut pas dépasser 255 caractères.',
             'password.required' => 'Le mot de passe est obligatoire.',
             'password.string' => 'Le mot de passe doit être une chaîne de caractères.',
-            'password.min' => 'Le mot de passe doit contenir au moins 8 caractères.',
+            'password.min' => 'Le mot de passe doit contenir au moins 6 caractères.',
         ];
     }
 }
