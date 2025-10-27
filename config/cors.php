@@ -15,31 +15,31 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie', 'abdoulaye.diallo/api/*', 'api-docs.json', 'swagger-assets/*', '*'],
+    'paths' => ['*'],
 
-    'allowed_methods' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    'allowed_methods' => ['*'],
 
-    'allowed_origins' => [
-        'http://localhost:8000',
-        'http://127.0.0.1:8000',
-        'https://gestioncompte-api.onrender.com'
-    ],
+    'allowed_origins' => ['*'],
 
     'allowed_origins_patterns' => [],
 
     'allowed_headers' => [
         'Content-Type',
-        'X-Auth-Token',
-        'Origin',
+        'X-Requested-With',
         'Authorization',
+        'Origin',
         'Accept',
-        'X-Requested-With'
+        'X-Auth-Token',
+        'X-CSRF-TOKEN'
     ],
 
-    'exposed_headers' => ['Authorization'],
+    'exposed_headers' => [
+        'Authorization',
+        'X-Auth-Token'
+    ],
 
-    'max_age' => 86400, // Cache des preflight requests pendant 24h
+    'max_age' => 86400,
 
-    'supports_credentials' => true,
+    'supports_credentials' => true
 
 ];
