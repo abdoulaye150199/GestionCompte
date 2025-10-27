@@ -15,12 +15,8 @@
             "description": "Serveur de développement"
         },
         {
-            "url": "https://gestioncompte-api.onrender.com/abdoulaye.diallo/api/v1",
-            "description": "Production server"
-        },
-        {
-            "url": "http://localhost:8000/abdoulaye.diallo/api/v1",
-            "description": "Serveur de développement"
+            "url": "https://127.0.0.1:8000/api/v1",
+            "description": "API Server"
         }
     ],
     "paths": {

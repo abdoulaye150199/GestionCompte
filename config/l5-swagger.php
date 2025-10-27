@@ -12,7 +12,7 @@ return [
                 /*
                  * Route for accessing api documentation interface
                  */
-                'api' => 'abdoulaye.diallo/api/documentation',
+                'api' => 'api/documentation',
             ],
             'paths' => [
                 /*
@@ -23,7 +23,7 @@ return [
                 /*
                 * Edit to set path where swagger ui assets should be stored
                 */
-                'swagger_ui_assets_path' => env('L5_SWAGGER_UI_ASSETS_PATH', 'swagger-assets/'),
+                'swagger_ui_assets_path' => env('L5_SWAGGER_UI_ASSETS_PATH', 'vendor/swagger-api/swagger-ui/dist/'),
 
                 /*
                  * File name of the generated json documentation file
@@ -65,10 +65,10 @@ return [
              * Middleware allows to prevent unexpected access to API documentation
              */
             'middleware' => [
-                'api' => ['cors'],
-                'asset' => ['cors'],
-                'docs' => ['cors'],
-                'oauth2_callback' => ['cors'],
+                'api' => [],
+                'asset' => [],
+                'docs' => [],
+                'oauth2_callback' => [],
             ],
 
             /*
