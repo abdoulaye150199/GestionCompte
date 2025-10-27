@@ -13,7 +13,7 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-di
 FROM php:8.3-fpm-alpine
 
 # Installer les extensions PHP nécessaires et les outils
-RUN apk add --no-cache postgresql-dev nodejs npm libpq openssl \
+RUN apk add --no-cache postgresql-dev postgresql-client nodejs npm libpq openssl \
     && docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql \
     && docker-php-ext-install pdo pdo_pgsql pgsql
 
@@ -78,4 +78,5 @@ USER laravel
 EXPOSE 8000
 
 # Commande par défaut
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
