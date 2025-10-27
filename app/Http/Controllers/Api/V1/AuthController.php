@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Artisan;
 
 class AuthController extends Controller
 {
@@ -63,7 +64,7 @@ class AuthController extends Controller
     public function login(LoginRequest $request): JsonResponse
     {
         try {
-            // Test database connection first
+            // Vérifier la connexion à la base de données
             try {
                 DB::connection()->getPdo();
             } catch (\Exception $e) {
@@ -73,29 +74,47 @@ class AuthController extends Controller
 
             $credentials = $request->validated();
 
+            // Rechercher l'utilisateur par login
             $user = User::where('login', $credentials['login'])->first();
 
             if (!$user || !Hash::check($credentials['password'], $user->password)) {
+                Log::warning('Failed login attempt for login: ' . $credentials['login']);
                 return $this->errorResponse('Identifiants invalides', 401);
             }
 
             try {
-                $token = $user->createToken('API Token');
-                if (!$token) {
-                    throw new \Exception('Impossible de créer le token');
+                // Vérifier si les clients Passport existent
+                $clientExists = DB::table('oauth_clients')->where('personal_access_client', 1)->exists();
+                if (!$clientExists) {
+                    Log::error('No Passport clients found. Running passport:install...');
+                    \Artisan::call('passport:install', ['--force' => true]);
                 }
 
+                // Créer un Personal Access Token
+                $tokenResult = $user->createToken('Personal Access Token');
+                $token = $tokenResult->accessToken;
+
+                if (!$token) {
+                    throw new \Exception('Token generation failed');
+                }
+
+                // Structurer la réponse
                 return $this->successResponse([
                     'user' => [
                         'id' => $user->id,
                         'login' => $user->login,
                         'type' => $user->type ?? 'client',
                     ],
-                    'token' => $token->accessToken,
+                    'token' => $token,
                     'token_type' => 'Bearer',
+                    'expires_at' => $tokenResult->token->expires_at,
                 ], 'Connexion réussie');
+
             } catch (\Exception $e) {
                 Log::error('Token creation error: ' . $e->getMessage());
+                if (str_contains($e->getMessage(), 'Client authentication failed')) {
+                    return $this->errorResponse('Erreur de configuration OAuth. Contactez l\'administrateur.', 500);
+                }
                 return $this->errorResponse('Erreur lors de la création du token: ' . $e->getMessage(), 500);
             }
         } catch (\Exception $e) {

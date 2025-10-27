@@ -22,11 +22,23 @@ if php artisan migrate:status > /dev/null 2>&1; then
         php artisan passport:keys --force
     fi
 
-    # Create personal access client if it doesn't exist
-    if ! php artisan passport:client --no-interaction 2>&1 | grep -q "Personal access client created successfully"; then
-        echo "Creating personal access client..."
-        php artisan passport:client --personal --no-interaction
+    # Vérifier et configurer Passport
+    echo "Setting up Laravel Passport..."
+    
+    # Vérifier si les clients OAuth existent
+    CLIENT_COUNT=$(php artisan tinker --execute="echo DB::table('oauth_clients')->count();")
+    
+    if [ "$CLIENT_COUNT" -eq "0" ]; then
+        echo "No Passport clients found. Installing..."
+        php artisan passport:install --force
+        echo "Passport clients created successfully"
+    else
+        echo "Passport clients already exist"
     fi
+    
+    # Vérifier les permissions des clés
+    chown -R www-data:www-data storage/oauth-*.key
+    chmod 600 storage/oauth-*.key
 
     # Cache configuration
     echo "Caching configuration..."
