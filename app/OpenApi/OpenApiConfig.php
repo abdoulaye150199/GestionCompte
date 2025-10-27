@@ -4,7 +4,12 @@ namespace App\OpenApi;
 
 /**
  * Global OpenAPI configuration and shared components
- *
+ * 
+ * @OA\Server(
+ *     url="https://gestioncompte-api.onrender.com/abdoulaye.diallo",
+ *     description="Production server"
+ * )
+ * 
  * @OA\Info(
  *     title="API de Gestion des Clients & Comptes",
  *     version="1.1.0",

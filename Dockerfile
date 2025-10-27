@@ -56,13 +56,13 @@ RUN echo "APP_NAME=GestionCompte" > .env && \
     echo "LOG_CHANNEL=stack" >> .env && \
     echo "LOG_LEVEL=error" >> .env && \
     echo "" >> .env && \
-    echo "DB_CONNECTION=pgsql" >> .env && \
-    echo "DATABASE_URL=postgresql://postgres:zyzDSszPfFBURKPwbjXcaMVVtOyNZJbO@mainline.proxy.rlwy.net:23275/railway" >> .env && \
-    echo "DB_HOST=mainline.proxy.rlwy.net" >> .env && \
-    echo "DB_PORT=23275" >> .env && \
-    echo "DB_DATABASE=railway" >> .env && \
-    echo "DB_USERNAME=postgres" >> .env && \
-    echo "DB_PASSWORD=zyzDSszPfFBURKPwbjXcaMVVtOyNZJbO" >> .env && \
+    echo "DB_CONNECTION=neon" >> .env && \
+    echo "DATABASE_URL=postgresql://neondb_owner:npg_nmGJz3oHRWV1@ep-cold-flower-ahmlgg4s-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require" >> .env && \
+    echo "DB_HOST=ep-cold-flower-ahmlgg4s-pooler.c-3.us-east-1.aws.neon.tech" >> .env && \
+    echo "DB_PORT=5432" >> .env && \
+    echo "DB_DATABASE=neondb" >> .env && \
+    echo "DB_USERNAME=neondb_owner" >> .env && \
+    echo "DB_PASSWORD=npg_nmGJz3oHRWV1" >> .env && \
     echo "DB_SCHEMA=public" >> .env && \
     echo "DB_SSLMODE=require" >> .env && \
     echo "" >> .env && \

@@ -10,6 +10,7 @@ use App\Traits\RestResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
@@ -20,7 +21,7 @@ class AuthController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/login",
+     *     path="/abdoulaye.diallo/api/v1/login",
      *     summary="Connexion utilisateur",
      *     description="Authentifie un utilisateur et retourne un token d'accès",
      *     operationId="login",
@@ -64,7 +65,7 @@ class AuthController extends Controller
         try {
             // Test database connection first
             try {
-                \DB::connection()->getPdo();
+                DB::connection()->getPdo();
             } catch (\Exception $e) {
                 Log::error('Database connection failed: ' . $e->getMessage());
                 return $this->errorResponse('Erreur de connexion à la base de données', 500);
