@@ -71,24 +71,33 @@ class AuthController extends Controller
                 return $this->errorResponse('Erreur de connexion à la base de données', 500);
             }
 
-            $validated = $request->validated();
+            $credentials = $request->validated();
 
-            $user = User::where('login', $validated['login'])->first();
+            $user = User::where('login', $credentials['login'])->first();
 
-            if (!$user || !Hash::check($validated['password'], $user->password)) {
+            if (!$user || !Hash::check($credentials['password'], $user->password)) {
                 return $this->errorResponse('Identifiants invalides', 401);
             }
 
-            $token = $user->createToken('API Token')->accessToken;
+            try {
+                $token = $user->createToken('API Token');
+                if (!$token) {
+                    throw new \Exception('Impossible de créer le token');
+                }
 
-            return $this->successResponse([
-                'user' => [
-                    'id' => $user->id,
-                    'login' => $user->login,
-                    'type' => $user->type,
-                ],
-                'token' => $token,
-            ], 'Connexion réussie');
+                return $this->successResponse([
+                    'user' => [
+                        'id' => $user->id,
+                        'login' => $user->login,
+                        'type' => $user->type ?? 'client',
+                    ],
+                    'token' => $token->accessToken,
+                    'token_type' => 'Bearer',
+                ], 'Connexion réussie');
+            } catch (\Exception $e) {
+                Log::error('Token creation error: ' . $e->getMessage());
+                return $this->errorResponse('Erreur lors de la création du token: ' . $e->getMessage(), 500);
+            }
         } catch (\Exception $e) {
             Log::error('Login error: ' . $e->getMessage());
             return $this->errorResponse('Erreur serveur: ' . $e->getMessage(), 500);
