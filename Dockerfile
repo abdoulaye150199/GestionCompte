@@ -61,6 +61,15 @@ RUN echo "APP_NAME=Laravel" > .env && \
     echo "DB_DATABASE=railway" >> .env && \
     echo "DB_USERNAME=postgres" >> .env && \
     echo "DB_PASSWORD=zyzDSszPfFBURKPwbjXcaMVVtOyNZJbO" >> .env && \
+    echo "DB_SCHEMA=public" >> .env && \
+    echo "" >> .env && \
+    echo "# Neon Database for archiving" >> .env && \
+    echo "NEON_DATABASE_URL=postgresql://neondb_owner:npg_nmGJz3oHRWV1@ep-cold-flower-ahmlgg4s-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require" >> .env && \
+    echo "NEON_DB_HOST=ep-cold-flower-ahmlgg4s-pooler.c-3.us-east-1.aws.neon.tech" >> .env && \
+    echo "NEON_DB_PORT=5432" >> .env && \
+    echo "NEON_DB_DATABASE=neondb" >> .env && \
+    echo "NEON_DB_USERNAME=neondb_owner" >> .env && \
+    echo "NEON_DB_PASSWORD=npg_nmGJz3oHRWV1" >> .env && \
     echo "" >> .env && \
     echo "CACHE_DRIVER=file" >> .env && \
     echo "SESSION_DRIVER=file" >> .env && \
