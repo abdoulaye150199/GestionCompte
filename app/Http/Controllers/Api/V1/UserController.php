@@ -41,6 +41,7 @@ class UserController extends Controller
      *     description="Récupère une liste paginée d'utilisateurs avec possibilité de filtrage et tri",
      *     operationId="getUsers",
      *     tags={"Utilisateurs"},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="page",
      *         in="query",
@@ -96,6 +97,14 @@ class UserController extends Controller
      *                 @OA\Property(property="first", type="string"),
      *                 @OA\Property(property="last", type="string")
      *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Authentification requise",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Authentification requise")
      *         )
      *     )
      * )
