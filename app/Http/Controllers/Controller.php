@@ -14,7 +14,7 @@ use OpenApi\Annotations as OA;
  *     description="API RESTful pour la gestion des clients et de leurs comptes bancaires avec archivage automatique"
  * )
  * @OA\Server(
- *     url="http://localhost:8000/api/v1",
+ *     url="https://gestioncompte-api.onrender.com/abdoulaye.diallo/api",
  *     description="Serveur de développement"
  * )
  */
