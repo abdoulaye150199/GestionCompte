@@ -11,86 +11,15 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
     use RestResponse;
 
     /**
-     * @OA\Get(
-     *     path="/user",
-     *     summary="Récupérer l'utilisateur authentifié",
-     *     description="Retourne les informations de l'utilisateur actuellement connecté",
-     *     operationId="getUser",
-     *     tags={"Authentification"},
-     *     security={{"passport":{}}},
-     *     @OA\Response(
-     *         response=200,
-     *         description="Informations de l'utilisateur",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", type="object",
-     *                 @OA\Property(property="id", type="string"),
-     *                 @OA\Property(property="login", type="string"),
-     *                 @OA\Property(property="type", type="string")
-     *             )
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=401,
-     *         description="Non authentifié"
-     *     )
-     * )
-     */
-    public function user(Request $request): JsonResponse
-    {
-        $user = $request->user();
-        return $this->successResponse([
-            'id' => $user->id,
-            'login' => $user->login,
-            'type' => $user->type
-        ]);
-    }
-
-    /**
-     * @OA\Get(
-     *     path="/user",
-     *     summary="Récupérer l'utilisateur authentifié",
-     *     description="Retourne les informations de l'utilisateur actuellement connecté",
-     *     operationId="getUser",
-     *     tags={"Authentification"},
-     *     security={{"passport":{}}},
-     *     @OA\Response(
-     *         response=200,
-     *         description="Informations de l'utilisateur",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", type="object",
-     *                 @OA\Property(property="id", type="string"),
-     *                 @OA\Property(property="login", type="string"),
-     *                 @OA\Property(property="type", type="string")
-     *             )
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=401,
-     *         description="Non authentifié"
-     *     )
-     * )
-     */
-    public function user(Request $request): JsonResponse
-    {
-        $user = $request->user();
-        return $this->successResponse([
-            'id' => $user->id,
-            'login' => $user->login,
-            'type' => $user->type
-        ]);
-
-    /**
      * @OA\Post(
-     *     path="/login",
+     *     path="/abdoulaye.diallo/api/v1/login",
      *     summary="Connexion utilisateur",
      *     description="Authentifie un utilisateur et retourne un token d'accès",
      *     operationId="login",
@@ -121,11 +50,7 @@ class AuthController extends Controller
      *     ),
      *     @OA\Response(
      *         response=401,
-     *         description="Identifiants invalides",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=false),
-     *             @OA\Property(property="message", type="string", example="Identifiants invalides")
-     *         )
+     *         description="Identifiants invalides"
      *     )
      * )
      */
@@ -153,75 +78,9 @@ class AuthController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/register",
-     *     summary="Inscription d'un nouveau client",
-     *     description="Crée un nouveau compte client",
-     *     operationId="register",
-     *     tags={"Authentification"},
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"login", "password", "nom", "nci", "email", "telephone", "adresse"},
-     *             @OA\Property(property="login", type="string", description="Login unique"),
-     *             @OA\Property(property="password", type="string", format="password", description="Mot de passe"),
-     *             @OA\Property(property="nom", type="string", description="Nom complet"),
-     *             @OA\Property(property="nci", type="string", description="Numéro de carte d'identité"),
-     *             @OA\Property(property="email", type="string", format="email", description="Adresse email"),
-     *             @OA\Property(property="telephone", type="string", description="Numéro de téléphone"),
-     *             @OA\Property(property="adresse", type="string", description="Adresse complète")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=201,
-     *         description="Inscription réussie",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string", example="Inscription réussie"),
-     *             @OA\Property(property="data", type="object",
-     *                 @OA\Property(property="user", type="object"),
-     *                 @OA\Property(property="token", type="string")
-     *             )
-     *         )
-     *     )
-     * )
-     */
-    public function register(RegisterRequest $request): JsonResponse
-    {
-        $validated = $request->validated();
-
-        $user = User::create([
-            'id' => (string) \Illuminate\Support\Str::uuid(),
-            'login' => $validated['login'],
-            'password' => Hash::make($validated['password']),
-        ]);
-
-        // Créer le profil client
-        $user->client()->create([
-            'id' => (string) \Illuminate\Support\Str::uuid(),
-            'nom' => $validated['nom'],
-            'nci' => $validated['nci'],
-            'email' => $validated['email'],
-            'telephone' => $validated['telephone'],
-            'adresse' => $validated['adresse'],
-        ]);
-
-        $token = $user->createToken('API Token')->accessToken;
-
-        return $this->successResponse([
-            'user' => [
-                'id' => $user->id,
-                'login' => $user->login,
-                'type' => $user->type,
-            ],
-            'token' => $token,
-        ], 'Inscription réussie', 201);
-    }
-
-    /**
-     * @OA\Post(
-     *     path="/logout",
-     *     summary="Déconnexion",
-     *     description="Révoque le token d'accès actuel",
+     *     path="/abdoulaye.diallo/api/v1/logout",
+     *     summary="Déconnexion utilisateur",
+     *     description="Révoque le token d'accès de l'utilisateur",
      *     operationId="logout",
      *     tags={"Authentification"},
      *     security={{"bearerAuth":{}}},
@@ -237,9 +96,45 @@ class AuthController extends Controller
      */
     public function logout(Request $request): JsonResponse
     {
-        $user = $request->user();
-        $user->token()->revoke();
-
+        $request->user()->token()->revoke();
+        
         return $this->successResponse(null, 'Déconnexion réussie');
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/abdoulaye.diallo/api/v1/user",
+     *     summary="Informations de l'utilisateur",
+     *     description="Retourne les informations de l'utilisateur connecté",
+     *     operationId="getUser",
+     *     tags={"Authentification"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Informations de l'utilisateur",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="user", type="object",
+     *                     @OA\Property(property="id", type="string"),
+     *                     @OA\Property(property="login", type="string"),
+     *                     @OA\Property(property="type", type="string", enum={"admin", "client"})
+     *                 )
+     *             )
+     *         )
+     *     )
+     * )
+     */
+    public function user(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        
+        return $this->successResponse([
+            'user' => [
+                'id' => $user->id,
+                'login' => $user->login,
+                'type' => $user->type,
+            ]
+        ]);
     }
 }

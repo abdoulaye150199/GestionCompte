@@ -17,16 +17,16 @@ use App\Http\Controllers\Api\V1\UserController;
 */
 
 // Routes publiques (sans authentification)
-Route::prefix('abdoulaye.diallo/api/v1')->group(function () {
-    Route::post('login', [App\Http\Controllers\Api\V1\AuthController::class, 'login']);
-    Route::post('register', [App\Http\Controllers\Api\V1\AuthController::class, 'register']);
-    Route::get('welcome', [App\Http\Controllers\Api\V1\WelcomeController::class, 'index']);
+Route::prefix('v1')->group(function () {
+    Route::post('/login', [App\Http\Controllers\Api\V1\AuthController::class, 'login']);
+    Route::post('/register', [App\Http\Controllers\Api\V1\AuthController::class, 'register']);
+    Route::get('/welcome', [App\Http\Controllers\Api\V1\WelcomeController::class, 'index']);
 
     // Routes protégées par Passport
     Route::middleware(['auth:api', 'api.rating'])->group(function () {
         // Auth
-        Route::post('logout', [App\Http\Controllers\Api\V1\AuthController::class, 'logout']);
-        Route::get('user', [App\Http\Controllers\Api\V1\AuthController::class, 'user']);
+        Route::post('/logout', [App\Http\Controllers\Api\V1\AuthController::class, 'logout']);
+        Route::get('/user', [App\Http\Controllers\Api\V1\AuthController::class, 'user']);
 
         // Routes des comptes bancaires
         Route::prefix('comptes')->group(function () {
