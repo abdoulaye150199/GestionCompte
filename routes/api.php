@@ -16,33 +16,31 @@ use App\Http\Controllers\Api\V1\UserController;
 |
 */
 
-// API Version 1
-Route::prefix('v1')->middleware(['auth:api', 'api.rating'])->group(function () {
-
-    // Routes des comptes bancaires
-    // Routes spécifiques doivent être définies avant apiResource pour éviter les conflits
-    Route::get('comptes/archives', [CompteController::class, 'getArchivedComptes']);
-    Route::get('comptes/bloques', [CompteController::class, 'getBloquedComptes']);
-    Route::post('comptes/{id}/restaurer', [CompteController::class, 'restoreArchivedCompte']);
-    Route::post('comptes/{compteId}/bloquer', [CompteController::class, 'bloquer']);
-    Route::post('comptes/{compteId}/debloquer', [CompteController::class, 'debloquer']);
-    Route::apiResource('comptes', CompteController::class);
-
-    // Routes des utilisateurs
-    Route::middleware('resource:user')->group(function () {
-        Route::apiResource('users', UserController::class);
-    });
-});
-
-// Routes d'authentification Passport
-Route::prefix('v1')->group(function () {
+// Routes publiques (sans authentification)
+Route::prefix('abdoulaye.diallo/api/v1')->group(function () {
     Route::post('login', [App\Http\Controllers\Api\V1\AuthController::class, 'login']);
     Route::post('register', [App\Http\Controllers\Api\V1\AuthController::class, 'register']);
-    Route::middleware('auth:api')->post('logout', [App\Http\Controllers\Api\V1\AuthController::class, 'logout']);
     Route::get('welcome', [App\Http\Controllers\Api\V1\WelcomeController::class, 'index']);
-});
 
-// Route par défaut de Laravel (peut être supprimée si non nécessaire)
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+    // Routes protégées par Passport
+    Route::middleware(['auth:api', 'api.rating'])->group(function () {
+        // Auth
+        Route::post('logout', [App\Http\Controllers\Api\V1\AuthController::class, 'logout']);
+        Route::get('user', [App\Http\Controllers\Api\V1\AuthController::class, 'user']);
+
+        // Routes des comptes bancaires
+        Route::prefix('comptes')->group(function () {
+            Route::get('archives', [CompteController::class, 'getArchivedComptes']);
+            Route::get('bloques', [CompteController::class, 'getBloquedComptes']);
+            Route::post('{id}/restaurer', [CompteController::class, 'restoreArchivedCompte']);
+            Route::post('{compteId}/bloquer', [CompteController::class, 'bloquer']);
+            Route::post('{compteId}/debloquer', [CompteController::class, 'debloquer']);
+        });
+        Route::apiResource('comptes', CompteController::class);
+
+        // Routes des utilisateurs
+        Route::middleware('resource:user')->group(function () {
+            Route::apiResource('users', UserController::class);
+        });
+    });
 });

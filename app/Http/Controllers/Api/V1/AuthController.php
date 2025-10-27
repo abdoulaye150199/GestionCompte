@@ -18,6 +18,77 @@ class AuthController extends Controller
     use RestResponse;
 
     /**
+     * @OA\Get(
+     *     path="/user",
+     *     summary="Récupérer l'utilisateur authentifié",
+     *     description="Retourne les informations de l'utilisateur actuellement connecté",
+     *     operationId="getUser",
+     *     tags={"Authentification"},
+     *     security={{"passport":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Informations de l'utilisateur",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="id", type="string"),
+     *                 @OA\Property(property="login", type="string"),
+     *                 @OA\Property(property="type", type="string")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Non authentifié"
+     *     )
+     * )
+     */
+    public function user(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        return $this->successResponse([
+            'id' => $user->id,
+            'login' => $user->login,
+            'type' => $user->type
+        ]);
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/user",
+     *     summary="Récupérer l'utilisateur authentifié",
+     *     description="Retourne les informations de l'utilisateur actuellement connecté",
+     *     operationId="getUser",
+     *     tags={"Authentification"},
+     *     security={{"passport":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Informations de l'utilisateur",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="id", type="string"),
+     *                 @OA\Property(property="login", type="string"),
+     *                 @OA\Property(property="type", type="string")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Non authentifié"
+     *     )
+     * )
+     */
+    public function user(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        return $this->successResponse([
+            'id' => $user->id,
+            'login' => $user->login,
+            'type' => $user->type
+        ]);
+
+    /**
      * @OA\Post(
      *     path="/login",
      *     summary="Connexion utilisateur",
