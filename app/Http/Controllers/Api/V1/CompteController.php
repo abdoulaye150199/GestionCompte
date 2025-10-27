@@ -483,6 +483,7 @@ class CompteController extends Controller
      *     description="Restaure un compte depuis les archives Neon vers la base principale",
      *     operationId="restoreArchivedCompte",
      *     tags={"Archives"},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -497,6 +498,14 @@ class CompteController extends Controller
      *             @OA\Property(property="success", type="boolean", example=true),
      *             @OA\Property(property="message", type="string", example="Compte restauré avec succès"),
      *             @OA\Property(property="data", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Authentification requise",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Authentification requise")
      *         )
      *     ),
      *     @OA\Response(
@@ -568,6 +577,7 @@ class CompteController extends Controller
      *     description="Bloque un compte épargne actif en spécifiant le motif et la durée de blocage",
      *     operationId="bloquerCompte",
      *     tags={"Comptes"},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="compteId",
      *         in="path",
@@ -591,6 +601,14 @@ class CompteController extends Controller
      *             @OA\Property(property="success", type="boolean", example=true),
      *             @OA\Property(property="message", type="string", example="Compte bloqué avec succès"),
      *             @OA\Property(property="data", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Authentification requise",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Authentification requise")
      *         )
      *     ),
      *     @OA\Response(
@@ -655,6 +673,7 @@ class CompteController extends Controller
      *     description="Débloque un compte bloqué soit sur demande du client, soit à l'expiration de la période de blocage",
      *     operationId="debloquerCompte",
      *     tags={"Comptes"},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="compteId",
      *         in="path",
@@ -676,6 +695,14 @@ class CompteController extends Controller
      *             @OA\Property(property="success", type="boolean", example=true),
      *             @OA\Property(property="message", type="string", example="Compte débloqué avec succès"),
      *             @OA\Property(property="data", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Authentification requise",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Authentification requise")
      *         )
      *     ),
      *     @OA\Response(
