@@ -19,6 +19,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        \Laravel\Passport\Passport::hashClientSecrets();
+        \Laravel\Passport\Passport::tokensExpireIn(now()->addDays(15));
+        \Laravel\Passport\Passport::refreshTokensExpireIn(now()->addDays(30));
     }
 }
