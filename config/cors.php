@@ -19,16 +19,27 @@ return [
 
     'allowed_methods' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
 
-    'allowed_origins' => ['*'], // En production, spécifier les domaines autorisés
+    'allowed_origins' => [
+        'http://localhost:8000',
+        'http://127.0.0.1:8000',
+        'https://gestioncompte-api.onrender.com'
+    ],
 
     'allowed_origins_patterns' => [],
 
-    'allowed_headers' => ['*'],
+    'allowed_headers' => [
+        'Content-Type',
+        'X-Auth-Token',
+        'Origin',
+        'Authorization',
+        'Accept',
+        'X-Requested-With'
+    ],
 
-    'exposed_headers' => [],
+    'exposed_headers' => ['Authorization'],
 
     'max_age' => 86400, // Cache des preflight requests pendant 24h
 
-    'supports_credentials' => false,
+    'supports_credentials' => true,
 
 ];
