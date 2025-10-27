@@ -37,8 +37,7 @@ RUN mkdir -p storage/framework/{cache,data,sessions,testing,views} \
     && mkdir -p public/vendor/swagger-ui
 
 # Copier les assets Swagger
-RUN cp -r vendor/swagger-api/swagger-ui/dist/* public/swagger-assets/ \
-    && cp -r vendor/swagger-api/swagger-ui/dist/* public/vendor/swagger-ui/
+RUN cp -r vendor/swagger-api/swagger-ui/dist/* public/swagger-assets/
 
 # Définir les permissions
 RUN chown -R laravel:laravel /var/www/html \
