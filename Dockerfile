@@ -57,21 +57,22 @@ RUN echo "APP_NAME=GestionCompte" > .env && \
     echo "LOG_LEVEL=error" >> .env && \
     echo "" >> .env && \
     echo "DB_CONNECTION=pgsql" >> .env && \
-    echo "DB_HOST=${DB_HOST:-ep-cold-flower-ahmlgg4s-pooler.c-3.us-east-1.aws.neon.tech}" >> .env && \
-    echo "DB_PORT=${DB_PORT:-5432}" >> .env && \
-    echo "DB_DATABASE=${DB_DATABASE:-neondb}" >> .env && \
-    echo "DB_USERNAME=${DB_USERNAME:-neondb_owner}" >> .env && \
-    echo "DB_PASSWORD=${DB_PASSWORD:-npg_nmGJz3oHRWV1}" >> .env && \
+    echo "DATABASE_URL=postgresql://postgres:zyzDSszPfFBURKPwbjXcaMVVtOyNZJbO@mainline.proxy.rlwy.net:23275/railway" >> .env && \
+    echo "DB_HOST=mainline.proxy.rlwy.net" >> .env && \
+    echo "DB_PORT=23275" >> .env && \
+    echo "DB_DATABASE=railway" >> .env && \
+    echo "DB_USERNAME=postgres" >> .env && \
+    echo "DB_PASSWORD=zyzDSszPfFBURKPwbjXcaMVVtOyNZJbO" >> .env && \
     echo "DB_SCHEMA=public" >> .env && \
     echo "DB_SSLMODE=require" >> .env && \
     echo "" >> .env && \
     echo "# Neon Database for archiving" >> .env && \
-    echo "NEON_DATABASE_URL=${NEON_DATABASE_URL:-postgresql://neondb_owner:npg_nmGJz3oHRWV1@ep-cold-flower-ahmlgg4s-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require}" >> .env && \
-    echo "NEON_DB_HOST=${NEON_DB_HOST:-ep-cold-flower-ahmlgg4s-pooler.c-3.us-east-1.aws.neon.tech}" >> .env && \
-    echo "NEON_DB_PORT=${NEON_DB_PORT:-5432}" >> .env && \
-    echo "NEON_DB_DATABASE=${NEON_DB_DATABASE:-neondb}" >> .env && \
-    echo "NEON_DB_USERNAME=${NEON_DB_USERNAME:-neondb_owner}" >> .env && \
-    echo "NEON_DB_PASSWORD=${NEON_DB_PASSWORD:-npg_nmGJz3oHRWV1}" >> .env && \
+    echo "NEON_DATABASE_URL=postgresql://neondb_owner:npg_nmGJz3oHRWV1@ep-cold-flower-ahmlgg4s-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require" >> .env && \
+    echo "NEON_DB_HOST=ep-cold-flower-ahmlgg4s-pooler.c-3.us-east-1.aws.neon.tech" >> .env && \
+    echo "NEON_DB_PORT=5432" >> .env && \
+    echo "NEON_DB_DATABASE=neondb" >> .env && \
+    echo "NEON_DB_USERNAME=neondb_owner" >> .env && \
+    echo "NEON_DB_PASSWORD=npg_nmGJz3oHRWV1" >> .env && \
     echo "" >> .env && \
     echo "CACHE_DRIVER=file" >> .env && \
     echo "SESSION_DRIVER=file" >> .env && \

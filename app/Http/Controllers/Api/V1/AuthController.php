@@ -62,6 +62,14 @@ class AuthController extends Controller
     public function login(LoginRequest $request): JsonResponse
     {
         try {
+            // Test database connection first
+            try {
+                \DB::connection()->getPdo();
+            } catch (\Exception $e) {
+                Log::error('Database connection failed: ' . $e->getMessage());
+                return $this->errorResponse('Erreur de connexion à la base de données', 500);
+            }
+
             $validated = $request->validated();
 
             $user = User::where('login', $validated['login'])->first();
@@ -82,7 +90,7 @@ class AuthController extends Controller
             ], 'Connexion réussie');
         } catch (\Exception $e) {
             Log::error('Login error: ' . $e->getMessage());
-            return $this->errorResponse('Erreur serveur', 500);
+            return $this->errorResponse('Erreur serveur: ' . $e->getMessage(), 500);
         }
     }
 
