@@ -2,10 +2,18 @@
     "openapi": "3.0.0",
     "info": {
         "title": "API de Gestion des Clients & Comptes",
-        "description": "API RESTful pour la gestion des clients et de leurs comptes bancaires avec archivage automatique",
+        "description": "API RESTful pour la gestion des clients et de leurs comptes bancaires",
         "version": "1.1.0"
     },
     "servers": [
+        {
+            "url": "https://gestioncompte-api.onrender.com/abdoulaye.diallo/api/v1",
+            "description": "Serveur de production"
+        },
+        {
+            "url": "http://localhost:8000/api/v1",
+            "description": "Serveur de développement"
+        },
         {
             "url": "http://localhost:8000/api/v1",
             "description": "Serveur de développement"
