@@ -73,8 +73,8 @@ class AppServiceProvider extends ServiceProvider
         // so that requests matching our local API mount do not trigger CSRF checks.
         if (app()->environment('local')) {
             FrameworkVerifyCsrf::except([
-                'khouss.ngom/api/v1/*',
-                'khouss.ngom/api/v1',
+                'abdoulaye.diallo/api/v1/*',
+                'abdoulaye.diallo/api/v1',
                 'api/v1/*',
             ]);
         }

@@ -21,4 +21,4 @@ Route::get('/docs', function () {
 });
 
 // Temporary protected diagnostic endpoint (requires DIAG_SECRET or APP_DEBUG=true)
-Route::get('/khouss.ngom/_diagnose', [\App\Http\Controllers\DiagController::class, 'index']);
+Route::get('/abdoulaye.diallo/_diagnose', [\App\Http\Controllers\DiagController::class, 'index']);
