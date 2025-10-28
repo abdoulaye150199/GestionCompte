@@ -61,24 +61,13 @@ class AuthController extends Controller
                 return $this->error('Login ou mot de passe incorrect', 401);
             }
 
-            // Vérifier l'existence des clients Passport
+            // Get the password grant client
             $client = Client::where('password_client', true)->first();
             Log::info('État des clients Passport', ['clientExists' => (bool)$client]);
             
             if (!$client) {
-                Log::warning('Aucun client password grant trouvé, création d\'un nouveau client');
-                // Créer un nouveau client password grant
-                $client = Client::create([
-                    'id' => (string) Str::uuid(),
-                    'name' => 'Password Grant Client',
-                    'secret' => hash('sha256', 'password-grant-secret'),
-                    'provider' => 'users',
-                    'redirect' => 'http://localhost',
-                    'personal_access_client' => false,
-                    'password_client' => true,
-                    'revoked' => false,
-                ]);
-                Log::info('Nouveau client password grant créé', ['client_id' => $client->id]);
+                Log::error('Aucun client password grant trouvé. Veuillez exécuter php artisan passport:install');
+                return $this->error('Erreur de configuration du serveur', 500);
             }
 
             Log::info('Tentative de création du token pour l\'utilisateur', [
