@@ -9,8 +9,8 @@ namespace App\OpenApi;
  * )
 
  * @OA\Server(
- *     url="https://abdoulaye.diallo.api",
- *     description="Serveur de production"
+ *     url="https://gestioncompte-api.onrender.com/abdoulaye.diallo",
+ *     description="Serveur de production (Render)"
  * )
 
  */
