@@ -1,81 +1,48 @@
 #!/bin/sh
 
-echo "Starting Laravel application..."
+# Basic runtime sanity checks for required DB envs
+echo "Starting docker-entrypoint.sh"
+MISSING=0
+for v in DB_HOST DB_PORT DB_DATABASE DB_USERNAME; do
+  eval val="\$$v"
+  if [ -z "$val" ]; then
+    echo "Required env $v is not set"
+    MISSING=1
+  fi
+done
 
-# Clear any existing caches
-php artisan config:clear
-php artisan route:clear
-php artisan view:clear
-
-# Try to connect to database and run setup if possible
-echo "Checking database connection..."
-if php artisan migrate:status > /dev/null 2>&1; then
-    echo "Database is accessible, running setup..."
-
-    # Run migrations
-    echo "Running migrations..."
-    php artisan migrate --force
-
-    # Generate Passport keys if they don't exist
-    if [ ! -f storage/oauth-private.key ] || [ ! -f storage/oauth-public.key ]; then
-        echo "Generating Passport keys..."
-        php artisan passport:keys --force
-    fi
-
-    # Vérifier et configurer Passport
-    echo "Setting up Laravel Passport..."
-    
-    # Vérifier si les clients OAuth existent
-    CLIENT_COUNT=$(php artisan tinker --execute="echo DB::table('oauth_clients')->count();")
-    
-    if [ "$CLIENT_COUNT" -eq "0" ]; then
-        echo "No Passport clients found. Installing..."
-        php artisan passport:install --force
-        echo "Passport clients created successfully"
-    else
-        echo "Passport clients already exist"
-    fi
-    
-    # Vérifier les permissions des clés
-    chown -R www-data:www-data storage/oauth-*.key
-    chmod 600 storage/oauth-*.key
-
-    echo "Generating Swagger documentation with HTTPS..."
-    export FORCE_HTTPS=true
-    export L5_SWAGGER_FORCE_HTTPS=true
-    
-    # Nettoyer et régénérer la documentation
-    php artisan config:clear
-    php artisan cache:clear
-    php artisan l5-swagger:generate
-    
-    # Vérifier que le fichier existe et le copier dans public
-    if [ -f storage/api-docs/api-docs.json ]; then
-        echo "Swagger docs generated successfully"
-        cp storage/api-docs/api-docs.json public/api-docs.json
-        chmod 644 public/api-docs.json
-        
-        # Vérifier le contenu HTTPS
-        if grep -q "http://" public/api-docs.json; then
-            echo "WARNING: HTTP URLs found in api-docs.json, converting to HTTPS..."
-            sed -i 's|http://|https://|g' public/api-docs.json
-        fi
-        
-        echo "✓ Swagger documentation updated with HTTPS"
-    else
-        echo "ERROR: Failed to generate Swagger documentation"
-    fi
-
-    # Cache configuration
-    echo "Caching configuration..."
-    php artisan config:cache
-    php artisan route:cache
-    php artisan view:cache
-else
-    echo "Database not accessible, skipping database operations..."
-    echo "Application will start without database caching"
+if [ "$MISSING" -eq 1 ]; then
+  echo "One or more required DB env vars are missing. Aborting to avoid infinite wait." >&2
+  exit 1
 fi
 
-# Start the application
-echo "Starting application..."
+# Generate APP_KEY if not provided via env
+if [ -z "$APP_KEY" ]; then
+  echo "APP_KEY not set — generating one"
+  php artisan key:generate --force || true
+fi
+
+echo "Waiting for database to be ready..."
+MAX_WAIT=120
+WAITED=0
+while ! pg_isready -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USERNAME" >/dev/null 2>&1; do
+  if [ "$WAITED" -ge "$MAX_WAIT" ]; then
+    echo "Timeout waiting for database after ${MAX_WAIT}s" >&2
+    exit 1
+  fi
+  echo "Database is unavailable - sleeping 1s (waited=${WAITED}s)"
+  sleep 1
+  WAITED=$((WAITED+1))
+done
+
+echo "Database is up - executing migrations"
+# Clear caches to avoid serving stale routes/config from image build
+php artisan route:clear || true
+php artisan config:clear || true
+php artisan cache:clear || true
+
+# Run migrations (non-blocking failure allowed)
+php artisan migrate --force || true
+
+echo "Starting Laravel application..."
 exec "$@"
