@@ -24,6 +24,11 @@ Route::prefix('oauth')->group(function () {
     Route::delete('/authorize', [\Laravel\Passport\Http\Controllers\AuthorizationController::class, 'deny'])->name('passport.authorizations.deny');
 });
 
+// Route de test pour vérifier l'état de l'API
+Route::get('/health', function() {
+    return response()->json(['status' => 'ok', 'timestamp' => now()]);
+});
+
 // Routes publiques (sans authentification)
 Route::prefix('v1')->group(function () {
     Route::post('/login', [App\Http\Controllers\Api\V1\AuthController::class, 'login']);
