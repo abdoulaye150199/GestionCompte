@@ -136,17 +136,68 @@
                 ]
             }
         },
-        "/user": {
-            "get": {
+        "/register": {
+            "post": {
                 "tags": [
                     "Authentification"
                 ],
-                "summary": "Informations de l'utilisateur",
-                "description": "Retourne les informations de l'utilisateur connecté",
-                "operationId": "getAuthenticatedUser",
+                "summary": "Inscription utilisateur",
+                "description": "Crée un nouveau compte utilisateur client",
+                "operationId": "register",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "login",
+                                    "password",
+                                    "nom",
+                                    "nci",
+                                    "email",
+                                    "telephone",
+                                    "adresse"
+                                ],
+                                "properties": {
+                                    "login": {
+                                        "description": "Login de l'utilisateur",
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "description": "Mot de passe",
+                                        "type": "string",
+                                        "format": "password"
+                                    },
+                                    "nom": {
+                                        "description": "Nom complet",
+                                        "type": "string"
+                                    },
+                                    "nci": {
+                                        "description": "Numéro CNI",
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "description": "Adresse email",
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "telephone": {
+                                        "description": "Numéro de téléphone",
+                                        "type": "string"
+                                    },
+                                    "adresse": {
+                                        "description": "Adresse",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
-                    "200": {
-                        "description": "Informations de l'utilisateur",
+                    "201": {
+                        "description": "Utilisateur créé avec succès",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -154,6 +205,10 @@
                                         "success": {
                                             "type": "boolean",
                                             "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Utilisateur créé avec succès"
                                         },
                                         "data": {
                                             "properties": {
@@ -168,12 +223,15 @@
                                                         "type": {
                                                             "type": "string",
                                                             "enum": [
-                                                                "admin",
                                                                 "client"
                                                             ]
                                                         }
                                                     },
                                                     "type": "object"
+                                                },
+                                                "token": {
+                                                    "description": "Token d'accès Bearer",
+                                                    "type": "string"
                                                 }
                                             },
                                             "type": "object"
@@ -183,13 +241,11 @@
                                 }
                             }
                         }
+                    },
+                    "422": {
+                        "description": "Erreur de validation"
                     }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
+                }
             }
         },
         "/comptes": {
