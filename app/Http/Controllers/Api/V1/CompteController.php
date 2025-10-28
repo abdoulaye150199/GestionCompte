@@ -232,7 +232,36 @@ class CompteController extends Controller
      */
     public function store(StoreCompteRequest $request): JsonResponse
     {
-        $compte = Compte::create($request->validated());
+        $validated = $request->validated();
+
+        // Vérifier si l'utilisateur existe, sinon le créer
+        $user = \App\Models\User::find($validated['user_id']);
+        if (!$user) {
+            // Créer un utilisateur client par défaut
+            $user = \App\Models\User::create([
+                'id' => $validated['user_id'],
+                'login' => 'client_' . substr($validated['user_id'], 0, 8),
+                'password' => \Illuminate\Support\Facades\Hash::make('password123'),
+                'type' => 'client',
+            ]);
+
+            // Créer le profil client
+            $user->client()->create([
+                'id' => (string) \Illuminate\Support\Str::uuid(),
+                'nom' => 'Client Auto-généré',
+                'nci' => '000000000000',
+                'email' => 'client_' . substr($validated['user_id'], 0, 8) . '@auto.com',
+                'telephone' => '+221000000000',
+                'adresse' => 'Adresse auto-générée',
+            ]);
+        }
+
+        // Définir le statut par défaut à 'actif' si non spécifié
+        if (!isset($validated['statut']) || empty($validated['statut'])) {
+            $validated['statut'] = 'actif';
+        }
+
+        $compte = Compte::create($validated);
 
         return $this->successResponse(
             new CompteResource($compte),
