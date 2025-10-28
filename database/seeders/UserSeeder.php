@@ -30,5 +30,19 @@ class UserSeeder extends Seeder
 
         // Créer des utilisateurs clients avec leurs profils
         \App\Models\Client::factory(9)->create();
+
+        // Créer un client OAuth pour l'authentification par mot de passe
+        if (!\Laravel\Passport\Client::where('password_client', true)->exists()) {
+            \Laravel\Passport\Client::create([
+                'id' => '4fb47d8e-7df3-469b-b130-2e4510526fc4',
+                'name' => 'Testing Password Grant Client',
+                'secret' => '$2y$10$f8RQ3TyIab7sxXfZeDFWtPC1EWJ8gzEi9tiU8aji',
+                'redirect' => 'http://localhost',
+                'personal_access_client' => false,
+                'password_client' => true,
+                'revoked' => false,
+                'provider' => 'users',
+            ]);
+        }
     }
 }
