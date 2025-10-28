@@ -71,6 +71,9 @@ class AuthController extends Controller
                 'id' => $user->id,
                 'login' => $user->login,
                 'type' => $user->type,
+                'nom' => $user->client?->nom ?? $user->admin?->nom ?? null,
+                'email' => $user->client?->email ?? $user->admin?->email ?? null,
+                'telephone' => $user->client?->telephone ?? $user->admin?->telephone ?? null,
             ],
             'token' => $token,
         ], 'Connexion réussie');
@@ -134,6 +137,9 @@ class AuthController extends Controller
                 'id' => $user->id,
                 'login' => $user->login,
                 'type' => $user->type,
+                'nom' => $user->client?->nom ?? $user->admin?->nom ?? null,
+                'email' => $user->client?->email ?? $user->admin?->email ?? null,
+                'telephone' => $user->client?->telephone ?? $user->admin?->telephone ?? null,
             ]
         ]);
     }
