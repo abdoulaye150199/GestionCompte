@@ -1,0 +1,282 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "API de Gestion de Comptes",
+        "description": "API pour la gestion des comptes bancaires",
+        "contact": {
+            "email": "admin@example.com"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8000",
+            "description": "Serveur local"
+        },
+        {
+            "url": "https://abdoulaye.diallo.api",
+            "description": "Serveur de production"
+        }
+    ],
+    "paths": {
+        "/api/v1/comptes": {
+            "get": {
+                "tags": [
+                    "Comptes"
+                ],
+                "summary": "Liste tous les comptes non archivés",
+                "operationId": "c09c55b936e3520140768760edfa911e",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "statut",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "sort",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Liste paginée des comptes"
+                    }
+                }
+            }
+        },
+        "/api/v1/comptes/mes-comptes": {
+            "get": {
+                "tags": [
+                    "Comptes"
+                ],
+                "summary": "Liste les comptes du client connecté",
+                "operationId": "b31be0308e2c506b146a6b97f3076020",
+                "responses": {
+                    "200": {
+                        "description": "Liste des comptes du client"
+                    }
+                }
+            }
+        },
+        "/api/v1/comptes/{numero}": {
+            "get": {
+                "tags": [
+                    "Comptes"
+                ],
+                "summary": "Détail d’un compte par numéro",
+                "operationId": "0210219b689fdc768ead8c77093b3cc2",
+                "parameters": [
+                    {
+                        "name": "numero",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Détail du compte"
+                    }
+                }
+            }
+        },
+        "/api/v1/comptes/{id}/archive": {
+            "post": {
+                "tags": [
+                    "Comptes"
+                ],
+                "summary": "Archive un compte au lieu de le supprimer",
+                "operationId": "8c763ef360df322806802fd6b96270cc",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Compte archivé"
+                    }
+                }
+            }
+        },
+        "/api/v1/comptes/{compte}/bloquer-v2": {
+            "post": {
+                "tags": [
+                    "Comptes"
+                ],
+                "summary": "Bloquer un compte (motif + durée)",
+                "description": "New API: bloquer using motif/duree/unite payload and immediate application when applicable.",
+                "operationId": "dde15dfea4831881edcb4c2d8fdbb221",
+                "parameters": [
+                    {
+                        "name": "compte",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "motif",
+                                    "duree",
+                                    "unite"
+                                ],
+                                "properties": {
+                                    "motif": {
+                                        "type": "string",
+                                        "example": "Suspicion de fraude"
+                                    },
+                                    "duree": {
+                                        "type": "integer",
+                                        "example": 30
+                                    },
+                                    "unite": {
+                                        "description": "jours|mois|annees",
+                                        "type": "string",
+                                        "example": "jours"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Compte bloqué / données renvoyées"
+                    }
+                }
+            }
+        },
+        "/api/v1/comptes/{compte}/debloquer": {
+            "post": {
+                "tags": [
+                    "Comptes"
+                ],
+                "summary": "Débloquer un compte (motif)",
+                "description": "Debloquer an account (manual endpoint).",
+                "operationId": "eae05905368baf99959e755e19866793",
+                "parameters": [
+                    {
+                        "name": "compte",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "motif"
+                                ],
+                                "properties": {
+                                    "motif": {
+                                        "type": "string",
+                                        "example": "Contrôle terminé"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Compte débloqué / données renvoyées"
+                    }
+                }
+            }
+        },
+        "/api/v1/health": {
+            "get": {
+                "summary": "Health check",
+                "operationId": "d88a3a13c7c8232c4f7ce153ff171edb",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Comptes",
+            "description": "Comptes"
+        }
+    ]
+}
