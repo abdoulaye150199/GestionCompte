@@ -9,7 +9,8 @@ return [
     // Use explicit origins when credentials are supported. Wildcard '*' is
     // incompatible with Access-Control-Allow-Credentials: true in browsers.
     'allowed_origins' => [
-        'https://gestioncompte-api.onrender.com.abdoulaye.diallo',
+        // Production origin (no path, only scheme + host)
+        'https://gestioncompte-api.onrender.com',
         'https://compte-api-hjvy.onrender.com',
         'http://127.0.0.1:8000',
         'http://localhost:8000',
