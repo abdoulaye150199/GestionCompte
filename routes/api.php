@@ -1,59 +1,34 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\V1\CompteController;
-use App\Http\Controllers\Api\V1\UserController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\CompteController;
+use App\Http\Controllers\AccountController;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "api" middleware group. Make something great!
-|
-*/
+// Register v1 routes via a closure and mount both under the production
+// domain (API_HOST) and locally. routes/api.php is already served under the
+// /api prefix by Laravel, so we register routes under /api/v1/...
+// Use shared v1 routes so we can mount them in multiple places (domain + local prefix)
+// The actual route definitions live in routes/v1_routes.php
+// Note: routes defined there use the full paths starting with /api/v1/...
 
-// Routes Passport OAuth
-Route::prefix('oauth')->group(function () {
-    Route::post('/token', [\Laravel\Passport\Http\Controllers\AccessTokenController::class, 'issueToken'])->name('passport.token');
-    Route::get('/authorize', [\Laravel\Passport\Http\Controllers\AuthorizationController::class, 'authorize'])->name('passport.authorizations.authorize');
-    Route::post('/authorize', [\Laravel\Passport\Http\Controllers\AuthorizationController::class, 'approve'])->name('passport.authorizations.approve');
-    Route::delete('/authorize', [\Laravel\Passport\Http\Controllers\AuthorizationController::class, 'deny'])->name('passport.authorizations.deny');
-});
-
-// Route de test pour vérifier l'état de l'API
-Route::get('/health', function() {
-    return response()->json(['status' => 'ok', 'timestamp' => now()]);
-});
-
-// Routes publiques (sans authentification)
-Route::prefix('v1')->group(function () {
-    Route::post('/login', [App\Http\Controllers\Api\V1\AuthController::class, 'login']);
-    Route::post('/register', [App\Http\Controllers\Api\V1\AuthController::class, 'register']);
-    Route::get('/welcome', [App\Http\Controllers\Api\V1\WelcomeController::class, 'index']);
-
-    // Routes protégées par Passport
-    Route::middleware(['auth:api', 'api.rating'])->group(function () {
-        // Auth
-        Route::post('/logout', [App\Http\Controllers\Api\V1\AuthController::class, 'logout']);
-        Route::get('/user', [App\Http\Controllers\Api\V1\AuthController::class, 'user']);
-
-        // Routes des comptes bancaires
-        Route::prefix('comptes')->group(function () {
-            Route::get('archives', [CompteController::class, 'getArchivedComptes']);
-            Route::get('bloques', [CompteController::class, 'getBloquedComptes']);
-            Route::post('{id}/restaurer', [CompteController::class, 'restoreArchivedCompte']);
-            Route::post('{compteId}/bloquer', [CompteController::class, 'bloquer']);
-            Route::post('{compteId}/debloquer', [CompteController::class, 'debloquer']);
-        });
-        Route::apiResource('comptes', CompteController::class);
-
-        // Routes des utilisateurs
-        Route::middleware('resource:user')->group(function () {
-            Route::apiResource('users', UserController::class);
-        });
+// Mount under production domain using the expected API prefix (/api/v1).
+// Note: routes in this file are already prefixed with `/api` by the
+// RouteServiceProvider, so here we only add the `v1` suffix.
+Route::domain(env('API_HOST', 'khouss.ngom'))->group(function () {
+    Route::prefix('v1')->group(function () {
+        require __DIR__ . '/v1_routes.php';
     });
 });
+
+// Also mount for general API access (when not using the API_HOST domain).
+// This registers the same routes under /api/v1 on the current host.
+Route::prefix('v1')->group(function () {
+    require __DIR__ . '/v1_routes.php';
+});
+
+// Note: for local testing we mount the v1 routes without the automatic
+// /api prefix (see routes/web.php) so the URL http://localhost:8000/khouss.ngom/api/v1/...
+// will work. Do not duplicate the local prefix here because routes in
+// routes/api.php are automatically prefixed with /api by RouteServiceProvider.
+

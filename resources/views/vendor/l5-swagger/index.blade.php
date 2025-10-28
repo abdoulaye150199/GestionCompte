@@ -2,11 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{{config('l5-swagger.documentations.'.$documentation.'.api.title')}}</title>
-    {{-- Use direct public assets to avoid route-based redirects in dev environments --}}
-    <link rel="stylesheet" type="text/css" href="{{ asset('swagger-assets/swagger-ui.css') }}">
-    <link rel="icon" type="image/png" href="{{ asset('swagger-assets/favicon-32x32.png') }}" sizes="32x32"/>
-    <link rel="icon" type="image/png" href="{{ asset('swagger-assets/favicon-16x16.png') }}" sizes="16x16"/>
+    <title>{{ $documentationTitle }}</title>
+    <link rel="stylesheet" type="text/css" href="{{ l5_swagger_asset($documentation, 'swagger-ui.css') }}">
+    <link rel="icon" type="image/png" href="{{ l5_swagger_asset($documentation, 'favicon-32x32.png') }}" sizes="32x32"/>
+    <link rel="icon" type="image/png" href="{{ l5_swagger_asset($documentation, 'favicon-16x16.png') }}" sizes="16x16"/>
     <style>
     html
     {
@@ -120,40 +119,28 @@
 <body @if(config('l5-swagger.defaults.ui.display.dark_mode')) id="dark-mode" @endif>
 <div id="swagger-ui"></div>
 
-{{-- Load scripts from public docs assets (pre-copied) to avoid controller routing and redirect loops --}}
-<script src="{{ asset('swagger-assets/swagger-ui-bundle.js') }}"></script>
-<script src="{{ asset('swagger-assets/swagger-ui-standalone-preset.js') }}"></script>
-
-<?php $oauth2RedirectUrlValue = route('l5-swagger.'.$documentation.'.oauth2_callback', [], config('l5-swagger.documentations.'.$documentation.'.paths.use_absolute_path', false)); ?>
+<script src="{{ l5_swagger_asset($documentation, 'swagger-ui-bundle.js') }}"></script>
+<script src="{{ l5_swagger_asset($documentation, 'swagger-ui-standalone-preset.js') }}"></script>
 <script>
-    // Prefer public copy if available (symlinked to storage) to avoid routing redirects
-    const urlToDocs = <?php echo json_encode(url('/api-docs.json')); ?>;
-    const operationsSorter = <?php echo json_encode($operationsSorter ?? null); ?>;
-    const configUrl = <?php echo json_encode($configUrl ?? null); ?>;
-    const validatorUrl = <?php echo json_encode($validatorUrl ?? null); ?>;
-    const oauth2RedirectUrl = <?php echo json_encode($oauth2RedirectUrlValue); ?>;
-    const docExpansion = <?php echo json_encode(config('l5-swagger.defaults.ui.display.doc_expansion', 'none')); ?>;
-    const filterEnabled = <?php echo json_encode((bool) config('l5-swagger.defaults.ui.display.filter')); ?>;
-    const persistAuth = <?php echo json_encode((bool) config('l5-swagger.defaults.ui.authorization.persist_authorization')); ?>;
-    const usePkce = <?php echo json_encode((bool) config('l5-swagger.defaults.ui.authorization.oauth2.use_pkce_with_authorization_code_grant')); ?>;
-
-    // Precompute values server-side and inject them as safe JS literals to avoid editor parsing issues
-    const csrfToken = <?php echo json_encode(csrf_token()); ?>;
-    const shouldInitOAuth = <?php echo json_encode(in_array('oauth2', array_column(config('l5-swagger.defaults.securityDefinitions.securitySchemes'), 'type'))); ?>;
-
     window.onload = function() {
+        const urls = [];
+
+        @foreach($urlsToDocs as $title => $url)
+            urls.push({name: "{{ $title }}", url: "{{ $url }}"});
+        @endforeach
+
+        // Build a system
         const ui = SwaggerUIBundle({
             dom_id: '#swagger-ui',
-            url: urlToDocs,
-            operationsSorter: operationsSorter,
-            configUrl: configUrl,
-            validatorUrl: validatorUrl,
-            oauth2RedirectUrl: oauth2RedirectUrl,
+            urls: urls,
+            "urls.primaryName": "{{ $documentationTitle }}",
+            operationsSorter: {!! isset($operationsSorter) ? '"' . $operationsSorter . '"' : 'null' !!},
+            configUrl: {!! isset($configUrl) ? '"' . $configUrl . '"' : 'null' !!},
+            validatorUrl: {!! isset($validatorUrl) ? '"' . $validatorUrl . '"' : 'null' !!},
+            oauth2RedirectUrl: "{{ route('l5-swagger.'.$documentation.'.oauth2_callback', [], $useAbsolutePath) }}",
 
             requestInterceptor: function(request) {
-                if (csrfToken) {
-                    request.headers['X-CSRF-TOKEN'] = csrfToken;
-                }
+                request.headers['X-CSRF-TOKEN'] = '{{ csrf_token() }}';
                 return request;
             },
 
@@ -167,19 +154,21 @@
             ],
 
             layout: "StandaloneLayout",
-            docExpansion: docExpansion,
+            docExpansion : "{!! config('l5-swagger.defaults.ui.display.doc_expansion', 'none') !!}",
             deepLinking: true,
-            filter: filterEnabled,
-            persistAuthorization: persistAuth
-        });
+            filter: {!! config('l5-swagger.defaults.ui.display.filter') ? 'true' : 'false' !!},
+            persistAuthorization: "{!! config('l5-swagger.defaults.ui.authorization.persist_authorization') ? 'true' : 'false' !!}",
 
-        window.ui = ui;
+        })
 
-        if (shouldInitOAuth) {
-            ui.initOAuth({ usePkceWithAuthorizationCodeGrant: usePkce });
-        }
-    };
+        window.ui = ui
+
+        @if(in_array('oauth2', array_column(config('l5-swagger.defaults.securityDefinitions.securitySchemes'), 'type')))
+        ui.initOAuth({
+            usePkceWithAuthorizationCodeGrant: "{!! (bool)config('l5-swagger.defaults.ui.authorization.oauth2.use_pkce_with_authorization_code_grant') !!}"
+        })
+        @endif
+    }
 </script>
-
 </body>
 </html>
