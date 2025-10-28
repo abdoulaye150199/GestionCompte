@@ -128,10 +128,90 @@ class AuthController extends Controller
      *     )
      * )
      */
+    /**
+     * @OA\Post(
+     *     path="/register",
+     *     summary="Inscription utilisateur",
+     *     description="Crée un nouveau compte utilisateur client",
+     *     operationId="register",
+     *     tags={"Authentification"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"login", "password", "nom", "nci", "email", "telephone", "adresse"},
+     *             @OA\Property(property="login", type="string", description="Login de l'utilisateur"),
+     *             @OA\Property(property="password", type="string", format="password", description="Mot de passe"),
+     *             @OA\Property(property="nom", type="string", description="Nom complet"),
+     *             @OA\Property(property="nci", type="string", description="Numéro CNI"),
+     *             @OA\Property(property="email", type="string", format="email", description="Adresse email"),
+     *             @OA\Property(property="telephone", type="string", description="Numéro de téléphone"),
+     *             @OA\Property(property="adresse", type="string", description="Adresse")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Utilisateur créé avec succès",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Utilisateur créé avec succès"),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="user", type="object",
+     *                     @OA\Property(property="id", type="string"),
+     *                     @OA\Property(property="login", type="string"),
+     *                     @OA\Property(property="type", type="string", enum={"client"})
+     *                 ),
+     *                 @OA\Property(property="token", type="string", description="Token d'accès Bearer")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Erreur de validation"
+     *     )
+     * )
+     */
+    public function register(RegisterRequest $request): JsonResponse
+    {
+        $validated = $request->validated();
+
+        // Créer l'utilisateur
+        $user = User::create([
+            'id' => (string) Str::uuid(),
+            'login' => $validated['login'],
+            'password' => Hash::make($validated['password']),
+            'type' => 'client',
+        ]);
+
+        // Créer le profil client
+        $user->client()->create([
+            'id' => (string) Str::uuid(),
+            'nom' => $validated['nom'],
+            'nci' => $validated['nci'],
+            'email' => $validated['email'],
+            'telephone' => $validated['telephone'],
+            'adresse' => $validated['adresse'],
+        ]);
+
+        // Générer le token
+        $token = $user->createToken('API Token')->accessToken;
+
+        return $this->successResponse([
+            'user' => [
+                'id' => $user->id,
+                'login' => $user->login,
+                'type' => $user->type,
+                'nom' => $user->client->nom,
+                'email' => $user->client->email,
+                'telephone' => $user->client->telephone,
+            ],
+            'token' => $token,
+        ], 'Utilisateur créé avec succès', 201);
+    }
+
     public function user(Request $request): JsonResponse
     {
         $user = $request->user();
-        
+
         return $this->successResponse([
             'user' => [
                 'id' => $user->id,
