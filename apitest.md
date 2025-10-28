@@ -1,19 +1,19 @@
 # 🧪 API Test Links - Gestion des Clients & Comptes
 
-**Base URL:** `http://127.0.0.1:8001/abdoulaye.diallo/api/v1`
+**Base URL:** `https://gestioncompte-api.onrender.com/abdoulaye.diallo/api/v1`
 
 ## 🔑 Authentification Endpoints
 
 ### POST - Login
 ```bash
-curl -X POST http://127.0.0.1:8001/abdoulaye.diallo/api/v1/login \
+curl -X POST https://gestioncompte-api.onrender.com/abdoulaye.diallo/api/v1/login \
   -H "Content-Type: application/json" \
   -d '{"login": "votre_login", "password": "votre_mot_de_passe"}'
 ```
 
 ### POST - Register
 ```bash
-curl -X POST http://127.0.0.1:8001/abdoulaye.diallo/api/v1/register \
+curl -X POST https://gestioncompte-api.onrender.com/abdoulaye.diallo/api/v1/register \
   -H "Content-Type: application/json" \
   -d '{
     "login": "nouveau_login",
@@ -28,7 +28,7 @@ curl -X POST http://127.0.0.1:8001/abdoulaye.diallo/api/v1/register \
 
 ### POST - Logout
 ```bash
-curl -X POST http://127.0.0.1:8001/abdoulaye.diallo/api/v1/logout \
+curl -X POST https://gestioncompte-api.onrender.com/abdoulaye.diallo/api/v1/logout \
   -H "Authorization: Bearer VOTRE_TOKEN"
 ```
 
@@ -36,13 +36,13 @@ curl -X POST http://127.0.0.1:8001/abdoulaye.diallo/api/v1/logout \
 
 ### GET - List Users
 ```bash
-curl -X GET "http://127.0.0.1:8001/abdoulaye.diallo/api/v1/users?page=1&limit=10&role=client" \
+curl -X GET "https://gestioncompte-api.onrender.com/abdoulaye.diallo/api/v1/users?page=1&limit=10&role=client" \
   -H "Authorization: Bearer VOTRE_TOKEN"
 ```
 
 ### POST - Create User
 ```bash
-curl -X POST http://127.0.0.1:8001/abdoulaye.diallo/api/v1/users \
+curl -X POST https://gestioncompte-api.onrender.com/abdoulaye.diallo/api/v1/users \
   -H "Authorization: Bearer VOTRE_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -57,13 +57,13 @@ curl -X POST http://127.0.0.1:8001/abdoulaye.diallo/api/v1/users \
 
 ### GET - Get User by ID
 ```bash
-curl -X GET http://127.0.0.1:8001/abdoulaye.diallo/api/v1/users/{user_id} \
+curl -X GET https://gestioncompte-api.onrender.com/abdoulaye.diallo/api/v1/users/{user_id} \
   -H "Authorization: Bearer VOTRE_TOKEN"
 ```
 
 ### PATCH - Update User
 ```bash
-curl -X PATCH http://127.0.0.1:8001/abdoulaye.diallo/api/v1/users/{user_id} \
+curl -X PATCH https://gestioncompte-api.onrender.com/abdoulaye.diallo/api/v1/users/{user_id} \
   -H "Authorization: Bearer VOTRE_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -74,7 +74,7 @@ curl -X PATCH http://127.0.0.1:8001/abdoulaye.diallo/api/v1/users/{user_id} \
 
 ### DELETE - Delete User
 ```bash
-curl -X DELETE http://127.0.0.1:8001/abdoulaye.diallo/api/v1/users/{user_id} \
+curl -X DELETE https://gestioncompte-api.onrender.com/abdoulaye.diallo/api/v1/users/{user_id} \
   -H "Authorization: Bearer VOTRE_TOKEN"
 ```
 
@@ -82,13 +82,13 @@ curl -X DELETE http://127.0.0.1:8001/abdoulaye.diallo/api/v1/users/{user_id} \
 
 ### GET - List Comptes
 ```bash
-curl -X GET "http://127.0.0.1:8001/abdoulaye.diallo/api/v1/comptes?page=1&limit=10&type=epargne&statut=actif" \
+curl -X GET "https://gestioncompte-api.onrender.com/abdoulaye.diallo/api/v1/comptes?page=1&limit=10&type=epargne&statut=actif" \
   -H "Authorization: Bearer VOTRE_TOKEN"
 ```
 
 ### POST - Create Compte
 ```bash
-curl -X POST http://127.0.0.1:8001/abdoulaye.diallo/api/v1/comptes \
+curl -X POST https://gestioncompte-api.onrender.com/abdoulaye.diallo/api/v1/comptes \
   -H "Authorization: Bearer VOTRE_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -102,14 +102,14 @@ curl -X POST http://127.0.0.1:8001/abdoulaye.diallo/api/v1/comptes \
 
 ### GET - Get Compte by ID
 ```bash
-curl -X GET http://127.0.0.1:8001/abdoulaye.diallo/api/v1/comptes/{compte_id} \
+curl -X GET https://gestioncompte-api.onrender.com/abdoulaye.diallo/api/v1/comptes/{compte_id} \
   -H "Authorization: Bearer VOTRE_TOKEN"
 ```
 
 ### PATCH - Update Compte (avec blocage)
 ```bash
 # Bloquer un compte avec date d'expiration
-curl -X PATCH http://127.0.0.1:8001/abdoulaye.diallo/api/v1/comptes/{compte_id} \
+curl -X PATCH https://gestioncompte-api.onrender.com/abdoulaye.diallo/api/v1/comptes/{compte_id} \
   -H "Authorization: Bearer VOTRE_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -125,7 +125,7 @@ curl -X PATCH http://127.0.0.1:8001/abdoulaye.diallo/api/v1/comptes/{compte_id} 
 
 ### PATCH - Update Compte (simple)
 ```bash
-curl -X PATCH http://127.0.0.1:8001/abdoulaye.diallo/api/v1/comptes/{compte_id} \
+curl -X PATCH https://gestioncompte-api.onrender.com/abdoulaye.diallo/api/v1/comptes/{compte_id} \
   -H "Authorization: Bearer VOTRE_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -140,7 +140,7 @@ curl -X PATCH http://127.0.0.1:8001/abdoulaye.diallo/api/v1/comptes/{compte_id} 
 
 ### DELETE - Archiver Compte
 ```bash
-curl -X DELETE http://127.0.0.1:8001/abdoulaye.diallo/api/v1/comptes/{compte_id} \
+curl -X DELETE https://gestioncompte-api.onrender.com/abdoulaye.diallo/api/v1/comptes/{compte_id} \
   -H "Authorization: Bearer VOTRE_TOKEN"
 ```
 
@@ -148,13 +148,13 @@ curl -X DELETE http://127.0.0.1:8001/abdoulaye.diallo/api/v1/comptes/{compte_id}
 
 ### GET - List Comptes Archivés
 ```bash
-curl -X GET "http://127.0.0.1:8001/abdoulaye.diallo/api/v1/comptes/archives?page=1&limit=10&statut=bloque&raisonArchivage=Blocage%20expiré" \
+curl -X GET "https://gestioncompte-api.onrender.com/abdoulaye.diallo/api/v1/comptes/archives?page=1&limit=10&statut=bloque&raisonArchivage=Blocage%20expiré" \
   -H "Authorization: Bearer VOTRE_TOKEN"
 ```
 
 ### POST - Restaurer Compte Archivé
 ```bash
-curl -X POST http://127.0.0.1:8001/abdoulaye.diallo/api/v1/comptes/{compte_id}/restaurer \
+curl -X POST https://gestioncompte-api.onrender.com/abdoulaye.diallo/api/v1/comptes/{compte_id}/restaurer \
   -H "Authorization: Bearer VOTRE_TOKEN"
 ```
 
@@ -163,7 +163,7 @@ curl -X POST http://127.0.0.1:8001/abdoulaye.diallo/api/v1/comptes/{compte_id}/r
 #### Collection Postman: "Gestion Comptes Archivage"
 
 **Variables de Collection:**
-- `base_url`: `http://127.0.0.1:8001/abdoulaye.diallo/api/v1`
+- `base_url`: `https://gestioncompte-api.onrender.com/abdoulaye.diallo/api/v1`
 - `token`: (sera défini après login)
 
 **Requêtes d'Archives:**
@@ -183,7 +183,7 @@ curl -X POST http://127.0.0.1:8001/abdoulaye.diallo/api/v1/comptes/{compte_id}/r
 
 ```bash
 #!/bin/bash
-BASE_URL="http://127.0.0.1:8001/abdoulaye.diallo/api/v1"
+BASE_URL="https://gestioncompte-api.onrender.com/abdoulaye.diallo/api/v1"
 
 # Test d'inscription
 echo "Test inscription..."
@@ -226,9 +226,9 @@ curl -X POST $BASE_URL/logout \
 
 ## 🔗 Liens Utiles
 
-- **Swagger UI:** `http://localhost:8000/abdoulaye.diallo/api/documentation`
-- **API Base:** `http://127.0.0.1:8001/abdoulaye.diallo/api/v1`
-- **Serveur:** `http://localhost:8000`
+- **Swagger UI:** `https://gestioncompte-api.onrender.com/abdoulaye.diallo/api/documentation`
+- **API Base:** `https://gestioncompte-api.onrender.com/abdoulaye.diallo/api/v1`
+- **Serveur:** `https://gestioncompte-api.onrender.com`
 
 ## 🕒 Jobs de Gestion des Comptes
 
@@ -281,7 +281,7 @@ php artisan tinker --execute="
 ### Test Complet d'Archivage
 ```bash
 #!/bin/bash
-BASE_URL="http://127.0.0.1:8001/abdoulaye.diallo/api/v1"
+BASE_URL="https://gestioncompte-api.onrender.com/abdoulaye.diallo/api/v1"
 
 # 1. Connexion admin
 echo "🔑 Connexion admin..."
@@ -352,7 +352,7 @@ echo "🎉 Test d'archivage terminé!"
 ### Test de Restauration
 ```bash
 #!/bin/bash
-BASE_URL="http://127.0.0.1:8001/abdoulaye.diallo/api/v1"
+BASE_URL="https://gestioncompte-api.onrender.com/abdoulaye.diallo/api/v1"
 
 # Connexion admin
 TOKEN=$(curl -s -X POST $BASE_URL/login \
@@ -369,7 +369,7 @@ curl -X POST $BASE_URL/comptes/COMPTE_ID/restaurer \
 #### Collection Postman: "Gestion Comptes Archivage"
 
 **Variables de Collection:**
-- `base_url`: `http://127.0.0.1:8001/abdoulaye.diallo/api/v1`
+- `base_url`: `https://gestioncompte-api.onrender.com/abdoulaye.diallo/api/v1`
 - `token`: (sera défini après login)
 
 **Requêtes:**

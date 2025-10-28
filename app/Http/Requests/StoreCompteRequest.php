@@ -22,7 +22,7 @@ class StoreCompteRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => 'required|uuid|exists:users,id',
+            'user_id' => 'required|uuid',
             'type' => 'required|in:epargne,cheque',
             'solde' => 'numeric|min:0',
             'devise' => 'string|max:10',
