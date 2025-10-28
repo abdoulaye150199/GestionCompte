@@ -16,6 +16,14 @@ use App\Http\Controllers\Api\V1\UserController;
 |
 */
 
+// Routes Passport OAuth
+Route::prefix('oauth')->group(function () {
+    Route::post('/token', [\Laravel\Passport\Http\Controllers\AccessTokenController::class, 'issueToken'])->name('passport.token');
+    Route::get('/authorize', [\Laravel\Passport\Http\Controllers\AuthorizationController::class, 'authorize'])->name('passport.authorizations.authorize');
+    Route::post('/authorize', [\Laravel\Passport\Http\Controllers\AuthorizationController::class, 'approve'])->name('passport.authorizations.approve');
+    Route::delete('/authorize', [\Laravel\Passport\Http\Controllers\AuthorizationController::class, 'deny'])->name('passport.authorizations.deny');
+});
+
 // Routes publiques (sans authentification)
 Route::prefix('v1')->group(function () {
     Route::post('/login', [App\Http\Controllers\Api\V1\AuthController::class, 'login']);
