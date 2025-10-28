@@ -28,6 +28,9 @@ class RouteServiceProvider extends ServiceProvider
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
 
+        // Register Passport Routes
+        \Laravel\Passport\Passport::ignoreRoutes();
+
         // Redirect some globally-registered package routes to the prefixed versions
         // so that externally visible URLs always include "abdoulaye.diallo".
         Route::permanentRedirect('api/documentation', 'abdoulaye.diallo/api/documentation');
