@@ -1,6 +1,9 @@
 <?php
 
-use Laravel\Sanctum\Sanctum;
+// If Laravel Sanctum is not installed in this environment, avoid calling
+// Sanctum::currentApplicationUrlWithPort() during config load which would
+// trigger a fatal error. We will append the current application URL only if
+// the class is available.
 
 return [
 
@@ -18,7 +21,7 @@ return [
     'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', sprintf(
         '%s%s',
         'localhost,localhost:3000,127.0.0.1,127.0.0.1:8000,::1',
-        Sanctum::currentApplicationUrlWithPort()
+        class_exists(\Laravel\Sanctum\Sanctum::class) ? \Laravel\Sanctum\Sanctum::currentApplicationUrlWithPort() : ''
     ))),
 
     /*
