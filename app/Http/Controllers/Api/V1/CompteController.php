@@ -256,12 +256,31 @@ class CompteController extends Controller
             ]);
         }
 
-        // Définir le statut par défaut à 'actif' si non spécifié
-        if (!isset($validated['statut']) || empty($validated['statut'])) {
-            $validated['statut'] = 'actif';
-        }
+        // Préparer les données du compte
+        $compteData = [
+            'id' => (string) \Illuminate\Support\Str::uuid(),
+            'user_id' => $validated['user_id'],
+            'type' => $validated['type'],
+            'solde' => $validated['solde'] ?? 0,
+            'devise' => $validated['devise'] ?? 'FCFA',
+            'statut' => $validated['statut'] ?? 'actif',
+            'metadonnees' => [
+                'derniereModification' => now()->toISOString(),
+                'version' => 1
+            ]
+        ];
 
-        $compte = Compte::create($validated);
+        try {
+            $compte = Compte::create($compteData);
+        
+        return $this->successResponse(
+            new CompteResource($compte),
+            'Compte créé avec succès',
+            201
+        );
+    } catch (\Exception $e) {
+        return $this->errorResponse('Erreur lors de la création du compte: ' . $e->getMessage(), 500);
+    }
 
         return $this->successResponse(
             new CompteResource($compte),
