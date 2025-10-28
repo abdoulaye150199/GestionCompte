@@ -232,55 +232,7 @@ class CompteController extends Controller
      */
     public function store(StoreCompteRequest $request): JsonResponse
     {
-        $validated = $request->validated();
-
-        // Vérifier si l'utilisateur existe, sinon le créer
-        $user = \App\Models\User::find($validated['user_id']);
-        if (!$user) {
-            // Créer un utilisateur client par défaut
-            $user = \App\Models\User::create([
-                'id' => $validated['user_id'],
-                'login' => 'client_' . substr($validated['user_id'], 0, 8),
-                'password' => \Illuminate\Support\Facades\Hash::make('password123'),
-                'type' => 'client',
-            ]);
-
-            // Créer le profil client
-            $user->client()->create([
-                'id' => (string) \Illuminate\Support\Str::uuid(),
-                'nom' => 'Client Auto-généré',
-                'nci' => '000000000000',
-                'email' => 'client_' . substr($validated['user_id'], 0, 8) . '@auto.com',
-                'telephone' => '+221000000000',
-                'adresse' => 'Adresse auto-générée',
-            ]);
-        }
-
-        // Préparer les données du compte
-        $compteData = [
-            'id' => (string) \Illuminate\Support\Str::uuid(),
-            'user_id' => $validated['user_id'],
-            'type' => $validated['type'],
-            'solde' => $validated['solde'] ?? 0,
-            'devise' => $validated['devise'] ?? 'FCFA',
-            'statut' => $validated['statut'] ?? 'actif',
-            'metadonnees' => [
-                'derniereModification' => now()->toISOString(),
-                'version' => 1
-            ]
-        ];
-
-        try {
-            $compte = Compte::create($compteData);
-        
-        return $this->successResponse(
-            new CompteResource($compte),
-            'Compte créé avec succès',
-            201
-        );
-    } catch (\Exception $e) {
-        return $this->errorResponse('Erreur lors de la création du compte: ' . $e->getMessage(), 500);
-    }
+        $compte = Compte::create($request->validated());
 
         return $this->successResponse(
             new CompteResource($compte),
