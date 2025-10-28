@@ -3,7 +3,33 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\LoginRequest;
+use App\Http\Re            try {
+                Log::info('Tentative de création du token pour l\'utilisateur', ['user_id' => $user->id]);
+                $token = $user->createToken($user->login)->accessToken;
+                Log::info('Token créé avec succès');
+
+                return $this->success([
+                    'user' => [
+                        'id' => $user->id,
+                        'login' => $user->login,
+                        'type' => $user->type
+                    ],
+                    'token' => $token
+                ], 'Connexion réussie');
+            } catch (\Exception $e) {
+                Log::error('Erreur lors de la génération du token d\'accès', [
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                return $this->error('Erreur lors de la génération du token d\'accès: ' . $e->getMessage(), 500);
+            }
+        } catch (\Exception $e) {
+            Log::error('Erreur générale lors de la connexion', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return $this->error('Erreur lors de la connexion: ' . $e->getMessage(), 500);
+        }st;
 use App\Http\Requests\RegisterRequest;
 use App\Models\User;
 use App\Traits\RestResponse;
@@ -17,6 +43,11 @@ use Illuminate\Support\Facades\Log;
 class AuthController extends Controller
 {
     use RestResponse;
+
+    public function __construct()
+    {
+        Log::info('AuthController initialized');
+    }
 
     /**
      * @OA\Post(
@@ -58,20 +89,33 @@ class AuthController extends Controller
     public function login(LoginRequest $request): JsonResponse
     {
         try {
-            $validated = $request->validated();
+            Log::info('Tentative de connexion', ['login' => $request->login]);
             
-            Log::info('Tentative de connexion pour login: ' . $validated['login']);
-
-            $user = User::where('login', $validated['login'])->first();
-
-            if (!$user) {
-                Log::warning('Utilisateur non trouvé avec le login: ' . $validated['login']);
-                return $this->errorResponse('Identifiants invalides', 401);
+            $user = User::where('login', $request->login)->first();
+            
+            if (!$user || !Hash::check($request->password, $user->password)) {
+                Log::warning('Échec de connexion : identifiants invalides', ['login' => $request->login]);
+                return $this->error('Login ou mot de passe incorrect', 401);
             }
-
-            if (!Hash::check($validated['password'], $user->password)) {
-                Log::warning('Mot de passe incorrect pour l\'utilisateur: ' . $validated['login']);
-                return $this->errorResponse('Identifiants invalides', 401);
+            
+            // Vérifier l'existence des clients Passport
+            $clientsExist = \Laravel\Passport\Client::where('password_client', true)->exists();
+            Log::info('État des clients Passport', ['clientsExist' => $clientsExist]);
+            
+            if (!$clientsExist) {
+                Log::warning('Aucun client password grant trouvé, création d\'un nouveau client');
+                // Créer un nouveau client password grant
+                $client = \Laravel\Passport\Client::create([
+                    'id' => (string) Str::uuid(),
+                    'name' => 'Password Grant Client',
+                    'secret' => hash('sha256', 'password-grant-secret'),
+                    'provider' => 'users',
+                    'redirect' => 'http://localhost',
+                    'personal_access_client' => false,
+                    'password_client' => true,
+                    'revoked' => false,
+                ]);
+                Log::info('Nouveau client password grant créé', ['client_id' => $client->id]);
             }
 
             try {
