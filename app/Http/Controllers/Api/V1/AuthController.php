@@ -59,18 +59,31 @@ class AuthController extends Controller
     {
         try {
             $validated = $request->validated();
+            
+            Log::info('Tentative de connexion pour login: ' . $validated['login']);
 
             $user = User::where('login', $validated['login'])->first();
 
-            if (!$user || !Hash::check($validated['password'], $user->password)) {
+            if (!$user) {
+                Log::warning('Utilisateur non trouvé avec le login: ' . $validated['login']);
+                return $this->errorResponse('Identifiants invalides', 401);
+            }
+
+            if (!Hash::check($validated['password'], $user->password)) {
+                Log::warning('Mot de passe incorrect pour l\'utilisateur: ' . $validated['login']);
                 return $this->errorResponse('Identifiants invalides', 401);
             }
 
             try {
-                $token = $user->createToken('API Token')->accessToken;
+                Log::info('Création du token pour l\'utilisateur: ' . $user->id);
+                $tokenResult = $user->createToken('API Token');
+                Log::info('Token créé avec succès');
+                $token = $tokenResult->accessToken;
             } catch (\Exception $e) {
-                Log::error('Erreur lors de la création du token: ' . $e->getMessage());
-                return $this->errorResponse('Erreur lors de la génération du token d\'accès', 500);
+                Log::error('Erreur lors de la création du token pour l\'utilisateur ' . $user->id);
+                Log::error('Message d\'erreur: ' . $e->getMessage());
+                Log::error('Trace: ' . $e->getTraceAsString());
+                return $this->errorResponse('Erreur lors de la génération du token d\'accès: ' . $e->getMessage(), 500);
             }
 
             return $this->successResponse([
