@@ -9,14 +9,14 @@ class ForceHttps
 {
     public function handle(Request $request, Closure $next)
     {
-        if (!$request->secure() && app()->environment('production')) {
-            return redirect()->secure($request->getRequestUri(), 301);
+        // Skip HTTPS enforcement for local development
+        if (app()->environment('local') || app()->environment('testing')) {
+            return $next($request);
         }
 
-        if (env('FORCE_HTTPS', true)) {
-            $request->server->set('HTTPS', 'on');
-            $request->server->set('SERVER_PORT', 443);
-            $request->server->set('HTTP_X_FORWARDED_PROTO', 'https');
+        // Only enforce HTTPS in production
+        if (!$request->secure() && app()->environment('production')) {
+            return redirect()->secure($request->getRequestUri(), 301);
         }
 
         return $next($request);
