@@ -1,0 +1,17 @@
+{
+    "name": "GestionCompte API",
+    "env": "production",
+    "entrypoint": "scripts/start.sh",
+    "buildCommand": "composer install --no-dev --optimize-autoloader && npm ci && npm run build",
+    "startCommand": "./scripts/start.sh",
+    "envVars": {
+        "APP_KEY": {
+            "generateValue": true
+        },
+        "APP_ENV": "production",
+        "APP_DEBUG": "false",
+        "DB_CONNECTION": "pgsql",
+        "LOG_CHANNEL": "stack",
+        "LOG_LEVEL": "debug"
+    }
+}
