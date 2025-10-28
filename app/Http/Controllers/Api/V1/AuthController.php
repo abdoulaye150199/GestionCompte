@@ -12,6 +12,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -56,15 +57,37 @@ class AuthController extends Controller
      */
     public function login(LoginRequest $request): JsonResponse
     {
-        $validated = $request->validated();
+        try {
+            $validated = $request->validated();
 
-        $user = User::where('login', $validated['login'])->first();
+            $user = User::where('login', $validated['login'])->first();
 
-        if (!$user || !Hash::check($validated['password'], $user->password)) {
-            return $this->errorResponse('Identifiants invalides', 401);
+            if (!$user || !Hash::check($validated['password'], $user->password)) {
+                return $this->errorResponse('Identifiants invalides', 401);
+            }
+
+            try {
+                $token = $user->createToken('API Token')->accessToken;
+            } catch (\Exception $e) {
+                Log::error('Erreur lors de la création du token: ' . $e->getMessage());
+                return $this->errorResponse('Erreur lors de la génération du token d\'accès', 500);
+            }
+
+            return $this->successResponse([
+                'user' => [
+                    'id' => $user->id,
+                    'login' => $user->login,
+                    'type' => $user->type,
+                    'nom' => $user->client?->nom ?? $user->admin?->nom ?? null,
+                    'email' => $user->client?->email ?? $user->admin?->email ?? null,
+                    'telephone' => $user->client?->telephone ?? $user->admin?->telephone ?? null,
+                ],
+                'token' => $token,
+            ], 'Connexion réussie');
+        } catch (\Exception $e) {
+            Log::error('Erreur lors de la connexion: ' . $e->getMessage());
+            return $this->errorResponse('Une erreur est survenue lors de la connexion', 500);
         }
-
-        $token = $user->createToken('API Token')->accessToken;
 
         return $this->successResponse([
             'user' => [
