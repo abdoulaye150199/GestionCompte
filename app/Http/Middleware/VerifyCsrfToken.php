@@ -24,14 +24,14 @@ class VerifyCsrfToken extends BaseVerifier
      *
      * @var array<int,string>
      */
-    protected $except = ['khouss.ngom/api/v1/comptes/*',];
+    protected $except = ['abdoulaye.diallo/api/v1/comptes/*',];
 
     public function __construct()
     {
         // Only disable CSRF for our local API mount during local development
         if (app()->environment('local')) {
             $this->except = [
-                'khouss.ngom/api/v1/*',
+                'abdoulaye.diallo/api/v1/*',
                 'api/v1/*',
             ];
         }
