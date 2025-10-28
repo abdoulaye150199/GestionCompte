@@ -12,17 +12,10 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Log;
-use Laravel\Passport\Client;
 
 class AuthController extends Controller
 {
     use RestResponse;
-
-    public function __construct()
-    {
-        Log::info('AuthController initialized');
-    }
 
     /**
      * @OA\Post(
@@ -41,7 +34,19 @@ class AuthController extends Controller
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Connexion réussie"
+     *         description="Connexion réussie",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Connexion réussie"),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="user", type="object",
+     *                     @OA\Property(property="id", type="string"),
+     *                     @OA\Property(property="login", type="string"),
+     *                     @OA\Property(property="type", type="string", enum={"admin", "client"})
+     *                 ),
+     *                 @OA\Property(property="token", type="string", description="Token d'accès Bearer")
+     *             )
+     *         )
      *     ),
      *     @OA\Response(
      *         response=401,
@@ -51,50 +56,85 @@ class AuthController extends Controller
      */
     public function login(LoginRequest $request): JsonResponse
     {
-        try {
-            Log::info('Tentative de connexion', ['login' => $request->login]);
-            
-            $user = User::where('login', $request->login)->first();
-            
-            if (!$user || !Hash::check($request->password, $user->password)) {
-                Log::warning('Échec de connexion : identifiants invalides', ['login' => $request->login]);
-                return $this->error('Login ou mot de passe incorrect', 401);
-            }
+        $validated = $request->validated();
 
-            // Get the password grant client
-            $client = Client::where('password_client', true)->first();
-            Log::info('État des clients Passport', ['clientExists' => (bool)$client]);
-            
-            if (!$client) {
-                Log::error('Aucun client password grant trouvé. Veuillez exécuter php artisan passport:install');
-                return $this->error('Erreur de configuration du serveur', 500);
-            }
+        $user = User::where('login', $validated['login'])->first();
 
-            Log::info('Tentative de création du token pour l\'utilisateur', [
-                'user_id' => $user->id,
-                'client_id' => $client->id
-            ]);
-            
-            $token = $user->createToken($user->login)->accessToken;
-            Log::info('Token créé avec succès');
-
-            return $this->success([
-                'user' => [
-                    'id' => $user->id,
-                    'login' => $user->login,
-                    'type' => $user->type
-                ],
-                'token' => $token
-            ], 'Connexion réussie');
-
-        } catch (\Exception $e) {
-            Log::error('Erreur lors de la connexion', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            return $this->error('Erreur lors de la connexion: ' . $e->getMessage(), 500);
+        if (!$user || !Hash::check($validated['password'], $user->password)) {
+            return $this->errorResponse('Identifiants invalides', 401);
         }
+
+        $token = $user->createToken('API Token')->accessToken;
+
+        return $this->successResponse([
+            'user' => [
+                'id' => $user->id,
+                'login' => $user->login,
+                'type' => $user->type,
+            ],
+            'token' => $token,
+        ], 'Connexion réussie');
     }
 
-    // ... rest of the controller methods ...
+    /**
+     * @OA\Post(
+     *     path="/logout",
+     *     summary="Déconnexion utilisateur",
+     *     description="Révoque le token d'accès de l'utilisateur",
+     *     operationId="logout",
+     *     tags={"Authentification"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Déconnexion réussie",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Déconnexion réussie")
+     *         )
+     *     )
+     * )
+     */
+    public function logout(Request $request): JsonResponse
+    {
+        $request->user()->token()->revoke();
+        
+        return $this->successResponse(null, 'Déconnexion réussie');
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/user",
+     *     summary="Informations de l'utilisateur",
+     *     description="Retourne les informations de l'utilisateur connecté",
+     *     operationId="getAuthenticatedUser",
+     *     tags={"Authentification"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Informations de l'utilisateur",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="user", type="object",
+     *                     @OA\Property(property="id", type="string"),
+     *                     @OA\Property(property="login", type="string"),
+     *                     @OA\Property(property="type", type="string", enum={"admin", "client"})
+     *                 )
+     *             )
+     *         )
+     *     )
+     * )
+     */
+    public function user(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        
+        return $this->successResponse([
+            'user' => [
+                'id' => $user->id,
+                'login' => $user->login,
+                'type' => $user->type,
+            ]
+        ]);
+    }
 }
