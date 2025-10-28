@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Jobs\UnarchiveCompteJob;
 use App\Models\Compte;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -44,33 +45,12 @@ class UnarchiveExpiredBlockedAccounts implements ShouldQueue
 
         foreach ($comptesArchives as $compteArchive) {
             try {
-                // Créer un nouveau compte dans la base principale avec les données archivées
-                $nouveauCompte = Compte::create([
-                    'id' => $compteArchive->id,
-                    'numero_compte' => $compteArchive->numero_compte,
-                    'user_id' => $compteArchive->user_id,
-                    'type' => $compteArchive->type,
-                    'solde' => $compteArchive->solde,
-                    'devise' => $compteArchive->devise,
-                    'statut' => 'actif', // Remettre en actif
-                    'metadonnees' => array_merge($compteArchive->metadonnees ?? [], [
-                        'dateDesarchivage' => Carbon::now()->toISOString(),
-                        'raisonDesarchivage' => 'Fin de période de blocage (depuis archivage)',
-                        'restaureDepuisNeon' => true,
-                    ]),
-                ]);
-
-                // Supprimer de la base Neon
-                DB::connection('neon')
-                    ->table('archived_comptes')
-                    ->where('id', $compteArchive->id)
-                    ->delete();
-
+                // Dispatch a job to handle the restore so the work is centralized and retriable
+                UnarchiveCompteJob::dispatch($compteArchive->id);
                 $comptesDesarchives++;
-                Log::info("Compte {$compteArchive->numero_compte} désarchivé depuis Neon (fin de blocage)");
-
+                Log::info("Dispatched UnarchiveCompteJob for archived compte {$compteArchive->numero_compte}");
             } catch (\Exception $e) {
-                Log::error("Erreur lors du désarchivage du compte {$compteArchive->numero_compte}: " . $e->getMessage());
+                Log::error("Erreur lors du dispatch du job de désarchivage pour {$compteArchive->numero_compte}: " . $e->getMessage());
             }
         }
 
