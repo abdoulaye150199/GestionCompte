@@ -16,6 +16,7 @@ class UserSeeder extends Seeder
         $adminUser = \App\Models\User::factory()->create([
             'login' => 'admin',
             'password' => bcrypt('admin123'),
+            'type' => 'admin',
         ]);
 
         \App\Models\Admin::factory()->create([

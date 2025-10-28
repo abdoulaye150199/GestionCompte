@@ -20,6 +20,7 @@ class UserFactory extends Factory
             'id' => $this->faker->uuid(),
             'login' => $this->faker->unique()->userName(),
             'password' => bcrypt('password'),
+            'type' => 'client',
         ];
     }
 
@@ -29,6 +30,7 @@ class UserFactory extends Factory
             return [
                 'login' => $this->faker->unique()->userName(),
                 'password' => bcrypt('admin123'),
+                'type' => 'admin',
             ];
         });
     }
