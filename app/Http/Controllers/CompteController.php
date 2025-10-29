@@ -384,11 +384,27 @@ class CompteController extends Controller
     }
 
     /**
+    * @OA\Delete(
+    *     path="/api/v1/comptes/{compte}",
+    *     summary="Supprimer un compte (soft delete)",
+    *     tags={"Comptes"},
+    *     @OA\Parameter(name="compte", in="path", required=true, @OA\Schema(type="string")),
+    *     @OA\Response(response=200, description="Compte supprimé avec succès"),
+    *     @OA\Response(response=401, description="Authentification requise"),
+    *     @OA\Response(response=404, description="Compte non trouvé"),
+    *     security={{"bearerAuth":{}}}
+    * )
      * Soft-delete a compte: set statut to 'ferme', set date_fermeture, then soft delete
      */
     public function destroy($compteId)
     {
-        $compte = Compte::find($compteId);
+        // Resolve by UUID id or by account number (numero_compte).
+        $compte = null;
+        $isUuid = (bool) preg_match('/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/', $compteId);
+        if ($isUuid) {
+            $compte = Compte::find($compteId);
+        }
+
         if (! $compte) {
             $compte = Compte::where('numero_compte', $compteId)->first();
         }
