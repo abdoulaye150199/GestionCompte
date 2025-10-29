@@ -152,10 +152,14 @@ class CompteController extends Controller
             return $this->notFoundResponse('Compte introuvable');
         }
 
-        // Enforce: cheque accounts cannot be blocked
+        // Enforce: only active 'epargne' accounts can be blocked
         $type = $compte->type_compte ?? $compte->type ?? null;
-        if ($type === 'cheque') {
-            return $this->errorResponse('Vous ne pouvez pas bloquer ce compte.', 400);
+        $statut = $compte->statut_compte ?? $compte->statut ?? null;
+        if ($type !== 'epargne') {
+            return $this->errorResponse('Seuls les comptes épargne peuvent être bloqués.', 400);
+        }
+        if ($statut !== 'actif') {
+            return $this->errorResponse('Seul un compte actif peut être bloqué.', 400);
         }
 
         $compte->date_debut_blocage = $request->input('date_debut_blocage');

@@ -31,30 +31,36 @@ class ArchiveExpiredBlockedAccounts implements ShouldQueue
     {
         Log::info('Démarrage du job d\'archivage des comptes bloqués expirés');
 
-        // Récupérer tous les comptes bloqués dont la date de fin de blocage est échue
-        $comptesExpires = Compte::where('statut', 'bloque')
-            ->whereNotNull('date_fin_blocage')
-            ->where('date_fin_blocage', '<=', Carbon::now())
+        // Récupérer tous les comptes épargne bloqués dont la date de début de blocage est échue
+        // (Archivage doit se produire au début du blocage)
+        $comptesAArchiver = Compte::where(function($q) {
+                $q->where('type_compte', 'epargne')->orWhere('type', 'epargne');
+            })
+            ->where(function ($q) {
+                $q->where('statut_compte', 'bloque')->orWhere('statut', 'bloque');
+            })
+            ->whereNotNull('date_debut_blocage')
+            ->where('date_debut_blocage', '<=', Carbon::now())
             ->get();
 
         $comptesArchives = 0;
 
-        foreach ($comptesExpires as $compte) {
+        foreach ($comptesAArchiver as $compte) {
             try {
                 // Préparer les données d'archivage
                 $archiveData = [
                     'id' => $compte->id,
                     'numero_compte' => $compte->numero_compte,
                     'user_id' => $compte->user_id,
-                    'type' => $compte->type,
+                    'type' => $compte->type_compte ?? $compte->type,
                     'solde' => $compte->solde,
                     'devise' => $compte->devise,
-                    'statut' => $compte->statut,
-                    'date_creation' => $compte->created_at,
-                    'date_fin_blocage' => $compte->date_fin_blocage,
+                    'statut' => $compte->statut_compte ?? $compte->statut,
+                    'date_creation' => $compte->date_creation ?? $compte->created_at,
+                    'date_debut_blocage' => $compte->date_debut_blocage,
                     'date_archivage' => Carbon::now(),
-                    'raison_archivage' => 'Blocage expiré',
-                    'metadonnees' => $compte->metadonnees,
+                    'raison_archivage' => 'Archivage au début du blocage',
+                    'metadonnees' => $compte->metadonnees ?? null,
                     'archived_at' => Carbon::now(),
                 ];
 
