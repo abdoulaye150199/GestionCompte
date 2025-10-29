@@ -115,10 +115,27 @@ class CompteController extends Controller
     }
 
     /**
-     * Bloquer un compte (enregistre la période et le motif). Le blocage effectif est appliqué
-     * automatiquement par le job VerifierBlocageCompteJob lorsque la date_debut_blocage est atteinte.
-     *
-     * This method resolves the compte either by numeric id or by account number (numero_compte).
+    * @OA\Post(
+    *     path="/api/v1/comptes/numero/{numero}/bloquer",
+    *     summary="Bloquer un compte par numéro",
+    *     tags={"Comptes"},
+    *     @OA\Parameter(name="numero", in="path", required=true, @OA\Schema(type="string")),
+    *     @OA\RequestBody(
+    *         required=true,
+    *         @OA\JsonContent(
+    *             @OA\Property(property="date_debut_blocage", type="string", format="date"),
+    *             @OA\Property(property="date_fin_blocage", type="string", format="date"),
+    *             @OA\Property(property="motif_blocage", type="string")
+    *         )
+    *     ),
+    *     @OA\Response(response=200, description="Données de blocage enregistrées"),
+    *     @OA\Response(response=400, description="Requête invalide ou blocage non autorisé", @OA\JsonContent(@OA\Property(property="message", type="string", example="Vous ne pouvez pas bloquer ce compte.")))
+    * )
+    *
+    * Bloquer un compte (enregistre la période et le motif). Le blocage effectif est appliqué
+    * automatiquement par le job VerifierBlocageCompteJob lorsque la date_debut_blocage est atteinte.
+    *
+    * This method resolves the compte either by numeric id or by account number (numero_compte).
      */
     public function bloquer(BlocageCompteRequest $request, $compteIdentifier)
     {
@@ -133,6 +150,12 @@ class CompteController extends Controller
 
         if (!$compte) {
             return $this->notFoundResponse('Compte introuvable');
+        }
+
+        // Enforce: cheque accounts cannot be blocked
+        $type = $compte->type_compte ?? $compte->type ?? null;
+        if ($type === 'cheque') {
+            return $this->errorResponse('Vous ne pouvez pas bloquer ce compte.', 400);
         }
 
         $compte->date_debut_blocage = $request->input('date_debut_blocage');
