@@ -14,7 +14,7 @@ class CompteResource extends JsonResource
      */
     public function toArray($request)
     {
-        return [
+        $base = [
             'numeroCompte' => $this->numero_compte,
             'titulaire' => isset($this->client) ? trim(($this->client->nom ?? '') . ' ' . ($this->client->prenom ?? '')) : ($this->titulaire_compte ?? null),
             'type' => $this->type_compte ?? $this->type,
@@ -32,5 +32,32 @@ class CompteResource extends JsonResource
                 'version' => $this->version ?? 1,
             ],
         ];
+
+        // Build HATEOAS links (non-breaking: adds `_links` alongside existing data)
+        try {
+            $id = $this->id ?? null;
+            $numero = $this->numero_compte ?? null;
+            $baseUrl = config('app.url') ?: url('/');
+
+            $selfUrl = $numero ? url("/api/v1/comptes/numero/{$numero}") : ($id ? url("/api/v1/comptes/{$id}") : null);
+
+            $links = [
+                'self' => $selfUrl,
+                'transactions' => $numero ? url("/api/v1/comptes/{$numero}/transactions") : null,
+                'archive' => $id ? url("/api/v1/comptes/{$id}/archive") : null,
+                'bloquer' => $numero ? url("/api/v1/comptes/numero/{$numero}/bloquer") : null,
+                'debloquer' => $id ? url("/api/v1/comptes/{$id}/debloquer") : null,
+                'client' => isset($this->client) ? url("/api/v1/users/{$this->client->id}") : null,
+            ];
+
+            // Filter null links
+            $links = array_filter($links, function ($v) { return !is_null($v); });
+
+            $base['_links'] = $links;
+        } catch (\Exception $e) {
+            // Keep response safe — do not break if URL helpers fail
+        }
+
+        return $base;
     }
 }
