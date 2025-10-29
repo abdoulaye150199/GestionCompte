@@ -27,29 +27,34 @@ class UserResource extends JsonResource
             'derniereModification' => $this->updated_at,
         ];
 
-        // Add HATEOAS links for REST Level 3 compliance
-        $data['_links'] = [
-            'self' => [
-                'href' => route('users.show', ['user' => $this->id]),
-                'method' => 'GET',
-                'rel' => 'self'
-            ],
-            'update' => [
-                'href' => route('users.update', ['user' => $this->id]),
-                'method' => 'PATCH',
-                'rel' => 'update'
-            ],
-            'delete' => [
-                'href' => route('users.destroy', ['user' => $this->id]),
-                'method' => 'DELETE',
-                'rel' => 'delete'
-            ],
-            'collection' => [
-                'href' => route('users.index'),
-                'method' => 'GET',
-                'rel' => 'collection'
-            ]
-        ];
+        // Add HATEOAS links for REST Level 3 compliance (safe fallback to urls)
+        try {
+            $id = $this->id;
+            $data['_links'] = [
+                'self' => [
+                    'href' => url("/api/v1/users/{$id}"),
+                    'method' => 'GET',
+                    'rel' => 'self'
+                ],
+                'update' => [
+                    'href' => url("/api/v1/users/{$id}"),
+                    'method' => 'PATCH',
+                    'rel' => 'update'
+                ],
+                'delete' => [
+                    'href' => url("/api/v1/users/{$id}"),
+                    'method' => 'DELETE',
+                    'rel' => 'delete'
+                ],
+                'collection' => [
+                    'href' => url("/api/v1/users"),
+                    'method' => 'GET',
+                    'rel' => 'collection'
+                ]
+            ];
+        } catch (\Exception $e) {
+            $data['_links'] = [];
+        }
 
         return $data;
     }
