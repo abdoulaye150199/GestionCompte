@@ -7,8 +7,8 @@
     },
     "servers": [
         {
-            "url": "/",
-            "description": "Use same origin as Swagger UI (recommended for hosted docs)"
+            "url": "https://production.abdoulaye.diallo/api/v1",
+            "description": "Production server (production.abdoulaye.diallo)"
         },
         {
             "url": "https://gestioncompte-api.onrender.com/abdoulaye.diallo/api/v1",
