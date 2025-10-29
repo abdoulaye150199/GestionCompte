@@ -7,20 +7,24 @@
     },
     "servers": [
         {
-            "url": "https://production.abdoulaye.diallo",
-            "description": "Production server (production.abdoulaye.diallo)"
+            "url": "https://gestioncompte-api.onrender.com",
+            "description": "Primary server (Render)"
         },
         {
-            "url": "https://gestioncompte-api.onrender.com",
-            "description": "Production Server (Render)"
+            "url": "https://production.abdoulaye.diallo",
+            "description": "Secondary server (production.abdoulaye.diallo)"
         },
         {
             "url": "http://localhost:8000",
             "description": "Serveur local"
         },
         {
-            "url": "https://abdoulaye.diallo.api",
-            "description": "Serveur de production"
+            "url": "https://gestioncompte-api.onrender.com",
+            "description": "Primary server (Render)"
+        },
+        {
+            "url": "https://production.abdoulaye.diallo",
+            "description": "Secondary server (production.abdoulaye.diallo)"
         }
     ],
     "paths": {
@@ -1873,6 +1877,69 @@
                 "responses": {
                     "200": {
                         "description": "Compte archivé"
+                    }
+                }
+            }
+        },
+        "/api/v1/comptes/numero/{numero}/bloquer": {
+            "post": {
+                "tags": [
+                    "Comptes"
+                ],
+                "summary": "Bloquer un compte par numéro",
+                "operationId": "0237d8f5f1fe706b2ab1828f49a84386",
+                "parameters": [
+                    {
+                        "name": "numero",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "date_debut_blocage": {
+                                        "type": "string",
+                                        "format": "date"
+                                    },
+                                    "date_fin_blocage": {
+                                        "type": "string",
+                                        "format": "date"
+                                    },
+                                    "motif_blocage": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Données de blocage enregistrées"
+                    },
+                    "400": {
+                        "description": "Requête invalide ou blocage non autorisé",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Vous ne pouvez pas bloquer ce compte."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 }
             }

@@ -7,12 +7,12 @@
     },
     "servers": [
         {
-            "url": "https://production.abdoulaye.diallo",
-            "description": "Production server (production.abdoulaye.diallo)"
+            "url": "https://gestioncompte-api.onrender.com",
+            "description": "Primary server (Render)"
         },
         {
-            "url": "https://gestioncompte-api.onrender.com",
-            "description": "Production Server (Render)"
+            "url": "https://production.abdoulaye.diallo",
+            "description": "Secondary server (production.abdoulaye.diallo)"
         }
     ],
     "paths": {
