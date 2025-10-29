@@ -10,27 +10,6 @@
         { "url": "http://localhost:8000", "description": "Local development (use /api/v1 paths)" }
     ],
     "paths": {
-        "/api/v1/comptes/{id}/archive": {
-            "post": {
-                "summary": "Archiver un compte (marquer comme archived)",
-                "tags": ["Comptes"],
-                "parameters": [
-                    { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" }, "description": "ID numérique du compte à archiver" }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Compte archivé avec succès",
-                        "content": {
-                            "application/json": {
-                                "schema": { "$ref": "#/components/schemas/ArchiveResponse" }
-                            }
-                        }
-                    },
-                    "403": { "description": "Accès refusé" },
-                    "404": { "description": "Compte introuvable" }
-                }
-            }
-        },
             "/api/v1/comptes": {
             "get": {
                 "summary": "Lister tous les comptes",
@@ -55,12 +34,6 @@
                     }
                 }
                 }
-            }
-            },
-            "/api/v1/comptes-demo": {
-            "get": {
-                "summary": "Endpoint de démonstration public pour la doc",
-                "responses": { "200": { "description": "OK" } }
             }
             },
             "/api/v1/accounts": {

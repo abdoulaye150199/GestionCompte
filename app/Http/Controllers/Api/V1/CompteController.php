@@ -381,46 +381,9 @@ class CompteController extends Controller
     }
 
     /**
-     * @OA\Delete(
-     *     path="/comptes/{id}",
-     *     summary="Archiver un compte",
-     *     description="Archive un compte existant (soft delete). Les comptes bloqués expirés sont automatiquement archivés dans la base de données Neon.",
-     *     operationId="archiveCompte",
-     *     tags={"Comptes"},
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         description="ID du compte à archiver",
-     *         @OA\Schema(type="string", format="uuid")
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Compte archivé avec succès",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string", example="Compte archivé avec succès")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=401,
-     *         description="Authentification requise",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=false),
-     *             @OA\Property(property="message", type="string", example="Authentification requise")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=404,
-     *         description="Compte non trouvé",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=false),
-     *             @OA\Property(property="message", type="string"),
-     *             @OA\Property(property="errors", type="object")
-     *         )
-     *     )
-     * )
+     * Archive a compte (kept for compatibility). Archiving of expired blocked
+     * epargne comptes is handled by background jobs; this controller no longer
+     * advertises a manual archive endpoint in the OpenAPI docs.
      */
 
     public function getArchivedComptes(Request $request): JsonResponse
