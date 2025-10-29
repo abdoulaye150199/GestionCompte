@@ -26,9 +26,10 @@ trait ApiQueryTrait
             $statut = $request->query('statut');
             $query->where('statut_compte', $statut);
         } else {
-            // Use the most common French values used in the codebase: 'bloque' and 'ferme'
-            // Note: normalize to non-accented 'bloque' which is used elsewhere in the codebase.
-            $query->whereNotIn('statut_compte', ['bloque', 'ferme']);
+            // Exclude blocked/closed accounts by default.
+            // Some deployments use accented values ("bloqué", "fermé") while others use unaccented
+            // ('bloque', 'ferme'). Exclude both variants to be robust.
+            $query->whereNotIn('statut_compte', ['bloque', 'bloqué', 'ferme', 'fermé']);
         }
         if ($search = $request->query('search')) {
             $query->where(function ($q) use ($search) {
