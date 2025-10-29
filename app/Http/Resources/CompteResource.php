@@ -68,7 +68,7 @@ class CompteResource extends JsonResource
                 $links['bloquer'] = url("/api/v1/comptes/numero/{$numero}/bloquer");
             }
             if ($id) {
-                $links['archive'] = url("/api/v1/comptes/{$id}/archive");
+                // Archive endpoint is job-driven; do not advertise a manual archive link.
                 $links['debloquer'] = url("/api/v1/comptes/{$id}/debloquer");
             }
             if (isset($this->client)) {

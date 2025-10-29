@@ -1,11 +1,5 @@
-{
-    "openapi": "3.0.0",
-    "info": {
-        "title": "API de Gestion des Clients & Comptes",
-        "description": "API RESTful pour la gestion des clients et de leurs comptes bancaires avec authentification Laravel Passport",
-        "version": "1.0.0"
-    },
-    "servers": [
+                "security": [
+                    [
         {
             "url": "https://gestioncompte-api.onrender.com",
             "description": "Primary server (Render)"
