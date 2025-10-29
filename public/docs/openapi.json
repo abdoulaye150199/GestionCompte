@@ -6,7 +6,7 @@
         "description": "Documentation minimale — ajoutez ici vos endpoints OpenAPI."
     },
     "servers": [
-        { "url": "/", "description": "Use same origin as Swagger UI (recommended for hosted docs)" },
+        { "url": "https://production.abdoulaye.diallo/api/v1", "description": "Production server (production.abdoulaye.diallo)" },
         { "url": "http://localhost:8000", "description": "Local development (use /api/v1 paths)" }
     ],
     "paths": {
