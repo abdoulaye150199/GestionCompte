@@ -8,7 +8,7 @@ trait ApiResponseTrait
 {
     public function successResponse($data, $message = null, $code = 200): JsonResponse
     {
-        return response()->json([
+        return new JsonResponse([
             'success' => true,
             'data' => $data,
             'message' => $message,
@@ -17,7 +17,7 @@ trait ApiResponseTrait
 
     public function errorResponse($message = null, $code = 400): JsonResponse
     {
-        return response()->json([
+        return new JsonResponse([
             'success' => false,
             'data' => null,
             'message' => $message,
@@ -32,24 +32,41 @@ trait ApiResponseTrait
             $currentPage = $pagination['currentPage'] ?? 1;
             $perPage = $pagination['itemsPerPage'] ?? ($pagination['perPage'] ?? 15);
             $totalPages = $pagination['totalPages'] ?? null;
-            $baseUrl = request()->url();
-            $query = request()->query();
 
+            // Safe request/url fallbacks so this method is test-friendly (no request bound)
+            $req = null;
+            try {
+                $req = request();
+            } catch (\Exception $e) {
+                $req = null;
+            }
+
+            if ($req && method_exists($req, 'url')) {
+                $baseUrl = $req->url();
+                $query = $req->query();
+            } else {
+                $baseUrl = config('app.url') ?? '';
+                $query = [];
+            }
+
+            // ensure page is defined
             $query['page'] = $currentPage;
-            $links['self'] = url($baseUrl) . '?' . http_build_query(array_merge($query, ['page' => $currentPage]));
+            $base = rtrim($baseUrl, '/');
+            $links['self'] = $base . '?' . http_build_query(array_merge($query, ['page' => $currentPage]));
             if ($currentPage > 1) {
-                $links['prev'] = url($baseUrl) . '?' . http_build_query(array_merge($query, ['page' => $currentPage - 1]));
-                $links['first'] = url($baseUrl) . '?' . http_build_query(array_merge($query, ['page' => 1]));
+                $links['prev'] = $base . '?' . http_build_query(array_merge($query, ['page' => $currentPage - 1]));
+                $links['first'] = $base . '?' . http_build_query(array_merge($query, ['page' => 1]));
             }
             if ($totalPages && $currentPage < $totalPages) {
-                $links['next'] = url($baseUrl) . '?' . http_build_query(array_merge($query, ['page' => $currentPage + 1]));
-                $links['last'] = url($baseUrl) . '?' . http_build_query(array_merge($query, ['page' => $totalPages]));
+                $links['next'] = $base . '?' . http_build_query(array_merge($query, ['page' => $currentPage + 1]));
+                $links['last'] = $base . '?' . http_build_query(array_merge($query, ['page' => $totalPages]));
             }
         } catch (\Exception $e) {
+            // On any failure, preserve an empty links array (non-breaking)
             $links = [];
         }
 
-        return response()->json([
+        return new JsonResponse([
             'success' => true,
             'data' => $data,
             'message' => $message,
@@ -60,7 +77,7 @@ trait ApiResponseTrait
 
     public function notFoundResponse($message = 'Resource not found'): JsonResponse
     {
-        return response()->json([
+        return new JsonResponse([
             'success' => false,
             'data' => null,
             'message' => $message,

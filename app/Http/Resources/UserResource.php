@@ -29,6 +29,9 @@ class UserResource extends JsonResource
 
         // Add HATEOAS links for REST Level 3 compliance (safe fallback to urls)
         try {
+            if (!config('features.hateoas', true)) {
+                return $data;
+            }
             $id = $this->id;
             $data['_links'] = [
                 'self' => [
