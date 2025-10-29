@@ -35,23 +35,26 @@ class CompteResource extends JsonResource
 
         // Build HATEOAS links (non-breaking: adds `_links` alongside existing data)
         try {
+            // Use the Hateoas trait helper if available
             $id = $this->id ?? null;
             $numero = $this->numero_compte ?? null;
-            $baseUrl = config('app.url') ?: url('/');
 
-            $selfUrl = $numero ? url("/api/v1/comptes/numero/{$numero}") : ($id ? url("/api/v1/comptes/{$id}") : null);
-
-            $links = [
-                'self' => $selfUrl,
-                'transactions' => $numero ? url("/api/v1/comptes/{$numero}/transactions") : null,
-                'archive' => $id ? url("/api/v1/comptes/{$id}/archive") : null,
-                'bloquer' => $numero ? url("/api/v1/comptes/numero/{$numero}/bloquer") : null,
-                'debloquer' => $id ? url("/api/v1/comptes/{$id}/debloquer") : null,
-                'client' => isset($this->client) ? url("/api/v1/users/{$this->client->id}") : null,
-            ];
-
-            // Filter null links
-            $links = array_filter($links, function ($v) { return !is_null($v); });
+            $links = [];
+            $self = $numero ? url("/api/v1/comptes/numero/{$numero}") : ($id ? url("/api/v1/comptes/{$id}") : null);
+            if ($self) {
+                $links['self'] = $self;
+            }
+            if ($numero) {
+                $links['transactions'] = url("/api/v1/comptes/{$numero}/transactions");
+                $links['bloquer'] = url("/api/v1/comptes/numero/{$numero}/bloquer");
+            }
+            if ($id) {
+                $links['archive'] = url("/api/v1/comptes/{$id}/archive");
+                $links['debloquer'] = url("/api/v1/comptes/{$id}/debloquer");
+            }
+            if (isset($this->client)) {
+                $links['client'] = url("/api/v1/users/{$this->client->id}");
+            }
 
             $base['_links'] = $links;
         } catch (\Exception $e) {
