@@ -6,7 +6,7 @@ namespace App\OpenApi;
  * Global OpenAPI configuration and shared components
  *
  * @OA\Server(
- *     url="https://production.abdoulaye.diallo/api/v1",
+ *     url="https://production.abdoulaye.diallo",
  *     description="Production server (production.abdoulaye.diallo)"
  * )
  *

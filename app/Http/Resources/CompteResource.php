@@ -35,6 +35,9 @@ class CompteResource extends JsonResource
 
         // Build HATEOAS links (non-breaking: adds `_links` alongside existing data)
         try {
+            if (!config('features.hateoas', true)) {
+                return $base;
+            }
             // Use the Hateoas trait helper if available
             $id = $this->id ?? null;
             $numero = $this->numero_compte ?? null;
