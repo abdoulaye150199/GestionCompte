@@ -18,8 +18,7 @@
                 "parameters": [
                     { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 }, "description": "Numéro de page" },
                     { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 10 }, "description": "Nombre d'éléments par page" },
-                    { "name": "type", "in": "query", "schema": { "type": "string", "enum": ["epargne", "cheque"] }, "description": "Filtrer par type de compte" },
-                    { "name": "statut", "in": "query", "schema": { "type": "string", "enum": ["actif", "bloque", "ferme"] }, "description": "Filtrer par statut" },
+                    { "name": "type", "in": "query", "schema": { "type": "string", "enum": ["epargne", "cheque"] }, "description": "Filtrer par type de compte (par défaut : epargne, cheque)" },
                     { "name": "search", "in": "query", "schema": { "type": "string" }, "description": "Recherche par numéro de compte ou nom du titulaire" },
                     { "name": "sort", "in": "query", "schema": { "type": "string", "enum": ["date_creation", "solde", "titulaire_compte"], "default": "date_creation" }, "description": "Champ de tri (utilisez les clés exactes: date_creation, solde, titulaire_compte)" },
                     { "name": "order", "in": "query", "schema": { "type": "string", "enum": ["asc", "desc"], "default": "desc" }, "description": "Ordre de tri" }
