@@ -4,6 +4,7 @@ namespace App\Traits\Validators;
 use App\Models\User;
 use App\Models\Client;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Carbon;
 
 trait ValidationTrait
 {
@@ -218,6 +219,18 @@ trait ValidationTrait
                 $errors['date_fin_blocage'] = 'La date de fin doit être postérieure à la date de début.';
             }
         }
+        // Ensure the start date is not in the past (the block must be scheduled for today or a future date)
+        if (empty($errors['date_debut_blocage'])) {
+            try {
+                $start = Carbon::parse($data['date_debut_blocage'])->startOfDay();
+                $today = Carbon::now()->startOfDay();
+                if ($start->lt($today)) {
+                    $errors['date_debut_blocage'] = 'La date de début du blocage ne peut pas être dans le passé.';
+                }
+            } catch (\Exception $e) {
+                // parsing error already handled above; ignore here
+            }
+        }
         if (empty($data['motif_blocage']) || !is_string($data['motif_blocage'])) {
             $errors['motif_blocage'] = 'Le motif de blocage est requis.';
         }
@@ -231,7 +244,8 @@ trait ValidationTrait
         if (array_key_exists('type', $data) && $data['type'] !== null && !in_array($data['type'], $types, true)) {
             $errors['type'] = 'Le type de compte doit être épargne, courant ou professionnel.';
         }
-        $statuts = ['actif','inactif','bloque','bloqué'];
+    // Normalize allowed status values to unaccented forms
+    $statuts = ['actif','inactif','bloque'];
         if (array_key_exists('statut', $data) && $data['statut'] !== null && !in_array($data['statut'], $statuts, true)) {
             $errors['statut'] = 'Le statut doit être actif, inactif ou bloqué.';
         }

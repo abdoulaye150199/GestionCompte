@@ -22,9 +22,10 @@ class CompteResource extends JsonResource
             'devise' => $this->devise ?? 'FCFA',
             'dateCreation' => optional($this->date_creation ?? $this->created_at)->toIso8601String(),
             'statut' => $this->statut_compte ?? $this->statut,
-            'motifBlocage' => $this->motif_blocage ?? null,
-            'dateBlocage' => optional($this->date_debut_blocage)->toIso8601String(),
-            'dateDeblocagePrevue' => optional($this->date_fin_blocage)->toIso8601String(),
+            // Blocking information is only exposed for 'epargne' accounts
+            'motifBlocage' => null,
+            'dateDebutBlocage' => null,
+            'dateFinBlocage' => null,
             'dateDeblocage' => optional($this->date_deblocage)->toIso8601String(),
             'dateFermeture' => optional($this->date_fermeture)->toIso8601String(),
             'metadata' => [
@@ -34,13 +35,28 @@ class CompteResource extends JsonResource
         ];
 
         // Build HATEOAS links (non-breaking: adds `_links` alongside existing data)
-        try {
+            try {
             if (!config('features.hateoas', true)) {
+                // before returning, if account is epargne, fill blocking fields
+                $type = $this->type_compte ?? $this->type;
+                if ($type === 'epargne') {
+                    $base['motifBlocage'] = $this->motif_blocage ?? null;
+                    $base['dateDebutBlocage'] = optional($this->date_debut_blocage)->toIso8601String();
+                    $base['dateFinBlocage'] = optional($this->date_fin_blocage)->toIso8601String();
+                }
                 return $base;
             }
             // Use the Hateoas trait helper if available
             $id = $this->id ?? null;
             $numero = $this->numero_compte ?? null;
+
+            // Fill blocking info for epargne accounts when HATEOAS enabled as well
+            $type = $this->type_compte ?? $this->type;
+            if ($type === 'epargne') {
+                $base['motifBlocage'] = $this->motif_blocage ?? null;
+                $base['dateDebutBlocage'] = optional($this->date_debut_blocage)->toIso8601String();
+                $base['dateFinBlocage'] = optional($this->date_fin_blocage)->toIso8601String();
+            }
 
             $links = [];
             $self = $numero ? url("/api/v1/comptes/numero/{$numero}") : ($id ? url("/api/v1/comptes/{$id}") : null);
@@ -52,7 +68,7 @@ class CompteResource extends JsonResource
                 $links['bloquer'] = url("/api/v1/comptes/numero/{$numero}/bloquer");
             }
             if ($id) {
-                $links['archive'] = url("/api/v1/comptes/{$id}/archive");
+                // Archive endpoint is job-driven; do not advertise a manual archive link.
                 $links['debloquer'] = url("/api/v1/comptes/{$id}/debloquer");
             }
             if (isset($this->client)) {

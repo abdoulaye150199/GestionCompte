@@ -41,9 +41,9 @@ class CompteController extends Controller
      */
     public function index(CompteFilterRequest $request)
     {
-    // Eager-load client to avoid N+1 queries when rendering resources
-    $query = Compte::with('client');
-    $comptes = $this->applyQueryFilters($query, $request);
+        // Eager-load client to avoid N+1 queries when rendering resources
+        $query = Compte::with('client');
+        $comptes = $this->applyQueryFilters($query, $request);
         $pagination = [
             'currentPage' => $comptes->currentPage(),
             'itemsPerPage' => $comptes->perPage(),
@@ -67,8 +67,18 @@ class CompteController extends Controller
         if (!$telephone) {
             return $this->errorResponse('Téléphone utilisateur manquant', 400);
         }
-        $comptes = Compte::client($telephone)->get();
-        return $this->successResponse($comptes, 'Comptes du client récupérés');
+        // Start from the client scope, then apply the same default filters as index
+        $query = Compte::client($telephone)->with('client');
+        $paginator = $this->applyQueryFilters($query, $request);
+
+        $pagination = [
+            'currentPage' => $paginator->currentPage(),
+            'itemsPerPage' => $paginator->perPage(),
+            'totalItems' => $paginator->total(),
+            'totalPages' => $paginator->lastPage(),
+        ];
+
+        return $this->paginatedResponse($paginator->items(), $pagination, 'Comptes du client récupérés');
     }
 
     /**
@@ -91,17 +101,16 @@ class CompteController extends Controller
         if (!$compte) {
             return $this->notFoundResponse('Compte introuvable');
         }
-        return $this->successResponse($compte, 'Détail du compte récupéré');
+        // Return a resource to ensure blocking metadata and HATEOAS links are present
+        return $this->successResponse(new CompteResource($compte), 'Détail du compte récupéré');
     }
 
     /**
-     * @OA\Post(
-     *     path="/api/v1/comptes/{id}/archive",
-     *     summary="Archive un compte au lieu de le supprimer",
-     *     tags={"Comptes"},
-     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="string")),
-     *     @OA\Response(response=200, description="Compte archivé")
-     * )
+     * Archive a compte (kept for internal/backwards compatibility).
+     *
+     * Note: archiving is now handled by background jobs; the OpenAPI
+     * annotation was removed so the endpoint is no longer advertised in
+     * the generated Swagger docs.
      */
     public function archive($id)
     {
@@ -152,10 +161,14 @@ class CompteController extends Controller
             return $this->notFoundResponse('Compte introuvable');
         }
 
-        // Enforce: cheque accounts cannot be blocked
+        // Enforce: only active 'epargne' accounts can be blocked
         $type = $compte->type_compte ?? $compte->type ?? null;
-        if ($type === 'cheque') {
-            return $this->errorResponse('Vous ne pouvez pas bloquer ce compte.', 400);
+        $statut = $compte->statut_compte ?? $compte->statut ?? null;
+        if ($type !== 'epargne') {
+            return $this->errorResponse('Seuls les comptes épargne peuvent être bloqués.', 400);
+        }
+        if ($statut !== 'actif') {
+            return $this->errorResponse('Seul un compte actif peut être bloqué.', 400);
         }
 
         $compte->date_debut_blocage = $request->input('date_debut_blocage');
@@ -165,17 +178,19 @@ class CompteController extends Controller
         try {
             $start = Carbon::parse($compte->date_debut_blocage)->startOfDay();
             $end = Carbon::parse($compte->date_fin_blocage)->endOfDay();
-            if (Carbon::now()->between($start, $end)) {
-                $compte->statut_compte = 'bloqué';
+                if (Carbon::now()->between($start, $end)) {
+                // Use unaccented status value for consistency across jobs
+                $compte->statut_compte = 'bloque';
                 $compte->transactions()->update(['archived' => true]);
                 Log::info('Compte bloqué immédiatement via endpoint', ['compte_id' => $compte->id]);
             }
         } catch (\Exception $e) {
         }
 
-        $compte->save();
+    $compte->save();
 
-        return $this->successResponse($compte, 'Données de blocage enregistrées');
+    // Return the resource so the client receives the blocking information consistently
+    return $this->successResponse(new CompteResource($compte), 'Données de blocage enregistrées');
     }
 
 
@@ -369,11 +384,27 @@ class CompteController extends Controller
     }
 
     /**
+    * @OA\Delete(
+    *     path="/api/v1/comptes/{compte}",
+    *     summary="Supprimer un compte (soft delete)",
+    *     tags={"Comptes"},
+    *     @OA\Parameter(name="compte", in="path", required=true, @OA\Schema(type="string")),
+    *     @OA\Response(response=200, description="Compte supprimé avec succès"),
+    *     @OA\Response(response=401, description="Authentification requise"),
+    *     @OA\Response(response=404, description="Compte non trouvé"),
+    *     security={{"bearerAuth":{}}}
+    * )
      * Soft-delete a compte: set statut to 'ferme', set date_fermeture, then soft delete
      */
     public function destroy($compteId)
     {
-        $compte = Compte::find($compteId);
+        // Resolve by UUID id or by account number (numero_compte).
+        $compte = null;
+        $isUuid = (bool) preg_match('/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/', $compteId);
+        if ($isUuid) {
+            $compte = Compte::find($compteId);
+        }
+
         if (! $compte) {
             $compte = Compte::where('numero_compte', $compteId)->first();
         }

@@ -10,27 +10,6 @@
         { "url": "http://localhost:8000", "description": "Local development (use /api/v1 paths)" }
     ],
     "paths": {
-        "/api/v1/comptes/{id}/archive": {
-            "post": {
-                "summary": "Archiver un compte (marquer comme archived)",
-                "tags": ["Comptes"],
-                "parameters": [
-                    { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" }, "description": "ID numérique du compte à archiver" }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Compte archivé avec succès",
-                        "content": {
-                            "application/json": {
-                                "schema": { "$ref": "#/components/schemas/ArchiveResponse" }
-                            }
-                        }
-                    },
-                    "403": { "description": "Accès refusé" },
-                    "404": { "description": "Compte introuvable" }
-                }
-            }
-        },
             "/api/v1/comptes": {
             "get": {
                 "summary": "Lister tous les comptes",
@@ -39,8 +18,7 @@
                 "parameters": [
                     { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 }, "description": "Numéro de page" },
                     { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 10 }, "description": "Nombre d'éléments par page" },
-                    { "name": "type", "in": "query", "schema": { "type": "string", "enum": ["epargne", "cheque"] }, "description": "Filtrer par type de compte" },
-                    { "name": "statut", "in": "query", "schema": { "type": "string", "enum": ["actif", "bloque", "ferme"] }, "description": "Filtrer par statut" },
+                    { "name": "type", "in": "query", "schema": { "type": "string", "enum": ["epargne", "cheque"] }, "description": "Filtrer par type de compte (par défaut : epargne, cheque)" },
                     { "name": "search", "in": "query", "schema": { "type": "string" }, "description": "Recherche par numéro de compte ou nom du titulaire" },
                     { "name": "sort", "in": "query", "schema": { "type": "string", "enum": ["date_creation", "solde", "titulaire_compte"], "default": "date_creation" }, "description": "Champ de tri (utilisez les clés exactes: date_creation, solde, titulaire_compte)" },
                     { "name": "order", "in": "query", "schema": { "type": "string", "enum": ["asc", "desc"], "default": "desc" }, "description": "Ordre de tri" }
@@ -55,12 +33,6 @@
                     }
                 }
                 }
-            }
-            },
-            "/api/v1/comptes-demo": {
-            "get": {
-                "summary": "Endpoint de démonstration public pour la doc",
-                "responses": { "200": { "description": "OK" } }
             }
             },
             "/api/v1/accounts": {
@@ -257,9 +229,24 @@
                         "422": { "description": "Erreur de validation (par ex. email/telephone déjà utilisé)" }
                     }
                 }
-            }
                 ,
-            
+                "delete": {
+                    "summary": "Supprimer un compte (par id ou numéro)",
+                    "tags": ["Comptes"],
+                    "description": "Supprime (soft-delete) un compte identifié par son UUID ou son numéro. Nécessite des droits d'administration.",
+                    "parameters": [
+                        { "name": "identifiant", "in": "path", "required": true, "schema": { "type": "string" }, "description": "ID (UUID) ou numéro du compte (numero_compte)" }
+                    ],
+                    "responses": {
+                        "200": { "description": "Compte supprimé avec succès", "content": { "application/json": { "schema": { "type": "object", "properties": { "success": { "type": "boolean" }, "message": { "type": "string" } } } } } },
+                        "204": { "description": "Compte supprimé (No Content)" },
+                        "401": { "description": "Authentification requise" },
+                        "403": { "description": "Accès refusé" },
+                        "404": { "description": "Compte introuvable", "content": { "application/json": { "schema": { "type": "object", "properties": { "success": { "type": "boolean", "example": false }, "error": { "type": "object", "properties": { "code": { "type": "string" }, "message": { "type": "string" } } } } } } } }
+                    }
+                }
+            }
+            ,
             "/api/v1/comptes/numero/{numero}/bloquer": {
                 "post": {
                     "summary": "Bloquer un compte par numéro (numero_compte)",

@@ -15,7 +15,7 @@
             "description": "Secondary server (production.abdoulaye.diallo)"
         },
         {
-            "url": "http://localhost:8000",
+            "url": "https://localhost:8000",
             "description": "Serveur local"
         },
         {
@@ -589,95 +589,6 @@
                                                     "type": "object"
                                                 }
                                             },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            },
-            "delete": {
-                "tags": [
-                    "Comptes"
-                ],
-                "summary": "Archiver un compte",
-                "description": "Archive un compte existant (soft delete). Les comptes bloqués expirés sont automatiquement archivés dans la base de données Neon.",
-                "operationId": "archiveCompte",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID du compte à archiver",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Compte archivé avec succès",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "success": {
-                                            "type": "boolean",
-                                            "example": true
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Compte archivé avec succès"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Authentification requise",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "success": {
-                                            "type": "boolean",
-                                            "example": false
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Authentification requise"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Compte non trouvé",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "success": {
-                                            "type": "boolean",
-                                            "example": false
-                                        },
-                                        "message": {
-                                            "type": "string"
-                                        },
-                                        "errors": {
                                             "type": "object"
                                         }
                                     },
@@ -1857,30 +1768,8 @@
                 }
             }
         },
-        "/api/v1/comptes/{id}/archive": {
-            "post": {
-                "tags": [
-                    "Comptes"
-                ],
-                "summary": "Archive un compte au lieu de le supprimer",
-                "operationId": "8c763ef360df322806802fd6b96270cc",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Compte archivé"
-                    }
-                }
-            }
-        },
+
+        
         "/api/v1/comptes/numero/{numero}/bloquer": {
             "post": {
                 "tags": [
@@ -2041,6 +1930,41 @@
                         "description": "Compte débloqué / données renvoyées"
                     }
                 }
+            }
+        },
+        "/api/v1/comptes/{compte}": {
+            "delete": {
+                "tags": [
+                    "Comptes"
+                ],
+                "summary": "Supprimer un compte (soft delete)",
+                "operationId": "8d5cc7a1615f764ffa62bac743ca01fc",
+                "parameters": [
+                    {
+                        "name": "compte",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Compte supprimé avec succès"
+                    },
+                    "401": {
+                        "description": "Authentification requise"
+                    },
+                    "404": {
+                        "description": "Compte non trouvé"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/api/v1/health": {

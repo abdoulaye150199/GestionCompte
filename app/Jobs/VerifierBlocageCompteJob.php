@@ -26,13 +26,14 @@ class VerifierBlocageCompteJob implements ShouldQueue
         $comptes = Compte::whereNotNull('date_debut_blocage')
             ->whereDate('date_debut_blocage', '<=', $today)
             ->where(function ($q) {
-                $q->whereNull('statut_compte')->orWhere('statut_compte', '!=', 'bloqué');
+                // Normalize to 'bloque' spelling used across the codebase
+                $q->whereNull('statut_compte')->orWhere('statut_compte', '!=', 'bloque');
             })
             ->get();
 
         foreach ($comptes as $compte) {
             try {
-                $compte->statut_compte = 'bloqué';
+                $compte->statut_compte = 'bloque';
                 $compte->save();
 
                 // Archive related transactions if applicable
