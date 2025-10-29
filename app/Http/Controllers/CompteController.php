@@ -41,9 +41,9 @@ class CompteController extends Controller
      */
     public function index(CompteFilterRequest $request)
     {
-    // Eager-load client to avoid N+1 queries when rendering resources
-    $query = Compte::with('client');
-    $comptes = $this->applyQueryFilters($query, $request);
+        // Eager-load client to avoid N+1 queries when rendering resources
+        $query = Compte::with('client');
+        $comptes = $this->applyQueryFilters($query, $request);
         $pagination = [
             'currentPage' => $comptes->currentPage(),
             'itemsPerPage' => $comptes->perPage(),
@@ -67,8 +67,18 @@ class CompteController extends Controller
         if (!$telephone) {
             return $this->errorResponse('Téléphone utilisateur manquant', 400);
         }
-        $comptes = Compte::client($telephone)->get();
-        return $this->successResponse($comptes, 'Comptes du client récupérés');
+        // Start from the client scope, then apply the same default filters as index
+        $query = Compte::client($telephone)->with('client');
+        $paginator = $this->applyQueryFilters($query, $request);
+
+        $pagination = [
+            'currentPage' => $paginator->currentPage(),
+            'itemsPerPage' => $paginator->perPage(),
+            'totalItems' => $paginator->total(),
+            'totalPages' => $paginator->lastPage(),
+        ];
+
+        return $this->paginatedResponse($paginator->items(), $pagination, 'Comptes du client récupérés');
     }
 
     /**
@@ -91,17 +101,16 @@ class CompteController extends Controller
         if (!$compte) {
             return $this->notFoundResponse('Compte introuvable');
         }
-        return $this->successResponse($compte, 'Détail du compte récupéré');
+        // Return a resource to ensure blocking metadata and HATEOAS links are present
+        return $this->successResponse(new CompteResource($compte), 'Détail du compte récupéré');
     }
 
     /**
-     * @OA\Post(
-     *     path="/api/v1/comptes/{id}/archive",
-     *     summary="Archive un compte au lieu de le supprimer",
-     *     tags={"Comptes"},
-     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="string")),
-     *     @OA\Response(response=200, description="Compte archivé")
-     * )
+     * Archive a compte (kept for internal/backwards compatibility).
+     *
+     * Note: archiving is now handled by background jobs; the OpenAPI
+     * annotation was removed so the endpoint is no longer advertised in
+     * the generated Swagger docs.
      */
     public function archive($id)
     {
@@ -169,17 +178,19 @@ class CompteController extends Controller
         try {
             $start = Carbon::parse($compte->date_debut_blocage)->startOfDay();
             $end = Carbon::parse($compte->date_fin_blocage)->endOfDay();
-            if (Carbon::now()->between($start, $end)) {
-                $compte->statut_compte = 'bloqué';
+                if (Carbon::now()->between($start, $end)) {
+                // Use unaccented status value for consistency across jobs
+                $compte->statut_compte = 'bloque';
                 $compte->transactions()->update(['archived' => true]);
                 Log::info('Compte bloqué immédiatement via endpoint', ['compte_id' => $compte->id]);
             }
         } catch (\Exception $e) {
         }
 
-        $compte->save();
+    $compte->save();
 
-        return $this->successResponse($compte, 'Données de blocage enregistrées');
+    // Return the resource so the client receives the blocking information consistently
+    return $this->successResponse(new CompteResource($compte), 'Données de blocage enregistrées');
     }
 
 

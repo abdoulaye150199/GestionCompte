@@ -24,7 +24,7 @@ class DebloquerCompteJob implements ShouldQueue
 
         $comptes = Compte::whereNotNull('date_fin_blocage')
             ->whereDate('date_fin_blocage', '<=', $today)
-            ->where('statut_compte', 'bloqué')
+            ->where('statut_compte', 'bloque')
             ->get();
 
         foreach ($comptes as $compte) {
