@@ -15,7 +15,7 @@
             "description": "Secondary server (production.abdoulaye.diallo)"
         },
         {
-            "url": "http://localhost:8000",
+            "url": "https://localhost:8000",
             "description": "Serveur local"
         },
         {
@@ -1768,6 +1768,8 @@
                 }
             }
         },
+
+        
         "/api/v1/comptes/numero/{numero}/bloquer": {
             "post": {
                 "tags": [
@@ -1928,6 +1930,41 @@
                         "description": "Compte débloqué / données renvoyées"
                     }
                 }
+            }
+        },
+        "/api/v1/comptes/{compte}": {
+            "delete": {
+                "tags": [
+                    "Comptes"
+                ],
+                "summary": "Supprimer un compte (soft delete)",
+                "operationId": "8d5cc7a1615f764ffa62bac743ca01fc",
+                "parameters": [
+                    {
+                        "name": "compte",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Compte supprimé avec succès"
+                    },
+                    "401": {
+                        "description": "Authentification requise"
+                    },
+                    "404": {
+                        "description": "Compte non trouvé"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/api/v1/health": {
