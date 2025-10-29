@@ -12,11 +12,23 @@ trait ApiQueryTrait
     public function applyQueryFilters(Builder $query, Request $request): LengthAwarePaginator
     {
         // Filtrage
-        if ($type = $request->query('type')) {
+        // Par défaut, n'afficher que les comptes de type 'epargne' ou 'cheque'
+        // sauf si l'appelant fournit explicitement un paramètre `type`.
+        if ($request->has('type')) {
+            $type = $request->query('type');
             $query->where('type_compte', $type);
+        } else {
+            $query->whereIn('type_compte', ['epargne', 'cheque']);
         }
-        if ($statut = $request->query('statut')) {
+
+        // Exclure par défaut les comptes bloqués ou fermés sauf si `statut` est fourni
+        if ($request->has('statut')) {
+            $statut = $request->query('statut');
             $query->where('statut_compte', $statut);
+        } else {
+            // Use the most common French values used in the codebase: 'bloque' and 'ferme'
+            // Note: normalize to non-accented 'bloque' which is used elsewhere in the codebase.
+            $query->whereNotIn('statut_compte', ['bloque', 'ferme']);
         }
         if ($search = $request->query('search')) {
             $query->where(function ($q) use ($search) {

@@ -32,13 +32,14 @@ class UnarchiveExpiredBlockedAccounts implements ShouldQueue
     {
         Log::info('Démarrage du job de désarchivage des comptes bloqués expirés depuis Neon');
 
-        // Récupérer tous les comptes archivés dans Neon qui étaient bloqués
-        // et dont la date de fin de blocage est échue depuis plus de 30 jours
+        // Récupérer tous les comptes archivés dans Neon qui étaient des comptes épargne bloqués
+        // et dont la date de fin de blocage est échue (prêts à être restaurés)
         $comptesArchives = DB::connection('neon')
             ->table('archived_comptes')
+            ->where('type', 'epargne')
             ->where('statut', 'bloque')
             ->whereNotNull('date_fin_blocage')
-            ->where('date_fin_blocage', '<=', Carbon::now()->subDays(30)) // 30 jours après expiration
+            ->where('date_fin_blocage', '<=', Carbon::now())
             ->get();
 
         $comptesDesarchives = 0;
