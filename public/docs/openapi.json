@@ -350,10 +350,10 @@
                         "solde": 10000,
                         "client": {
                         "id": null,
-                        "titulaire": "Abdoulaye Diallo",
-                        "nci": "1234567890123",
-                        "email": "laye@example.com",
-                        "telephone": "+221771234567",
+                        "titulaire": "Coach Wane",
+                        "nci": "1234567899123",
+                        "email": "viziodev03@gmail.com",
+                        "telephone": "777669595",
                         "adresse": "Dakar, Sénégal"
                         }
                     }
