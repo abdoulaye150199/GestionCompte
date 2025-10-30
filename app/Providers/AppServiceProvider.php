@@ -19,12 +19,20 @@ class AppServiceProvider extends ServiceProvider
         // Bind the MessageServiceInterface to a concrete implementation.
         // Default: TwilioMessageService (you can change to EmailMessageService or a custom implementation).
         $this->app->bind(MessageServiceInterface::class, function ($app) {
+            // Allow disabling Twilio/SMS in local or test environments by setting
+            // TWILIO_ENABLED=false in the environment. When disabled we return a
+            // NullMessageService so no external SMS requests are performed.
+            $twilioEnabled = strtolower(env('TWILIO_ENABLED', 'true')) !== 'false';
+            if (! $twilioEnabled) {
+                return new \App\Services\NullMessageService();
+            }
             // Use explicit account SID when possible (AC...), and optionally a Messaging Service SID (MG...)
             $accountSid = config('services.twilio.account_sid') ?: env('TWILIO_ACCOUNT_SID');
             $messagingServiceSid = config('services.twilio.messaging_service_sid') ?: env('TWILIO_MESSAGING_SID');
             // Backwards compat: TWILIO_SID may contain either an AC... or MG... value
             $legacySid = config('services.twilio.sid') ?: env('TWILIO_SID');
-            $token = config('services.twilio.token') ?: env('TWILIO_TOKEN');
+            // Read token from TWILIO_TOKEN or legacy TWILIO_AUTH_TOKEN env var
+            $token = config('services.twilio.token') ?: env('TWILIO_TOKEN') ?: env('TWILIO_AUTH_TOKEN');
             $from = config('services.twilio.from') ?: env('TWILIO_FROM', '');
 
             // If accountSid not provided but legacy contains AC..., use it as accountSid
