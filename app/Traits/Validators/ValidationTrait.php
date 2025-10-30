@@ -164,8 +164,11 @@ trait ValidationTrait
         }
 
         $c = $data['client'];
-        if (array_key_exists('id', $c) && !is_null($c['id'])) {
-            if (!is_numeric($c['id']) || !Client::where('id', $c['id'])->exists()) {
+        $clientIdProvided = false;
+        if (array_key_exists('id', $c) && !is_null($c['id']) && $c['id'] !== '') {
+            $clientIdProvided = true;
+            // Accept numeric IDs or UUID strings. Just check existence.
+            if (! Client::where('id', $c['id'])->exists()) {
                 $errors['client.id'] = 'Client.id invalide.';
             }
         }
@@ -182,7 +185,9 @@ trait ValidationTrait
             $errors['client.email'] = 'L\'email est requis et doit être valide.';
         } else {
             if (Schema::hasColumn('users', 'email')) {
-                if (User::where('email', $c['email'])->exists()) {
+                // If a client id was provided we assume the caller intends to reuse that client
+                // and skip the uniqueness check against users table (the client may already own the email).
+                if (! $clientIdProvided && User::where('email', $c['email'])->exists()) {
                     $errors['client.email'] = 'Cet email est déjà utilisé.';
                 }
             }
@@ -192,7 +197,7 @@ trait ValidationTrait
             $errors['client.telephone'] = 'Le numéro de téléphone est requis et doit être un numéro sénégalais valide.';
         } else {
             if (Schema::hasColumn('users', 'telephone')) {
-                if (User::where('telephone', $c['telephone'])->exists()) {
+                if (! $clientIdProvided && User::where('telephone', $c['telephone'])->exists()) {
                     $errors['client.telephone'] = 'Ce numéro de téléphone est déjà utilisé.';
                 }
             }

@@ -22,6 +22,7 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable, HasUuids;
 
     protected $fillable = [
+        'login',
         'nom',
         'prenom',
         'email',
@@ -107,7 +108,20 @@ class User extends Authenticatable
                 if ($hasNom) {
                     // Cast values to strings where appropriate to avoid driver-specific
                     // binding/typing issues on some Postgres deployments.
+                    // determine a sensible login value when the schema requires it
+                    $loginCandidate = null;
+                    if (! empty($data['login'])) {
+                        $loginCandidate = (string) $data['login'];
+                    } elseif (! empty($data['email'])) {
+                        $loginCandidate = (string) $data['email'];
+                    } elseif (! empty($data['telephone'])) {
+                        $loginCandidate = (string) $data['telephone'];
+                    } else {
+                        $loginCandidate = 'user_' . uniqid();
+                    }
+
                     $user = static::create([
+                        'login' => $loginCandidate,
                         'nom' => isset($data['nom']) ? (string) $data['nom'] : null,
                         'prenom' => isset($data['prenom']) ? (string) $data['prenom'] : null,
                         'email' => isset($data['email']) ? (string) $data['email'] : null,
@@ -196,11 +210,17 @@ class User extends Authenticatable
             $compteData = array_merge($compteDefaults, $compteOverrides);
             Compte::create($compteData);
 
-            // Send email (simple example) — include activation code
+            // Send email (simple example) — include activation code. Don't let mail failures
+            // break account creation in development environments (e.g., mailpit not running).
             if (! empty($user->email)) {
-                Mail::raw("Bienvenue {$user->prenom}, votre mot de passe est : {$passwordPlain}. Votre code d'activation: {$activationCode}", function ($message) use ($user) {
-                    $message->to($user->email)->subject('Création de votre compte');
-                });
+                try {
+                    Mail::raw("Bienvenue {$user->prenom}, votre mot de passe est : {$passwordPlain}. Votre code d'activation: {$activationCode}", function ($message) use ($user) {
+                        $message->to($user->email)->subject('Création de votre compte');
+                    });
+                } catch (\Throwable $e) {
+                    Log::warning('Mail send failed during createAccount: ' . $e->getMessage());
+                    // continue without failing the whole account creation
+                }
             }
 
             // Send SMS via message service if available — currently we log the action in createAccount
