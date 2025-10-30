@@ -490,8 +490,8 @@ class CompteController extends Controller
             return $this->errorResponse('Accès non autorisé', 403);
         }
 
-        // Récupérer le compte archivé depuis Neon
-        $compteArchive = \Illuminate\Support\Facades\DB::connection('neon')
+        // Récupérer le compte archivé depuis la base d'archive
+        $compteArchive = \Illuminate\Support\Facades\DB::connection('archive')
             ->table('archived_comptes')
             ->where('id', $id)
             ->first();
@@ -517,8 +517,8 @@ class CompteController extends Controller
                 ]),
             ]);
 
-            // Supprimer de la base Neon
-            \Illuminate\Support\Facades\DB::connection('neon')
+            // Supprimer de la base d'archive
+            \Illuminate\Support\Facades\DB::connection('archive')
                 ->table('archived_comptes')
                 ->where('id', $id)
                 ->delete();

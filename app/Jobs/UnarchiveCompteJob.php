@@ -28,16 +28,36 @@ class UnarchiveCompteJob implements ShouldQueue
         Log::info("UnarchiveCompteJob starting for {$this->compteId}");
 
         try {
-            $archive = DB::connection('neon')->table('archived_comptes')->where('id', $this->compteId)->first();
+            $archive = DB::connection('archive')->table('archived_comptes')->where('id', $this->compteId)->first();
             if (! $archive) {
                 Log::warning("UnarchiveCompteJob: no archived record for {$this->compteId}");
                 return;
+            }
+
+            // Determine a titulaire value: prefer to reconstruct from user record if available
+            $titulaire = null;
+            try {
+                if (! empty($archive->user_id)) {
+                    $user = DB::table('users')->where('id', $archive->user_id)->first();
+                    if ($user) {
+                        $nom = $user->nom ?? ($user->name ?? null);
+                        $prenom = $user->prenom ?? null;
+                        $titulaire = trim(($nom ?? '') . ' ' . ($prenom ?? '')) ?: null;
+                    }
+                }
+            } catch (\Exception $e) {
+                // ignore — we'll fallback below
+            }
+
+            if (empty($titulaire)) {
+                $titulaire = 'Restored account ' . ($archive->numero_compte ?? substr($archive->id, 0, 8));
             }
 
             // Restore into main DB
             $data = [
                 'id' => $archive->id,
                 'numero_compte' => $archive->numero_compte,
+                'titulaire_compte' => $titulaire,
                 'user_id' => $archive->user_id,
                 'type_compte' => $archive->type,
                 'solde' => $archive->solde,
@@ -53,8 +73,8 @@ class UnarchiveCompteJob implements ShouldQueue
             // Insert using the model to ensure events & casting
             $compte = Compte::create($data);
 
-            // Remove from neon
-            DB::connection('neon')->table('archived_comptes')->where('id', $this->compteId)->delete();
+            // Remove from archive DB
+            DB::connection('archive')->table('archived_comptes')->where('id', $this->compteId)->delete();
 
             Log::info("UnarchiveCompteJob: restored compte {$this->compteId} from Neon");
         } catch (\Exception $e) {

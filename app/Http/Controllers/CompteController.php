@@ -129,14 +129,14 @@ class CompteController extends Controller
     *     summary="Bloquer un compte par numéro",
     *     tags={"Comptes"},
     *     @OA\Parameter(name="numero", in="path", required=true, @OA\Schema(type="string")),
-    *     @OA\RequestBody(
-    *         required=true,
-    *         @OA\JsonContent(
-    *             @OA\Property(property="date_debut_blocage", type="string", format="date"),
-    *             @OA\Property(property="date_fin_blocage", type="string", format="date"),
-    *             @OA\Property(property="motif_blocage", type="string")
-    *         )
-    *     ),
+    *    @OA\RequestBody(
+    *        required=true,
+    *        @OA\JsonContent(
+    *            @OA\Property(property="date_debut_blocage", type="string", format="date-time", description="Début du blocage (ISO 8601, inclut heure)", example="2025-10-30T08:30:00Z"),
+    *            @OA\Property(property="date_fin_blocage", type="string", format="date-time", description="Fin du blocage (ISO 8601, inclut heure)", example="2025-10-30T10:30:00Z"),
+    *            @OA\Property(property="motif_blocage", type="string")
+    *        )
+    *    ),
     *     @OA\Response(response=200, description="Données de blocage enregistrées"),
     *     @OA\Response(response=400, description="Requête invalide ou blocage non autorisé", @OA\JsonContent(@OA\Property(property="message", type="string", example="Vous ne pouvez pas bloquer ce compte.")))
     * )
@@ -176,15 +176,18 @@ class CompteController extends Controller
         $compte->motif_blocage = $request->input('motif_blocage');
 
         try {
-            $start = Carbon::parse($compte->date_debut_blocage)->startOfDay();
-            $end = Carbon::parse($compte->date_fin_blocage)->endOfDay();
-                if (Carbon::now()->between($start, $end)) {
+            // Parse exact datetimes so the endpoint accepts hours/minutes and applies
+            // the block immediately if the start time is in the past or now.
+            $start = Carbon::parse($compte->date_debut_blocage);
+            $end = Carbon::parse($compte->date_fin_blocage);
+            if (Carbon::now()->between($start, $end)) {
                 // Use unaccented status value for consistency across jobs
                 $compte->statut_compte = 'bloque';
                 $compte->transactions()->update(['archived' => true]);
                 Log::info('Compte bloqué immédiatement via endpoint', ['compte_id' => $compte->id]);
             }
         } catch (\Exception $e) {
+            // Ignore parse errors; the job will handle scheduling based on stored values
         }
 
     $compte->save();
@@ -213,7 +216,9 @@ class CompteController extends Controller
     *             required={"motif","duree","unite"},
     *             @OA\Property(property="motif", type="string", example="Suspicion de fraude"),
     *             @OA\Property(property="duree", type="integer", example=30),
-    *             @OA\Property(property="unite", type="string", example="jours", description="jours|mois|annees")
+    *             @OA\Property(property="unite", type="string", example="jours", description="jours|mois|annees"),
+    *             @OA\Property(property="date_debut_blocage", type="string", format="date-time", description="Optionnel: début du blocage (ISO 8601)", example="2025-10-30T08:30:00Z"),
+    *             @OA\Property(property="date_fin_blocage", type="string", format="date-time", description="Optionnel: fin du blocage (ISO 8601)", example="2025-11-29T08:30:00Z")
     *         )
     *     ),
     *     @OA\Response(response=200, description="Compte bloqué / données renvoyées")

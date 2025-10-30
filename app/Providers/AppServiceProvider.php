@@ -72,20 +72,39 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // If NEON_* variables are not set but ARCHIVE_DB_URL is provided,
+        // make the 'neon' connection point to the 'archive' connection at runtime.
+        // This ensures existing calls to DB::connection('neon') will still work
+        // and use the provided archive URL.
+        if (empty(env('NEON_DATABASE_URL')) && empty(env('NEON_DB_HOST')) && ! empty(env('ARCHIVE_DB_URL'))) {
+            try {
+                $archiveConn = config('database.connections.archive');
+                if (! empty($archiveConn)) {
+                    config(['database.connections.neon' => $archiveConn]);
+                    \Illuminate\Support\Facades\Log::info("Database connection 'neon' has been aliased to 'archive' at runtime");
+                }
+            } catch (\Throwable $e) {
+                // ignore failures here; the code will fallback to existing config
+            }
+        }
         // Ensure our application-level VerifyCsrfToken middleware (App\Http\Middleware\VerifyCsrfToken)
         // is used in place of the framework class when resolving middleware from the container.
         // This allows our diagnostic logging and local exemptions to run even when the
         // framework references the middleware by the framework FQCN.
         $this->app->bind(\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class, \App\Http\Middleware\VerifyCsrfToken::class);
 
-        // In local environment, also add explicit exclusions to the framework middleware
-        // so that requests matching our local API mount do not trigger CSRF checks.
+        // In local environment, add explicit exclusions to our VerifyCsrfToken
+        // instance so that requests matching our local API mount do not trigger CSRF checks.
         if (app()->environment('local')) {
-            FrameworkVerifyCsrf::except([
-                'abdoulaye.diallo/api/v1/*',
-                'abdoulaye.diallo/api/v1',
-                'api/v1/*',
-            ]);
+            $this->app->resolving(\App\Http\Middleware\VerifyCsrfToken::class, function ($middleware) {
+                if (method_exists($middleware, 'addExcepts')) {
+                    $middleware->addExcepts([
+                        'abdoulaye.diallo/api/v1/*',
+                        'abdoulaye.diallo/api/v1',
+                        'api/v1/*',
+                    ]);
+                }
+            });
         }
     }
 }
