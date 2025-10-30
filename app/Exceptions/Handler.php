@@ -5,6 +5,7 @@ namespace App\Exceptions;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Validation\ValidationException;
 
 class Handler extends ExceptionHandler
 {
@@ -44,6 +45,16 @@ class Handler extends ExceptionHandler
     {
         // If request expects JSON (API), return a structured JSON response with status code and message
         if ($request->expectsJson() || str_starts_with($request->getRequestUri(), '/api')) {
+            // Special-case validation exceptions to return the full errors array instead of a summarized message
+            if ($e instanceof ValidationException) {
+                $status = $e->status ?? 422;
+                return new JsonResponse([
+                    'success' => false,
+                    'message' => 'Validation error',
+                    'errors' => $e->errors(),
+                ], $status);
+            }
+
             $status = 500;
             if (method_exists($e, 'getStatusCode')) {
                 $status = $e->getStatusCode();

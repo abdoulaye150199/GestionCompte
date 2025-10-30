@@ -4,33 +4,41 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
+/**
+ * Simple CORS middleware that echoes the request Origin and allows common headers.
+ * This complements Laravel's HandleCors and ensures Swagger UI requests succeed.
+ */
 class Cors
 {
     public function handle(Request $request, Closure $next)
     {
+    // Allow all origins
+    $origin = '*';
+
+        // Preflight
+        if ($request->getMethod() === 'OPTIONS') {
+            $headers = [
+                'Access-Control-Allow-Origin' => $origin,
+                'Access-Control-Allow-Methods' => 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
+                'Access-Control-Allow-Headers' => 'Content-Type, X-Requested-With, X-CSRF-TOKEN, Accept, Authorization',
+                // When using a wildcard origin, credentials are not allowed by browsers.
+                'Access-Control-Allow-Credentials' => 'false',
+                'Access-Control-Max-Age' => '86400',
+            ];
+
+            return response()->noContent(204, $headers);
+        }
+
         $response = $next($request);
-        // Only add CORS headers if the response object supports header() and
-        // if the request Origin is allowed by the app config.
-        if (method_exists($response, 'header')) {
-            $origin = $request->headers->get('Origin');
-            $allowed = config('cors.allowed_origins', []);
 
-            // If the origin is allowed, echo it back; otherwise do not set
-            // credentials headers to avoid CORS failures in the browser.
-            if ($origin && in_array($origin, $allowed, true)) {
-                $response->header('Access-Control-Allow-Origin', $origin);
-                $response->header('Access-Control-Allow-Credentials', config('cors.supports_credentials') ? 'true' : 'false');
-            } else {
-                // Fallback: no wildcard when credentials are enabled
-                if (! config('cors.supports_credentials')) {
-                    $response->header('Access-Control-Allow-Origin', '*');
-                }
-            }
-
-            $response->header('Access-Control-Allow-Methods', implode(', ', (array) config('cors.allowed_methods', ['GET','POST','PUT','DELETE','OPTIONS'])));
-            $response->header('Access-Control-Allow-Headers', implode(', ', (array) config('cors.allowed_headers', ['Content-Type', 'Authorization'])));
-            $response->header('Access-Control-Max-Age', (string) config('cors.max_age', 86400));
+        if ($response instanceof Response) {
+            $response->headers->set('Access-Control-Allow-Origin', $origin);
+            $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+            $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, X-Requested-With, X-CSRF-TOKEN, Accept, Authorization');
+            // Wildcard origin; do not allow credentials.
+            $response->headers->set('Access-Control-Allow-Credentials', 'false');
         }
 
         return $response;

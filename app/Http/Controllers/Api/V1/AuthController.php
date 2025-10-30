@@ -58,13 +58,38 @@ class AuthController extends Controller
     {
         $validated = $request->validated();
 
-        $user = User::where('login', $validated['login'])->first();
+        // accept either 'login' or 'identifier' (validated by LoginRequest)
+        $validated = $request->validated();
+        $identifier = $validated['login'] ?? $validated['identifier'] ?? null;
+
+        if (empty($identifier)) {
+            return $this->errorResponse("Le login ou l'identifiant est requis.", 400);
+        }
+
+        $user = User::where('login', $identifier)
+            ->orWhere('email', $identifier)
+            ->first();
 
         if (!$user || !Hash::check($validated['password'], $user->password)) {
             return $this->errorResponse('Identifiants invalides', 401);
         }
 
-        $token = $user->createToken('API Token')->accessToken;
+    // If the project is using the simple token driver (dev), generate a token
+    // and persist it to the users table so TokenGuard can authenticate.
+    if (env('API_AUTH_DRIVER', 'token') === 'token') {
+        $token = Str::random(60);
+        $user->api_token = $token;
+        $user->save();
+    } else {
+        // Passport driver: create a personal access token via Passport
+        try {
+            $tokenResult = $user->createToken('API Token');
+            $token = $tokenResult->accessToken ?? ($tokenResult->plainTextToken ?? null);
+        } catch (\Throwable $e) {
+            logger()->error('Token creation failed: ' . $e->getMessage());
+            return $this->errorResponse('Impossible de générer le token d\'accès', 500);
+        }
+    }
 
         return $this->successResponse([
             'user' => [
@@ -136,5 +161,48 @@ class AuthController extends Controller
                 'type' => $user->type,
             ]
         ]);
+    }
+
+    // Helper endpoint for debugging bypassing FormRequest validation
+    public function loginRaw(Request $request): JsonResponse
+    {
+        $identifier = $request->input('login') ?? $request->input('identifier');
+        $password = $request->input('password');
+
+        if (empty($identifier)) {
+            return $this->errorResponse('login is required', 400);
+        }
+        if (empty($password)) {
+            return $this->errorResponse('password is required', 400);
+        }
+
+        $user = User::where('login', $identifier)->orWhere('email', $identifier)->first();
+
+        if (!$user || !Hash::check($password, $user->password)) {
+            return $this->errorResponse('Identifiants invalides', 401);
+        }
+
+        if (env('API_AUTH_DRIVER', 'token') === 'token') {
+            $token = Str::random(60);
+            $user->api_token = $token;
+            $user->save();
+        } else {
+            try {
+                $tokenResult = $user->createToken('API Token');
+                $token = $tokenResult->accessToken ?? ($tokenResult->plainTextToken ?? null);
+            } catch (\Throwable $e) {
+                logger()->error('Token creation failed (loginRaw): ' . $e->getMessage());
+                return $this->errorResponse('Impossible de générer le token d\'accès', 500);
+            }
+        }
+
+        return $this->successResponse([
+            'user' => [
+                'id' => $user->id,
+                'login' => $user->login,
+                'type' => $user->type,
+            ],
+            'token' => $token,
+        ], 'Connexion réussie');
     }
 }

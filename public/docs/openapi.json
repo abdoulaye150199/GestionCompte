@@ -122,17 +122,17 @@
 
             "LoginRequest": {
                 "type": "object",
-                "required": ["email", "password"],
+                "required": ["login", "password"],
                 "properties": {
-                    "email": {
+                    "login": {
                         "type": "string",
-                        "format": "email",
-                        "example": "user@example.com"
+                        "description": "Login ou email de l'utilisateur",
+                        "example": "admin@banque.com"
                     },
                     "password": {
                         "type": "string",
                         "format": "password",
-                        "example": "votreMotDePasse"
+                        "example": "admin123"
                     }
                 }
             },

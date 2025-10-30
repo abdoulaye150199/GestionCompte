@@ -8,24 +8,29 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
+     *
+     * @return void
      */
-    public function up(): void
+    public function up()
     {
-        
         Schema::table('users', function (Blueprint $table) {
-            if(!Schema::hasColumn('users','type')){
-            $table->enum('type', ['admin', 'client'])->after('password')->default('client');
+            if (!Schema::hasColumn('users', 'api_token')) {
+                $table->string('api_token', 80)->nullable()->unique()->after('remember_token');
             }
         });
     }
 
     /**
      * Reverse the migrations.
+     *
+     * @return void
      */
-    public function down(): void
+    public function down()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('type');
+            if (Schema::hasColumn('users', 'api_token')) {
+                $table->dropColumn('api_token');
+            }
         });
     }
 };

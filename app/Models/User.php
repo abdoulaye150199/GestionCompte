@@ -6,18 +6,20 @@ namespace App\Models;
 use App\Models\Admin;
 use App\Models\Client;
 use App\Models\Compte;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Passport\HasApiTokens;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, HasUuids;
 
     protected $fillable = [
         'nom',
@@ -29,6 +31,8 @@ class User extends Authenticatable
         'activation_expires_at',
     ];
 
+
+
     protected $hidden = [
         'password',
         'remember_token',
@@ -37,6 +41,9 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public $incrementing = false;
+    protected $keyType = 'string';
 
     public function client()
     {

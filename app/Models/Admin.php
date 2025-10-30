@@ -7,11 +7,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Admin extends Model
 {
-    use HasFactory, \Illuminate\Database\Eloquent\Concerns\HasUuids;
-    public $incrementing = false;
-    protected $keyType = 'string';
+    use HasFactory;
+    public $incrementing = true;
+    protected $keyType = 'int';
     protected $fillable = [
-        'id', 'user_id', 'fonction'
+        'user_id', 'fonction', 'nom', 'nci', 'email', 'telephone', 'adresse'
     ];
 
     public function user(): BelongsTo

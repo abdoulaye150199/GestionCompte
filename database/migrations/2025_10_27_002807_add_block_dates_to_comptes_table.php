@@ -6,24 +6,29 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::table('comptes', function (Blueprint $table) {
-            $table->timestamp('date_debut_blocage')->nullable()->after('statut');
-            $table->timestamp('date_fin_blocage')->nullable()->after('date_debut_blocage');
+            if (!Schema::hasColumn('comptes', 'date_debut_blocage')) {
+                $table->timestamp('date_debut_blocage')->nullable()->after('statut');
+            }
+
+            if (!Schema::hasColumn('comptes', 'date_fin_blocage')) {
+                $table->timestamp('date_fin_blocage')->nullable()->after('date_debut_blocage');
+            }
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::table('comptes', function (Blueprint $table) {
-            $table->dropColumn(['date_debut_blocage', 'date_fin_blocage']);
+            if (Schema::hasColumn('comptes', 'date_debut_blocage')) {
+                $table->dropColumn('date_debut_blocage');
+            }
+
+            if (Schema::hasColumn('comptes', 'date_fin_blocage')) {
+                $table->dropColumn('date_fin_blocage');
+            }
         });
     }
 };

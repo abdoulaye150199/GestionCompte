@@ -22,7 +22,9 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'login' => 'required|string|max:255',
+            // require either 'login' (username/email) or 'identifier'
+            'login' => 'nullable|string|max:255|required_without:identifier',
+            'identifier' => 'nullable|string|max:255|required_without:login',
             'password' => 'required|string|min:6',
         ];
     }
@@ -33,7 +35,8 @@ class LoginRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'login.required' => 'Le login est obligatoire.',
+            'login.required_without' => 'Le login ou l\'identifiant est requis.',
+            'identifier.required_without' => 'Le login ou l\'identifiant est requis.',
             'login.string' => 'Le login doit être une chaîne de caractères.',
             'login.max' => 'Le login ne peut pas dépasser 255 caractères.',
             'password.required' => 'Le mot de passe est obligatoire.',

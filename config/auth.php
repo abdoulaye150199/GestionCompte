@@ -40,6 +40,15 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        // API guard used by routes protected with `auth:api`
+        'api' => [
+            // Development-friendly: use the simple token driver so the auth
+            // middleware can run even if Passport keys are not available.
+            // In production, set API_AUTH_DRIVER=passport in the environment
+            // or change this value back to 'passport'.
+            'driver' => env('API_AUTH_DRIVER', 'token'),
+            'provider' => 'users',
+        ],
     ],
 
     /*

@@ -17,18 +17,10 @@
         {
             "url": "http://localhost:8000",
             "description": "Serveur local"
-        },
-        {
-            "url": "https://gestioncompte-api.onrender.com",
-            "description": "Primary server (Render)"
-        },
-        {
-            "url": "https://production.abdoulaye.diallo",
-            "description": "Secondary server (production.abdoulaye.diallo)"
         }
     ],
     "paths": {
-        "/login": {
+        "/api/v1/login": {
             "post": {
                 "tags": [
                     "Authentification"
@@ -61,8 +53,8 @@
                         }
                     }
                 },
-                "responses": {
-                    "200": {
+                    "responses": {
+                        "200": {
                         "description": "Connexion réussie",
                         "content": {
                             "application/json": {

@@ -17,7 +17,12 @@ return new class extends Migration
                 $table->boolean('is_admin_managed')->default(false);
             }
             if (!Schema::hasColumn('comptes', 'manager_id')) {
-                $table->foreignId('manager_id')->nullable()->constrained('users')->onDelete('set null');
+                // UUID à la place de foreignId
+                $table->uuid('manager_id')->nullable();
+                $table->foreign('manager_id')
+                    ->references('id')
+                    ->on('users')
+                    ->onDelete('set null');
             }
         });
     }
@@ -39,3 +44,4 @@ return new class extends Migration
         });
     }
 };
+    

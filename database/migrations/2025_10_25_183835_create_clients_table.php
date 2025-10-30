@@ -6,23 +6,22 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    // avoid running this migration inside a transaction on managed Postgres (Neon)
     public $withinTransaction = false;
 
     public function up(): void
     {
+       
+        Schema::dropIfExists('clients');
+
         Schema::create('clients', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignUuid('user_id')->constrained('users')->onDelete('cascade');
             $table->string('adresse')->nullable();
             $table->date('date_naissance')->nullable();
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('clients');

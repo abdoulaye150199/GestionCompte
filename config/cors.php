@@ -8,13 +8,9 @@ return [
 
     // Use explicit origins when credentials are supported. Wildcard '*' is
     // incompatible with Access-Control-Allow-Credentials: true in browsers.
-    'allowed_origins' => [
-        // Production origin (no path, only scheme + host)
-        'https://gestioncompte-api.onrender.com',
-        'https://compte-api-hjvy.onrender.com',
-        'http://127.0.0.1:8000',
-        'http://localhost:8000',
-    ],
+    // Allow all origins for local development / Swagger UI. Note: when using '*',
+    // browsers will not allow credentials (cookies/Authorization with credentials).
+    'allowed_origins' => ['*'],
 
     'allowed_origins_patterns' => [],
 
@@ -27,8 +23,8 @@ return [
 
     'max_age' => 86400,
 
-    // Keep credentials support if you rely on cookie-based auth (Sanctum).
-    'supports_credentials' => true,
+    // Disable credentials when using a wildcard origin.
+    'supports_credentials' => false,
 
     // Cache preflight responses for 1 day
     'max_age' => 86400,

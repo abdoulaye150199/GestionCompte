@@ -16,9 +16,9 @@ class AdminFactory extends Factory
      */
     public function definition(): array
     {
+        $user = \App\Models\User::factory()->create();
         return [
-            'id' => $this->faker->uuid(),
-            'user_id' => \App\Models\User::factory(),
+            'user_id' => $user->id,
             'nom' => $this->faker->name(),
             'nci' => $this->faker->unique()->numerify('##########'),
             'email' => $this->faker->unique()->safeEmail(),
