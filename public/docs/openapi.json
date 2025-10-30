@@ -9,7 +9,70 @@
         { "url": "/", "description": "Use same origin as Swagger UI (recommended for hosted docs)" },
         { "url": "http://localhost:8000", "description": "Local development (use /api/v1 paths)" }
     ],
+    "security": [
+        { "bearerAuth": [] }
+    ],
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT",
+                "description": "Entrez votre token d'accès JWT"
+            }
+        }
+    },
     "paths": {
+            "/api/v1/login": {
+                "post": {
+                    "security": [],
+                    "tags": ["Authentification"],
+                    "summary": "Connexion utilisateur",
+                    "description": "Authentifie un utilisateur et retourne un token d'accès",
+                    "requestBody": {
+                        "required": true,
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LoginRequest"
+                                }
+                            }
+                        }
+                    },
+                    "responses": {
+                        "200": {
+                            "description": "Connexion réussie",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/LoginResponse"
+                                    }
+                                }
+                            }
+                        },
+                        "401": {
+                            "description": "Identifiants invalides",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "success": {
+                                                "type": "boolean",
+                                                "example": false
+                                            },
+                                            "message": {
+                                                "type": "string",
+                                                "example": "Identifiants invalides"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
             "/api/v1/comptes": {
             "get": {
                 "summary": "Lister tous les comptes",
@@ -372,6 +435,48 @@
                         "success": { "type": "boolean", "example": true },
                         "message": { "type": "string", "example": "Compte supprimé avec succès" },
                         "data": { "$ref": "#/components/schemas/Compte" }
+                    }
+                },
+
+                "LoginRequest": {
+                    "type": "object",
+                    "required": ["email", "password"],
+                    "properties": {
+                        "email": {
+                            "type": "string",
+                            "format": "email",
+                            "example": "user@example.com"
+                        },
+                        "password": {
+                            "type": "string",
+                            "format": "password",
+                            "example": "votreMotDePasse"
+                        }
+                    }
+                },
+
+                "LoginResponse": {
+                    "type": "object",
+                    "properties": {
+                        "success": {
+                            "type": "boolean",
+                            "example": true
+                        },
+                        "data": {
+                            "type": "object",
+                            "properties": {
+                                "token": {
+                                    "type": "string",
+                                    "example": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1..."
+                                },
+                                "user": {
+                                    "oneOf": [
+                                        { "$ref": "#/components/schemas/UserWithClient" },
+                                        { "$ref": "#/components/schemas/UserWithAdmin" }
+                                    ]
+                                }
+                            }
+                        }
                     }
                 },
 

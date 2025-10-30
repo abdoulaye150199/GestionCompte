@@ -27,20 +27,21 @@ Route::middleware('cors')->group(function () {
         ]);
     });
 
-    // Public endpoints that don't require authentication
+    // Public read-only endpoints
     Route::get('comptes', [CompteController::class, 'index']);
+    // Patch to update compte by id or numero (fields optional, at least one required)
+    Route::patch('comptes/{identifiant}', [CompteController::class, 'update'])->middleware('logging');
+
+    // Soft delete (logical delete) a compte: set statut to 'ferme', date_fermeture and soft-delete
+    Route::delete('comptes/{compteId}', [CompteController::class, 'destroy'])->middleware('logging');
+
     Route::get('comptes/{identifier}', [CompteController::class, 'show']);
+
+    // Public account creation endpoint
     Route::post('accounts', [AccountController::class, 'store'])->middleware('logging');
 
-    // Protected endpoints requiring authentication
-    Route::middleware('auth:api')->group(function () {
-        // Account management
-        Route::patch('comptes/{identifiant}', [CompteController::class, 'update'])->middleware('logging');
-        Route::delete('comptes/{compteId}', [CompteController::class, 'destroy'])->middleware('logging');
-
-        // Messaging
-        Route::post('messages', [\App\Http\Controllers\MessageController::class, 'send'])->middleware('logging');
-    });
+    // Generic message sending
+    Route::post('messages', [\App\Http\Controllers\MessageController::class, 'send'])->middleware('logging');
 
     Route::get('users/clients', [UserController::class, 'clients']);
     Route::get('users/admins', [UserController::class, 'admins']);
