@@ -17,6 +17,16 @@ class TwilioMessageService implements MessageServiceInterface
     {}
 
     /**
+     * Public accessor for the configured "from" phone number.
+     *
+     * Some scripts/tools may want to introspect the configured sender.
+     */
+    public function getFrom(): string
+    {
+        return $this->from;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function sendMessage(string $to, string $message): bool

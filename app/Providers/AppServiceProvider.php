@@ -22,7 +22,8 @@ class AppServiceProvider extends ServiceProvider
             // Allow disabling Twilio/SMS in local or test environments by setting
             // TWILIO_ENABLED=false in the environment. When disabled we return a
             // NullMessageService so no external SMS requests are performed.
-            $twilioEnabled = strtolower(env('TWILIO_ENABLED', 'true')) !== 'false';
+            // Parse TWILIO_ENABLED robustly (accepts true/false, 'true'/'false', '1'/'0')
+            $twilioEnabled = filter_var(env('TWILIO_ENABLED', true), FILTER_VALIDATE_BOOLEAN);
             if (! $twilioEnabled) {
                 return new \App\Services\NullMessageService();
             }
