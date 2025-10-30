@@ -103,7 +103,10 @@ return [
         ],
 
         'neon' => [
+            // Allow using a full DATABASE URL (NEON_DATABASE_URL) or fallback to ARCHIVE_DB_URL.
             'driver' => env('NEON_DB_CONNECTION', 'pgsql'),
+            'url' => env('NEON_DATABASE_URL', env('ARCHIVE_DB_URL')),
+            // Individual host/port/database env vars are supported for backwards compatibility.
             'host' => env('NEON_DB_HOST'),
             'port' => is_numeric(env('NEON_DB_PORT')) ? (int) env('NEON_DB_PORT') : 5432,
             'database' => env('NEON_DB_DATABASE'),
@@ -114,6 +117,24 @@ return [
             'prefix_indexes' => true,
             'search_path' => env('NEON_DB_SCHEMA', 'public'),
             'sslmode' => env('NEON_DB_SSLMODE', 'prefer'),
+            'options' => extension_loaded('pdo_pgsql') ? array_filter([
+                PDO::ATTR_EMULATE_PREPARES => true,
+            ]) : [],
+        ],
+
+        'archive' => [
+            'driver' => env('ARCHIVE_DB_CONNECTION', 'pgsql'),
+            'url' => env('ARCHIVE_DB_URL'),
+            'host' => env('ARCHIVE_DB_HOST'),
+            'port' => is_numeric(env('ARCHIVE_DB_PORT')) ? (int) env('ARCHIVE_DB_PORT') : 5432,
+            'database' => env('ARCHIVE_DB_DATABASE'),
+            'username' => env('ARCHIVE_DB_USERNAME'),
+            'password' => env('ARCHIVE_DB_PASSWORD'),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'search_path' => env('ARCHIVE_DB_SCHEMA', 'public'),
+            'sslmode' => env('ARCHIVE_DB_SSLMODE', 'require'),
             'options' => extension_loaded('pdo_pgsql') ? array_filter([
                 PDO::ATTR_EMULATE_PREPARES => true,
             ]) : [],

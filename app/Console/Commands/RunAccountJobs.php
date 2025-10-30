@@ -79,7 +79,21 @@ class RunAccountJobs extends Command
     private function runUnarchiveJob()
     {
         $this->info('Exécution du job de désarchivage des comptes bloqués expirés...');
-        UnarchiveExpiredBlockedAccounts::dispatch();
-        $this->info('Job de désarchivage dispatché avec succès.');
+
+        // In local or when the queue driver is "sync", run the job synchronously so
+        // tests and small deployments without workers restore accounts immediately.
+        try {
+            if (app()->environment('local') || config('queue.default') === 'sync') {
+                $this->info('Environnement local / queue sync détecté — exécution synchrone du désarchivage.');
+                (new \App\Jobs\UnarchiveExpiredBlockedAccounts())->handle();
+                $this->info('Désarchivage exécuté synchroniquement.');
+            } else {
+                UnarchiveExpiredBlockedAccounts::dispatch();
+                $this->info('Job de désarchivage dispatché avec succès.');
+            }
+        } catch (\Throwable $e) {
+            $this->error('Erreur lors de l\'exécution du désarchivage: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error('Erreur lors de l\'exécution du désarchivage: ' . $e->getMessage());
+        }
     }
 }

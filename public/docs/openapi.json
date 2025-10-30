@@ -211,8 +211,8 @@
                 "type": "object",
                 "required": ["date_debut_blocage", "date_fin_blocage", "motif_blocage"],
                 "properties": {
-                    "date_debut_blocage": { "type": "string", "format": "date", "example": "2025-10-25" },
-                    "date_fin_blocage": { "type": "string", "format": "date", "example": "2025-10-28" },
+                    "date_debut_blocage": { "type": "string", "format": "date-time", "example": "2025-10-30T08:30:00Z" },
+                    "date_fin_blocage": { "type": "string", "format": "date-time", "example": "2025-10-30T10:30:00Z" },
                     "motif_blocage": { "type": "string", "example": "Suspicion de fraude" }
                 }
             },
@@ -537,8 +537,8 @@
                             "application/json": {
                                 "schema": { "$ref": "#/components/schemas/BlocageRequest" },
                                 "example": {
-                                    "date_debut_blocage": "2025-10-25",
-                                    "date_fin_blocage": "2025-10-28",
+                                    "date_debut_blocage": "2025-10-30T08:30:00Z",
+                                    "date_fin_blocage": "2025-10-30T10:30:00Z",
                                     "motif_blocage": "Suspicion de fraude"
                                 }
                             }

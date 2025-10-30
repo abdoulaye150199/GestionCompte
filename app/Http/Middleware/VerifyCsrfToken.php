@@ -38,6 +38,17 @@ class VerifyCsrfToken extends BaseVerifier
     }
 
     /**
+     * Add extra URIs to the exemption list at runtime.
+     *
+     * This is used by the service provider when we cannot call a static
+     * helper on the framework class (avoids IDE/static analysis warnings).
+     */
+    public function addExcepts(array $uris): void
+    {
+        $this->except = array_merge($this->except ?? [], $uris);
+    }
+
+    /**
      * Override the parent to add logging for diagnostics.
      * This will record the request path and whether it matched an exemption.
      *

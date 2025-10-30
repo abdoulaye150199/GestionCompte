@@ -51,7 +51,7 @@ class ArchiveCompteJob implements ShouldQueue
                 'archived_at' => Carbon::now(),
             ];
 
-            DB::connection('neon')->table('archived_comptes')->insert($archiveData);
+            DB::connection('archive')->table('archived_comptes')->insert($archiveData);
 
             // remove from primary DB
             if (method_exists($compte, 'forceDelete')) {

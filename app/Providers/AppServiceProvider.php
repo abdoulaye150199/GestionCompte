@@ -19,12 +19,21 @@ class AppServiceProvider extends ServiceProvider
         // Bind the MessageServiceInterface to a concrete implementation.
         // Default: TwilioMessageService (you can change to EmailMessageService or a custom implementation).
         $this->app->bind(MessageServiceInterface::class, function ($app) {
+            // Allow disabling Twilio/SMS in local or test environments by setting
+            // TWILIO_ENABLED=false in the environment. When disabled we return a
+            // NullMessageService so no external SMS requests are performed.
+            // Parse TWILIO_ENABLED robustly (accepts true/false, 'true'/'false', '1'/'0')
+            $twilioEnabled = filter_var(env('TWILIO_ENABLED', true), FILTER_VALIDATE_BOOLEAN);
+            if (! $twilioEnabled) {
+                return new \App\Services\NullMessageService();
+            }
             // Use explicit account SID when possible (AC...), and optionally a Messaging Service SID (MG...)
             $accountSid = config('services.twilio.account_sid') ?: env('TWILIO_ACCOUNT_SID');
             $messagingServiceSid = config('services.twilio.messaging_service_sid') ?: env('TWILIO_MESSAGING_SID');
             // Backwards compat: TWILIO_SID may contain either an AC... or MG... value
             $legacySid = config('services.twilio.sid') ?: env('TWILIO_SID');
-            $token = config('services.twilio.token') ?: env('TWILIO_TOKEN');
+            // Read token from TWILIO_TOKEN or legacy TWILIO_AUTH_TOKEN env var
+            $token = config('services.twilio.token') ?: env('TWILIO_TOKEN') ?: env('TWILIO_AUTH_TOKEN');
             $from = config('services.twilio.from') ?: env('TWILIO_FROM', '');
 
             // If accountSid not provided but legacy contains AC..., use it as accountSid
@@ -63,20 +72,39 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // If NEON_* variables are not set but ARCHIVE_DB_URL is provided,
+        // make the 'neon' connection point to the 'archive' connection at runtime.
+        // This ensures existing calls to DB::connection('neon') will still work
+        // and use the provided archive URL.
+        if (empty(env('NEON_DATABASE_URL')) && empty(env('NEON_DB_HOST')) && ! empty(env('ARCHIVE_DB_URL'))) {
+            try {
+                $archiveConn = config('database.connections.archive');
+                if (! empty($archiveConn)) {
+                    config(['database.connections.neon' => $archiveConn]);
+                    \Illuminate\Support\Facades\Log::info("Database connection 'neon' has been aliased to 'archive' at runtime");
+                }
+            } catch (\Throwable $e) {
+                // ignore failures here; the code will fallback to existing config
+            }
+        }
         // Ensure our application-level VerifyCsrfToken middleware (App\Http\Middleware\VerifyCsrfToken)
         // is used in place of the framework class when resolving middleware from the container.
         // This allows our diagnostic logging and local exemptions to run even when the
         // framework references the middleware by the framework FQCN.
         $this->app->bind(\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class, \App\Http\Middleware\VerifyCsrfToken::class);
 
-        // In local environment, also add explicit exclusions to the framework middleware
-        // so that requests matching our local API mount do not trigger CSRF checks.
+        // In local environment, add explicit exclusions to our VerifyCsrfToken
+        // instance so that requests matching our local API mount do not trigger CSRF checks.
         if (app()->environment('local')) {
-            FrameworkVerifyCsrf::except([
-                'abdoulaye.diallo/api/v1/*',
-                'abdoulaye.diallo/api/v1',
-                'api/v1/*',
-            ]);
+            $this->app->resolving(\App\Http\Middleware\VerifyCsrfToken::class, function ($middleware) {
+                if (method_exists($middleware, 'addExcepts')) {
+                    $middleware->addExcepts([
+                        'abdoulaye.diallo/api/v1/*',
+                        'abdoulaye.diallo/api/v1',
+                        'api/v1/*',
+                    ]);
+                }
+            });
         }
     }
 }
