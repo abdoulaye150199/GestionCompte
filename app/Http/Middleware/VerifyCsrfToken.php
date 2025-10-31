@@ -11,12 +11,12 @@ class VerifyCsrfToken extends BaseVerifier
 
     // Exclude our API v1 endpoints from CSRF protection by default. This project
     // mounts the API under a variety of path shapes (with or without the
-    // "khouss.ngom" mount segment and with/without an "api/" prefix). Add the
+    // "abdoulaye.diallo" mount segment and with/without an "api/" prefix). Add the
     // common variants here so production API clients (cURL, Swagger UI, etc.)
     // won't be blocked by VerifyCsrfToken.
     protected $except = [
-        'khouss.ngom/api/v1/comptes/*',
-        'khouss.ngom/api/v1/*',
+        'abdoulaye.diallo/api/v1/comptes/*',
+        'abdoulaye.diallo/api/v1/*',
         'api/v1/*',
         'v1/*',
     ];
@@ -25,7 +25,7 @@ class VerifyCsrfToken extends BaseVerifier
     {
         if (app()->environment('local')) {
             $this->except = [
-                'khouss.ngom/api/v1/*',
+                'abdoulaye.diallo/api/v1/*',
                 'api/v1/*',
             ];
         }

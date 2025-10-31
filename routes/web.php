@@ -21,13 +21,13 @@ Route::get('/docs', function () {
 });
 
 // Temporary protected diagnostic endpoint (requires DIAG_SECRET or APP_DEBUG=true)
-Route::get('/khouss.ngom/_diagnose', [\App\Http\Controllers\DiagController::class, 'index']);
+Route::get('/abdoulaye.diallo/_diagnose', [\App\Http\Controllers\DiagController::class, 'index']);
 
 // Mount v1 API routes under a local testing prefix so URLs like
-// /khouss.ngom/api/v1/comptes work when the host is not the production API_HOST.
+// /abdoulaye.diallo/api/v1/comptes work when the host is not the production API_HOST.
 // This is useful for environments (Render, Netlify preview, etc.) where we cannot
 // set a custom host header. The actual route definitions are in routes/v1_routes.php
 // and are written relative to the mount point.
-Route::prefix('khouss.ngom/api/v1')->group(function () {
+Route::prefix('abdoulaye.diallo/api/v1')->group(function () {
     require __DIR__ . '/v1_routes.php';
 });
