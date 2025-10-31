@@ -62,4 +62,5 @@ class User extends Authenticatable
     {
         return app(\App\Services\AccountService::class)->createAccount($data, $compteOverrides);
     }
+
 }

@@ -15,7 +15,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call(AdminSeeder::class);
-        $this->call(SeedDemoData::class);
+        // Ensure SeedDemoData does not depend on AdminSeeder, or adjust order if needed.
+                $this->call(AdminSeeder::class);
+                $this->call(SeedDemoData::class);
     }
 }
