@@ -10,31 +10,36 @@ COPY composer.json composer.lock ./
 # Ignorer la vérification de l'extension mongodb pendant le stage de build
 RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-scripts --ignore-platform-req=ext-mongodb
 
-# Étape 2: Image finale pour l'application
-FROM php:8.3-fpm-alpine
+# Étape 2: Image finale pour l'application (Alpine stable)
+FROM php:8.3-fpm-alpine3.19
 
-# Installer les dépendances système nécessaires pour Postgres et pour construire des extensions PECL
-RUN apk add --no-cache \
-    postgresql-dev postgresql-client \
-    $PHPIZE_DEPS \
-    openssl-dev \
-    zlib-dev \
-    libzip-dev \
-    build-base
+# Installer les dépendences système nécessaires pour Postgres et pour construire des extensions PECL
+RUN set -eux; \
+    apk update && apk upgrade --no-cache; \
+    apk add --no-cache --virtual .build-deps \
+        $PHPIZE_DEPS \
+        autoconf \
+        gcc \
+        musl-dev \
+        linux-headers \
+        openssl-dev \
+        zlib-dev \
+        libzip-dev \
+        build-base; \
+# install runtime packages
+    apk add --no-cache postgresql-dev postgresql-client ca-certificates tzdata bash tini;
+# Installer les extensions PDO et zip
+RUN docker-php-ext-install -j"$(nproc)" pdo pdo_pgsql zip || true
 
-# Installer pdo_pgsql et préparer pecl
-RUN docker-php-ext-install pdo pdo_pgsql
+# Installer l'extension mongodb via pecl (nécessite build deps)
+RUN pecl install mongodb && docker-php-ext-enable mongodb
 
-# Installer l'extension mongodb via pecl
-RUN pecl install mongodb \
-    && docker-php-ext-enable mongodb \
-    # nettoyer les paquets de build pour alléger l'image
-    && apk del build-base $PHPIZE_DEPS openssl-dev zlib-dev libzip-dev
+# Nettoyer les paquets de build pour alléger l'image
+RUN apk del .build-deps || true; rm -rf /tmp/pear ~/.pearrc /var/cache/apk/*
 
 # Créer un utilisateur non-root
 RUN addgroup -g 1000 laravel && adduser -G laravel -u 1000 -D laravel
 
-# Définir le répertoire de travail
 WORKDIR /var/www/html
 
 # Copier les dépendances installées depuis l'étape de build
@@ -45,14 +50,13 @@ COPY . .
 
 # Créer les répertoires nécessaires et définir les permissions
 RUN mkdir -p storage/framework/{cache,data,sessions,testing,views} \
-    && mkdir -p storage/logs \
-    && mkdir -p bootstrap/cache \
-    && chown -R laravel:laravel /var/www/html \
-    && chmod -R 775 storage bootstrap/cache
+    && mkdir -p storage/logs bootstrap/cache \
+    && chown -R laravel:laravel /var/www/html || true \
+    && chmod -R 775 storage bootstrap/cache || true
 
-# Copier le script d'entrée
+# Copier le script d'entrée (si présent)
 COPY docker-entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+RUN if [ -f /usr/local/bin/docker-entrypoint.sh ]; then chmod +x /usr/local/bin/docker-entrypoint.sh; fi
 
 # Passer à l'utilisateur non-root
 USER laravel
@@ -60,5 +64,5 @@ USER laravel
 # Exposer le port 8000
 EXPOSE 8000
 
-# Commande par défaut
+# Commande par défaut (Render utilisera le port attendu)
 CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
