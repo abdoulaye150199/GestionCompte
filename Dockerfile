@@ -7,17 +7,32 @@ WORKDIR /app
 COPY composer.json composer.lock ./
 
 # Installer les dépendances PHP sans scripts post-install
-RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-scripts
+# Ignorer la vérification de l'extension mongodb pendant le stage de build
+RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-scripts --ignore-platform-req=ext-mongodb
 
 # Étape 2: Image finale pour l'application
 FROM php:8.3-fpm-alpine
 
-# Installer les extensions PHP nécessaires et les outils Postgres
-RUN apk add --no-cache postgresql-dev postgresql-client \
-    && docker-php-ext-install pdo pdo_pgsql
+# Installer les dépendances système nécessaires pour Postgres et pour construire des extensions PECL
+RUN apk add --no-cache \
+    postgresql-dev postgresql-client \
+    $PHPIZE_DEPS \
+    openssl-dev \
+    zlib-dev \
+    libzip-dev \
+    build-base
+
+# Installer pdo_pgsql et préparer pecl
+RUN docker-php-ext-install pdo pdo_pgsql
+
+# Installer l'extension mongodb via pecl
+RUN pecl install mongodb \
+    && docker-php-ext-enable mongodb \
+    # nettoyer les paquets de build pour alléger l'image
+    && apk del build-base $PHPIZE_DEPS openssl-dev zlib-dev libzip-dev
 
 # Créer un utilisateur non-root
-RUN addgroup -g 1000 laravel && adduser -G laravel -g laravel -s /bin/sh -D laravel
+RUN addgroup -g 1000 laravel && adduser -G laravel -u 1000 -D laravel
 
 # Définir le répertoire de travail
 WORKDIR /var/www/html
