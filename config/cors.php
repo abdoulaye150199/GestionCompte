@@ -2,18 +2,19 @@
 
 return [
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    'paths' => ['api/*', 'sanctum/csrf-cookie', 'docs/*'],
 
+    // Allow all methods
     'allowed_methods' => ['*'],
 
-    // Use explicit origins when credentials are supported. Wildcard '*'
-    // incompatible with Access-Control-Allow-Credentials: true in browsers.
-    // Allow all origins for local development / Swagger UI. Note: when using '*',
-    // browsers will not allow credentials (cookies/Authorization with credentials).
-    'allowed_origins' => ['*'],
+    // Explicit allowed origins: local frontend and production Render domain.
+    // If you ever need credentials (cookies/Authorization with credentials),
+    // add the exact origin here and set 'supports_credentials' => true.
+    'allowed_origins' => ['http://localhost:8000', 'https://compte-api-transaction-abdoulaye-diallo.onrender.com'],
 
     'allowed_origins_patterns' => [],
 
+    // Allow all headers
     'allowed_headers' => ['*'],
 
     'exposed_headers' => [
@@ -21,14 +22,10 @@ return [
         'X-Auth-Token'
     ],
 
-    'max_age' => 86400,
-
-    // Disable credentials when using a wildcard origin.
-    'supports_credentials' => false,
-
     // Cache preflight responses for 1 day
     'max_age' => 86400,
 
-    // End of file
+    // Do not support credentials for now (if you enable wildcard '*' you must set this to false)
+    'supports_credentials' => true,
 
 ];

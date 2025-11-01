@@ -16,6 +16,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'logging' => \App\Http\Middleware\LoggingMiddleware::class,
             'cors' => \App\Http\Middleware\CorsMiddleware::class,
         ]);
+        // CORS middleware pour permettre les requêtes depuis Swagger UI
+        $middleware->web(append: [
+            \App\Http\Middleware\CorsMiddleware::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
