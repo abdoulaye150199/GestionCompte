@@ -1,18 +1,34 @@
 <?php
 
 return [
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+
+    'paths' => ['api/*', 'sanctum/csrf-cookie', 'docs', 'docs/*'],
+
     'allowed_methods' => ['*'],
-    'allowed_origins' => [
-        'https://gestioncompte-2.onrender.com',
-        'http://localhost:3000',
-        'http://127.0.0.1:8000',
-        'https://gestioncompte-jmtc.onrender.com',
-        'https://compte-api-transaction-abdoulaye-diallo.onrender.com',
-    ],
+
+    // Use explicit origins when credentials are supported. Wildcard '*'
+    // incompatible with Access-Control-Allow-Credentials: true in browsers.
+    // Allow all origins for local development / Swagger UI. Note: when using '*',
+    // browsers will not allow credentials (cookies/Authorization with credentials).
+    'allowed_origins' => ['*'],
+
     'allowed_origins_patterns' => [],
+
     'allowed_headers' => ['*'],
-    'exposed_headers' => [],
-    'max_age' => 0,
+
+    'exposed_headers' => [
+        'Authorization',
+        'X-Auth-Token'
+    ],
+
+    'max_age' => 86400,
+
+    // Disable credentials when using a wildcard origin.
     'supports_credentials' => false,
+
+    // Cache preflight responses for 1 day
+    'max_age' => 86400,
+
+    // End of file
+
 ];
