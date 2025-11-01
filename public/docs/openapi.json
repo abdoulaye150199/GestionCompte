@@ -11,7 +11,7 @@
             "description": "Local Development Server"
         },
         {
-            "url": "https://compte-api-transaction-abdoulaye-diallo.onrender.com",
+            "url": "https://gestioncompte-2.onrender.com/",
             "description": "Production Environment (Render) - Service de Gestion de Comptes par Abdoulaye Diallo"
         }
     ],
