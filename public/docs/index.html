@@ -5,12 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>API Documentation — Compte API</title>
     <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@4/swagger-ui.css" />
-    <style>html,body{height:100%;margin:0;padding:0}#swagger-ui{height:100vh}</style>
+    <style>html,body{height:100%;margin:0;padding:0}#swagger-ui{height:100vh}body{margin:0}</style>
   </head>
   <body>
     <div id="swagger-ui"></div>
     <script src="https://unpkg.com/swagger-ui-dist@4/swagger-ui-bundle.js"></script>
     <script>
+      // Initialize Swagger UI
       window.onload = function() {
         const ui = SwaggerUIBundle({
           url: '/docs/openapi.json',
@@ -18,31 +19,35 @@
           deepLinking: true,
           presets: [SwaggerUIBundle.presets.apis],
           layout: 'BaseLayout'
-        })
-      }
-    </script>
-  </body>
-</html>
-<!doctype html>
-<html lang="fr">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>API Documentation — Compte API</title>
-    <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@4/swagger-ui.css" />
-    <style>body { margin: 0; }</style>
-  </head>
-  <body>
-    <div id="swagger-ui"></div>
-    <script src="https://unpkg.com/swagger-ui-dist@4/swagger-ui-bundle.js"></script>
-    <script>
-      window.onload = function() {
-        const ui = SwaggerUIBundle({
-          url: '/docs/openapi.json',
-          dom_id: '#swagger-ui',
-          presets: [SwaggerUIBundle.presets.apis],
-          layout: 'BaseLayout'
         });
+
+        // Accessibility helper: remove any label 'for' attributes that don't match an element id
+        // Swagger UI renders parts of the UI asynchronously; use a MutationObserver to keep the DOM clean.
+        const sanitizeLabels = (root = document) => {
+          root.querySelectorAll('label[for]').forEach(label => {
+            const targetId = label.getAttribute('for');
+            if (!targetId || !document.getElementById(targetId)) {
+              // remove the invalid 'for' to avoid accessibility console warnings
+              label.removeAttribute('for');
+            }
+          });
+        };
+
+        // Run once after render
+        setTimeout(() => sanitizeLabels(document.getElementById('swagger-ui') || document), 500);
+
+        // Observe additions inside the swagger-ui root and sanitize newly added nodes
+        const swaggerRoot = document.getElementById('swagger-ui');
+        if (swaggerRoot && 'MutationObserver' in window) {
+          const mo = new MutationObserver(mutations => {
+            for (const m of mutations) {
+              if (m.addedNodes && m.addedNodes.length) {
+                sanitizeLabels(m.target || document);
+              }
+            }
+          });
+          mo.observe(swaggerRoot, { childList: true, subtree: true });
+        }
       };
     </script>
   </body>
