@@ -6,6 +6,9 @@ return [
     'allowed_origins' => [
         'https://gestioncompte-2.onrender.com',
         'http://localhost:3000',
+        'http://127.0.0.1:8000',
+        'https://gestioncompte-jmtc.onrender.com',
+        'https://compte-api-transaction-abdoulaye-diallo.onrender.com',
     ],
     'allowed_origins_patterns' => [],
     'allowed_headers' => ['*'],
