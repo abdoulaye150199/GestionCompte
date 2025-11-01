@@ -10,7 +10,7 @@ return [
     // Explicit allowed origins: local frontend and production Render domain.
     // If you ever need credentials (cookies/Authorization with credentials),
     // add the exact origin here and set 'supports_credentials' => true.
-    'allowed_origins' => ['http://localhost:8000', 'https://compte-api-transaction-abdoulaye-diallo.onrender.com'],
+    'allowed_origins' => ['http://localhost:8000', 'https://compte-api-transaction-abdoulaye-diallo.onrender.com', 'https://gestioncompte-2.onrender.com'],
 
     'allowed_origins_patterns' => [],
 
