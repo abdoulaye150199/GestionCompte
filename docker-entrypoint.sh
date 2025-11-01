@@ -44,5 +44,40 @@ php artisan cache:clear || true
 # Run migrations (non-blocking failure allowed)
 php artisan migrate --force || true
 
+# Ensure storage directory exists and has correct permissions
+mkdir -p storage
+chmod -R 775 storage
+chown -R www-data:www-data storage
+
+# Generate Passport keys if they don't exist
+echo "Checking Passport keys..."
+if [ ! -f storage/oauth-private.key ] || [ ! -f storage/oauth-public.key ]; then
+    echo "Generating Passport encryption keys..."
+    php artisan passport:keys --force || true
+    
+    if [ -f storage/oauth-private.key ] && [ -f storage/oauth-public.key ]; then
+        echo "Passport keys generated successfully"
+        chmod 600 storage/oauth-*.key
+    else
+        echo "Failed to generate Passport keys"
+        exit 1
+    fi
+fi
+
+# Install Passport if needed
+echo "Installing Passport..."
+php artisan passport:install --force || true
+
+# Create Passport client if it doesn't exist
+echo "Creating Passport client if needed..."
+php artisan passport:client --personal --name="GestionCompte" --quiet || true
+
+# Ensure proper permissions on storage directory
+chmod -R 775 storage
+chown -R www-data:www-data storage
+
+# Clear config cache after passport setup
+php artisan config:clear || true
+
 echo "Starting Laravel application..."
 exec "$@"
