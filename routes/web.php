@@ -28,6 +28,6 @@ Route::get('/abdoulaye.diallo/_diagnose', [\App\Http\Controllers\DiagController:
 // This is useful for environments (Render, Netlify preview, etc.) where we cannot
 // set a custom host header. The actual route definitions are in routes/v1_routes.php
 // and are written relative to the mount point.
-Route::prefix('abdoulaye.diallo/api/v1')->group(function () {
-    require __DIR__ . '/v1_routes.php';
-});
+// Route::prefix('abdoulaye.diallo/api/v1')->group(function () {
+//     require __DIR__ . '/v1_routes.php';
+// });
