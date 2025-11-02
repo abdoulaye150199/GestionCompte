@@ -16,6 +16,88 @@
         }
     ],
         "paths": {
+            "/api/v1/login": {
+                "post": {
+                    "summary": "Authentifier un utilisateur (login)",
+                    "tags": ["Auth"],
+                    "description": "Connexion par `identifier` (email, téléphone ou nci) et `password` (connexion normale), ou par `activation_code` (première connexion).\n\n- Pour la première connexion, seul le champ `activation_code` est requis.\n- Pour une connexion normale, fournir `identifier` et `password`.\n\nExemple admin : { \"identifier\": \"laye@gmail.com\", \"password\": \"laye1234\" }.",
+                    "requestBody": {
+                        "required": true,
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "identifier": { "type": "string", "description": "Email, téléphone ou nci" },
+                                        "activation_code": { "type": "string", "description": "Code d'activation pour première connexion" },
+                                        "password": { "type": "string", "description": "Mot de passe pour connexion normale" }
+                                    },
+                                    "example": {
+                                        "identifier": "laye@gmail.com",
+                                        "password": "laye1234"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "responses": {
+                        "200": {
+                            "description": "Connexion réussie",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "access_token": { "type": "string", "description": "Token d'accès JWT" },
+                                            "token_type": { "type": "string", "example": "Bearer" },
+                                            "expires_in": { "type": "integer", "description": "Durée de validité du token (secondes)" },
+                                            "must_change_password": { "type": "boolean", "description": "true si l'utilisateur doit changer son mot de passe après la connexion (first-login)" }
+                                        },
+                                        "example": {
+                                            "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOi...",
+                                            "token_type": "Bearer",
+                                            "expires_in": 3600,
+                                            "must_change_password": false
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "401": { "description": "Identifiants invalides" }
+                    }
+                }
+            },
+
+            "/api/v1/clients/change-password": {
+                "post": {
+                    "summary": "Changer le mot de passe (protected)",
+                    "tags": ["Auth"],
+                    "security": [{ "bearerAuth": [] }],
+                    "requestBody": {
+                        "required": true,
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": ["new_password", "new_password_confirmation"],
+                                    "properties": {
+                                        "current_password": { "type": "string", "description": "Requis sauf si force_password_change=true" },
+                                        "new_password": { "type": "string" },
+                                        "new_password_confirmation": { "type": "string" }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "responses": {
+                        "200": { "description": "Mot de passe mis à jour avec succès" },
+                        "400": { "description": "Données invalides" },
+                        "401": { "description": "Non autorisé" }
+                    }
+                }
+            }
+            ,
+
             "/api/v1/comptes": {
             "get": {
                 "summary": "Lister tous les comptes",
@@ -317,87 +399,6 @@
                 }
             },
 
-            "/api/v1/login": {
-                "post": {
-                    "summary": "Authentifier un utilisateur (login)",
-                    "tags": ["Auth"],
-                    "description": "Connexion par `identifier` (email, téléphone ou nci) et `password` (connexion normale), ou par `activation_code` (première connexion).\n\n- Pour la première connexion, seul le champ `activation_code` est requis.\n- Pour une connexion normale, fournir `identifier` et `password`.\n\nExemple admin : { \"identifier\": \"laye@gmail.com\", \"password\": \"laye1234\" }.",
-                    "requestBody": {
-                        "required": true,
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "identifier": { "type": "string", "description": "Email, téléphone ou nci" },
-                                        "activation_code": { "type": "string", "description": "Code d'activation pour première connexion" },
-                                        "password": { "type": "string", "description": "Mot de passe pour connexion normale" }
-                                    },
-                                    "example": {
-                                        "identifier": "laye@gmail.com",
-                                        "password": "laye1234"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "responses": {
-                        "200": {
-                            "description": "Connexion réussie",
-                            "content": {
-                                "application/json": {
-                                    "schema": {
-                                        "type": "object",
-                                        "properties": {
-                                            "access_token": { "type": "string", "description": "Token d'accès JWT" },
-                                            "token_type": { "type": "string", "example": "Bearer" },
-                                            "expires_in": { "type": "integer", "description": "Durée de validité du token (secondes)" },
-                                            "must_change_password": { "type": "boolean", "description": "true si l'utilisateur doit changer son mot de passe après la connexion (first-login)" }
-                                        },
-                                        "example": {
-                                            "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOi...",
-                                            "token_type": "Bearer",
-                                            "expires_in": 3600,
-                                            "must_change_password": false
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "401": { "description": "Identifiants invalides" }
-                    }
-                }
-            },
-
-            "/api/v1/clients/change-password": {
-                "post": {
-                    "summary": "Changer le mot de passe (protected)",
-                    "tags": ["Auth"],
-                    "security": [{ "bearerAuth": [] }],
-                    "requestBody": {
-                        "required": true,
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "required": ["new_password", "new_password_confirmation"],
-                                    "properties": {
-                                        "current_password": { "type": "string", "description": "Requis sauf si force_password_change=true" },
-                                        "new_password": { "type": "string" },
-                                        "new_password_confirmation": { "type": "string" }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "responses": {
-                        "200": { "description": "Mot de passe mis à jour avec succès" },
-                        "400": { "description": "Données invalides" },
-                        "401": { "description": "Non autorisé" }
-                    }
-                }
-            }
-            ,
             "/api/v1/transactions": {
                 "get": {
                     "summary": "Lister les transactions",
