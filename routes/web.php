@@ -20,6 +20,15 @@ Route::get('/docs', function () {
     abort(404);
 });
 
+// Custom documentation route for abdoulaye.diallo
+Route::get('/abdoulaye.diallo/docs', function () {
+    $path = public_path('docs/index.html');
+    if (file_exists($path)) {
+        return response()->file($path);
+    }
+    abort(404);
+});
+
 // Temporary protected diagnostic endpoint (requires DIAG_SECRET or APP_DEBUG=true)
 Route::get('/abdoulaye.diallo/_diagnose', [\App\Http\Controllers\DiagController::class, 'index']);
 
