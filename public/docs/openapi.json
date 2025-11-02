@@ -46,6 +46,7 @@
                 "summary": "Créer un compte bancaire avec client",
                 "description": "Crée un utilisateur, un client et un compte bancaire avec validation stricte.",
                 "tags": ["Comptes"],
+                "security": [{ "bearerAuth": [] }],
                 "requestBody": {
                 "required": true,
                 "content": {
@@ -115,6 +116,7 @@
             "get": {
                 "summary": "Lister les utilisateurs qui sont clients",
                 "tags": ["Users"],
+                "security": [{ "bearerAuth": [] }],
                 "responses": {
                 "200": {
                     "description": "Liste des clients",
@@ -127,6 +129,7 @@
             "get": {
                 "summary": "Lister les utilisateurs qui sont admins",
                 "tags": ["Users"],
+                "security": [{ "bearerAuth": [] }],
                 "responses": {
                 "200": {
                     "description": "Liste des admins",
@@ -141,6 +144,7 @@
                     "summary": "Trouver un client par telephone ou NCI",
                     "description": "Renvoie le client correspondant au `telephone` ou au `nci`. Au moins un des deux paramètres est requis.",
                     "tags": ["Users"],
+                    "security": [{ "bearerAuth": [] }],
                     "parameters": [
                         { "name": "telephone", "in": "query", "required": false, "schema": { "type": "string", "example": "+221771234567" }, "description": "Numéro de téléphone du client (format international ou local)" },
                         { "name": "nci", "in": "query", "required": false, "schema": { "type": "string", "example": "1234567890123" }, "description": "Numéro de la carte d'identité (NCI)" }

@@ -30,24 +30,24 @@ Route::prefix('v1')->group(function () {
     Route::get('comptes/{numero}', [CompteController::class, 'show'])
         ->middleware(['auth:api', 'admin', \App\Http\Middleware\AccountAccessMiddleware::class]);
 
-    Route::post('accounts', [AccountController::class, 'store'])->middleware('logging');
-    Route::post('comptes', [AccountController::class, 'store'])->middleware('logging');
+    Route::post('accounts', [AccountController::class, 'store'])->middleware(['auth:api', 'admin', 'logging']);
+    Route::post('comptes', [AccountController::class, 'store'])->middleware(['auth:api', 'admin', 'logging']);
 
     Route::post('messages', [MessageController::class, 'send'])->middleware('logging');
 
     // Users
-    Route::get('users/clients', [UserController::class, 'clients']);
-    Route::get('users/admins', [UserController::class, 'admins']);
-    Route::get('users/client', [UserController::class, 'findClient']);
+    Route::get('users/clients', [UserController::class, 'clients'])->middleware(['auth:api', 'admin']);
+    Route::get('users/admins', [UserController::class, 'admins'])->middleware(['auth:api', 'admin']);
+    Route::get('users/client', [UserController::class, 'findClient'])->middleware(['auth:api', 'admin']);
 
     // Health check
     Route::get('health', [HealthController::class, 'index']);
 
     // Transactions
-    Route::get('transactions', [TransactionController::class, 'index'])->middleware('auth:api');
-    Route::get('transactions/{id}', [TransactionController::class, 'show'])->middleware('auth:api');
-    Route::post('transactions', [TransactionController::class, 'store'])->middleware('auth:api');
-    Route::put('transactions/{id}', [TransactionController::class, 'update'])->middleware('auth:api');
+    Route::get('transactions', [TransactionController::class, 'index'])->middleware(['auth:api', 'admin']);
+    Route::get('transactions/{id}', [TransactionController::class, 'show'])->middleware(['auth:api', 'admin']);
+    Route::post('transactions', [TransactionController::class, 'store'])->middleware(['auth:api', 'admin']);
+    Route::put('transactions/{id}', [TransactionController::class, 'update'])->middleware(['auth:api', 'admin']);
     Route::delete('transactions/{id}', [TransactionController::class, 'destroy'])->middleware('auth:api');
 
     // Dashboard

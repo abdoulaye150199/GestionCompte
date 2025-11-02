@@ -16,6 +16,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        // Register the AdminMiddleware in the service container
+        $this->app->bind('admin', \App\Http\Middleware\AdminMiddleware::class);
+
         // Bind the MessageServiceInterface to a concrete implementation.
         // Default: TwilioMessageService (you can change to EmailMessageService or a custom implementation).
         $this->app->bind(MessageServiceInterface::class, function ($app) {
