@@ -1,0 +1,617 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Compte API",
+        "description": "API pour la gestion des comptes, transactions et utilisateurs",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "/api",
+            "description": "API v1 server"
+        }
+    ],
+    "paths": {
+        "/api/v1/ping": {
+            "get": {
+                "tags": [
+                    "Diag"
+                ],
+                "summary": "Ping",
+                "description": "Minimal path example so the generator emits at least one PathItem.",
+                "operationId": "f7cedb64e1fe8b11507ee1d6a9a9fed2",
+                "responses": {
+                    "200": {
+                        "description": "pong"
+                    }
+                }
+            }
+        },
+        "/api/v1/dashboard": {
+            "get": {
+                "tags": [
+                    "Dashboard"
+                ],
+                "summary": "Obtenir les statistiques globales",
+                "description": "Récupère les statistiques globales du système (réservé aux administrateurs)",
+                "operationId": "98b3b05a27244b6b23cffd1fafb72461",
+                "responses": {
+                    "200": {
+                        "description": "Statistiques récupérées avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "total_accounts": {
+                                            "type": "integer",
+                                            "example": 150
+                                        },
+                                        "active_accounts": {
+                                            "type": "integer",
+                                            "example": 120
+                                        },
+                                        "total_transactions": {
+                                            "type": "integer",
+                                            "example": 1000
+                                        },
+                                        "total_amount": {
+                                            "type": "number",
+                                            "format": "float",
+                                            "example": 5000000
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Non authentifié"
+                    },
+                    "403": {
+                        "description": "Non autorisé - Accès admin requis"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/dashboard/me": {
+            "get": {
+                "tags": [
+                    "Dashboard"
+                ],
+                "summary": "Obtenir mes statistiques personnelles",
+                "description": "Récupère les statistiques personnelles de l'utilisateur connecté",
+                "operationId": "e60e65bba2f797b6938312003e5ee6bc",
+                "responses": {
+                    "200": {
+                        "description": "Statistiques récupérées avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "my_accounts": {
+                                            "type": "integer",
+                                            "example": 3
+                                        },
+                                        "total_balance": {
+                                            "type": "number",
+                                            "format": "float",
+                                            "example": 150000
+                                        },
+                                        "monthly_transactions": {
+                                            "type": "integer",
+                                            "example": 25
+                                        },
+                                        "last_transaction_date": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2025-11-02T10:00:00Z"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Non authentifié"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/transactions": {
+            "get": {
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "Liste des transactions (admin) ou transactions du client connecté",
+                "operationId": "0ffe6bf7980513c9d322e1ba4d400ff2",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "Créer une nouvelle transaction",
+                "operationId": "b0ee1d82e907b370897f7c2adde8a664",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "type",
+                                    "montant",
+                                    "compte_id"
+                                ],
+                                "properties": {
+                                    "type": {
+                                        "description": "Type de transaction (depot/retrait)",
+                                        "type": "string",
+                                        "example": "depot"
+                                    },
+                                    "montant": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 1000
+                                    },
+                                    "compte_id": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "example": "550e8400-e29b-41d4-a716-446655440000"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Dépôt initial"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Transaction créée avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Transaction effectuée avec succès"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erreur de validation"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/transactions/{id}": {
+            "get": {
+                "tags": [
+                    "Transactions"
+                ],
+                "operationId": "c9e072c8c645241005e971a691e8338e",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "Mettre à jour une transaction existante",
+                "operationId": "7be6f226f094053033fa504c693d257c",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID de la transaction à mettre à jour",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "status": {
+                                        "type": "string",
+                                        "example": "completed"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Mise à jour de la description"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Transaction mise à jour avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Transaction mise à jour"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Transaction non trouvée"
+                    },
+                    "422": {
+                        "description": "Erreur de validation"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Transactions"
+                ],
+                "operationId": "db289b0d1fea21825cc577ddeb7f2157",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Deleted"
+                    }
+                }
+            }
+        },
+        "/api/v1/comptes/{id}/archive": {
+            "post": {
+                "tags": [
+                    "Comptes"
+                ],
+                "summary": "Archive un compte au lieu de le supprimer",
+                "operationId": "16b8e4024426829ce5374d752f8c2f36",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Identifiant du compte : UUID (id) ou numéro de compte (numero_compte)",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Compte archivé (job en file pour déplacement vers la base tampon)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "numeroCompte": {
+                                            "type": "string"
+                                        },
+                                        "movedToBuffer": {
+                                            "type": "string",
+                                            "example": "queued"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Compte introuvable"
+                    },
+                    "400": {
+                        "description": "Requête invalide"
+                    },
+                    "500": {
+                        "description": "Erreur serveur lors de l'archivage"
+                    }
+                }
+            }
+        },
+        "/api/v1/comptes/mes-comptes": {
+            "get": {
+                "tags": [
+                    "Comptes"
+                ],
+                "summary": "Liste les comptes du client connecté",
+                "operationId": "b31be0308e2c506b146a6b97f3076020",
+                "responses": {
+                    "200": {
+                        "description": "Liste des comptes du client"
+                    }
+                }
+            }
+        },
+        "/api/v1/comptes/{numero}": {
+            "get": {
+                "tags": [
+                    "Comptes"
+                ],
+                "summary": "Détail d’un compte par numéro",
+                "operationId": "0210219b689fdc768ead8c77093b3cc2",
+                "parameters": [
+                    {
+                        "name": "numero",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Détail du compte"
+                    }
+                }
+            }
+        },
+        "/api/v1/comptes": {
+            "get": {
+                "tags": [
+                    "Comptes"
+                ],
+                "summary": "Liste les comptes",
+                "operationId": "d16f17ad17479ebd0c6128dfd225a998",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Numéro de la page",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Nombre d'éléments par page",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 10
+                        }
+                    },
+                    {
+                        "name": "sort",
+                        "in": "query",
+                        "description": "Champ de tri",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "date_creation"
+                        }
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "description": "Ordre de tri (asc ou desc)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "desc",
+                            "enum": [
+                                "asc",
+                                "desc"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Liste des comptes récupérée avec succès"
+                    }
+                }
+            }
+        },
+        "/api/v1/comptes/{compte}/bloquer-v2": {
+            "post": {
+                "tags": [
+                    "Comptes"
+                ],
+                "summary": "Bloquer un compte (motif + durée)",
+                "description": "New API: bloquer using motif/duree/unite payload and immediate application when applicable.",
+                "operationId": "dde15dfea4831881edcb4c2d8fdbb221",
+                "parameters": [
+                    {
+                        "name": "compte",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "motif",
+                                    "duree",
+                                    "unite"
+                                ],
+                                "properties": {
+                                    "motif": {
+                                        "type": "string",
+                                        "example": "Suspicion de fraude"
+                                    },
+                                    "duree": {
+                                        "type": "integer",
+                                        "example": 30
+                                    },
+                                    "unite": {
+                                        "description": "jours|mois|annees",
+                                        "type": "string",
+                                        "example": "jours"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Compte bloqué / données renvoyées"
+                    }
+                }
+            }
+        },
+        "/api/v1/comptes/{compte}/debloquer": {
+            "post": {
+                "tags": [
+                    "Comptes"
+                ],
+                "summary": "Débloquer un compte (motif)",
+                "description": "Debloquer an account (manual endpoint).",
+                "operationId": "eae05905368baf99959e755e19866793",
+                "parameters": [
+                    {
+                        "name": "compte",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "motif"
+                                ],
+                                "properties": {
+                                    "motif": {
+                                        "type": "string",
+                                        "example": "Contrôle terminé"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Compte débloqué / données renvoyées"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Comptes",
+            "description": "Opérations sur les comptes"
+        },
+        {
+            "name": "Transactions",
+            "description": "Opérations sur les transactions"
+        },
+        {
+            "name": "Dashboard",
+            "description": "Statistiques et tableaux de bord"
+        },
+        {
+            "name": "Diag",
+            "description": "Diag"
+        }
+    ]
+}

@@ -59,8 +59,27 @@ class TransactionController extends Controller
      * @OA\Post(
      *   path="/api/v1/transactions",
      *   tags={"Transactions"},
-     *   @OA\RequestBody(@OA\JsonContent(ref="#/components/schemas/StoreTransactionRequest")),
-     *   @OA\Response(response=201, description="Created")
+     *   summary="Créer une nouvelle transaction",
+     *   @OA\RequestBody(
+     *     required=true,
+     *     @OA\JsonContent(
+     *       required={"type", "montant", "compte_id"},
+     *       @OA\Property(property="type", type="string", example="depot", description="Type de transaction (depot/retrait)"),
+     *       @OA\Property(property="montant", type="number", format="float", example=1000.00),
+     *       @OA\Property(property="compte_id", type="string", format="uuid", example="550e8400-e29b-41d4-a716-446655440000"),
+     *       @OA\Property(property="description", type="string", example="Dépôt initial")
+     *     )
+     *   ),
+     *   @OA\Response(
+     *     response=201,
+     *     description="Transaction créée avec succès",
+     *     @OA\JsonContent(
+     *       @OA\Property(property="message", type="string", example="Transaction effectuée avec succès"),
+     *       @OA\Property(property="data", type="object")
+     *     )
+     *   ),
+     *   @OA\Response(response=422, description="Erreur de validation"),
+     *   security={{"bearerAuth":{}}}
      * )
      */
     public function store(StoreTransactionRequest $request)
@@ -81,9 +100,32 @@ class TransactionController extends Controller
      * @OA\Put(
      *   path="/api/v1/transactions/{id}",
      *   tags={"Transactions"},
-     *   @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="string")),
-     *   @OA\RequestBody(@OA\JsonContent(ref="#/components/schemas/UpdateTransactionRequest")),
-     *   @OA\Response(response=200, description="Updated")
+     *   summary="Mettre à jour une transaction existante",
+     *   @OA\Parameter(
+     *     name="id",
+     *     in="path",
+     *     required=true,
+     *     description="ID de la transaction à mettre à jour",
+     *     @OA\Schema(type="string", format="uuid")
+     *   ),
+     *   @OA\RequestBody(
+     *     required=true,
+     *     @OA\JsonContent(
+     *       @OA\Property(property="status", type="string", example="completed"),
+     *       @OA\Property(property="description", type="string", example="Mise à jour de la description")
+     *     )
+     *   ),
+     *   @OA\Response(
+     *     response=200,
+     *     description="Transaction mise à jour avec succès",
+     *     @OA\JsonContent(
+     *       @OA\Property(property="message", type="string", example="Transaction mise à jour"),
+     *       @OA\Property(property="data", type="object")
+     *     )
+     *   ),
+     *   @OA\Response(response=404, description="Transaction non trouvée"),
+     *   @OA\Response(response=422, description="Erreur de validation"),
+     *   security={{"bearerAuth":{}}}
      * )
      */
     public function update(UpdateTransactionRequest $request, $id)

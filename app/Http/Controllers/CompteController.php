@@ -122,18 +122,42 @@ class CompteController extends Controller
     }
 
     /**
-     * @OA\Post(
-     *     path="/api/v1/comptes/{id}/archive",
-     *     summary="Archive un compte au lieu de le supprimer",
+     * @OA\Get(
+     *     path="/api/v1/comptes",
+     *     summary="Liste les comptes",
      *     tags={"Comptes"},
-    *     @OA\Parameter(
-    *         name="id",
-    *         in="path",
-    *         required=true,
-    *         description="Identifiant du compte : UUID (id) ou numéro de compte (numero_compte)",
-    *         @OA\Schema(type="string")
-    *     ),
-     *     @OA\Response(response=200, description="Compte archivé")
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="Numéro de la page",
+     *         required=false,
+     *         @OA\Schema(type="integer", default=1)
+     *     ),
+     *     @OA\Parameter(
+     *         name="limit",
+     *         in="query", 
+     *         description="Nombre d'éléments par page",
+     *         required=false,
+     *         @OA\Schema(type="integer", default=10)
+     *     ),
+     *     @OA\Parameter(
+     *         name="sort",
+     *         in="query",
+     *         description="Champ de tri",
+     *         required=false,
+     *         @OA\Schema(type="string", example="date_creation")
+     *     ),
+     *     @OA\Parameter(
+     *         name="order",
+     *         in="query",
+     *         description="Ordre de tri (asc ou desc)",
+     *         required=false,
+     *         @OA\Schema(type="string", enum={"asc", "desc"}, default="desc")
+     *     ),
+     *     @OA\Response(
+     *         response=200, 
+     *         description="Liste des comptes récupérée avec succès"
+     *     )
      * )
      */
     public function archive($id)

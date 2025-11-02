@@ -43,6 +43,9 @@ Route::prefix('v1')->group(function () {
     // Health check
     Route::get('health', [HealthController::class, 'index']);
 
+    // Dashboard
+    Route::get('dashboard', [DashboardController::class, 'global'])->middleware(['auth:api', 'admin']);
+
     // Transactions
     Route::get('transactions', [TransactionController::class, 'index'])->middleware(['auth:api', 'admin']);
     Route::get('transactions/{id}', [TransactionController::class, 'show'])->middleware(['auth:api', 'admin']);

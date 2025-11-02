@@ -22,6 +22,7 @@ namespace App\Docs\Swagger;
  * @OA\Tag(name="Transactions", description="Opérations sur les transactions")
  * @OA\Tag(name="Users", description="Opérations sur les utilisateurs")
  * @OA\Tag(name="Auth", description="Authentification et tokens")
+ * @OA\Tag(name="Dashboard", description="Statistiques et tableaux de bord")
  */
 final class ApiInfo
 {
